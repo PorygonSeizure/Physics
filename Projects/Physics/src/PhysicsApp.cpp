@@ -66,6 +66,7 @@ bool PhysicsApp::Update(float deltaTime)
 
 	m_objects->Update(glm::vec3(0, -0.98, 0), deltaTime);
 	m_physicsScene->CheckForCollision();
+	m_physicsScene->ResolveCollisions();
 
 	glm::vec4 forwardVec = m_camera->GetTransform()[2];
 	glm::vec4 rightVec = m_camera->GetTransform()[0];

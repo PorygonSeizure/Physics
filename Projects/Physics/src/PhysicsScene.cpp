@@ -59,6 +59,7 @@ void PhysicsScene::CheckForCollision()
 	//	}
 	//}
 
+	m_collisions.clear();
 	bool collision = false;
 	
 	//for (int outer = 0; outer < objectsCount - 1; outer++)
@@ -70,7 +71,9 @@ void PhysicsScene::CheckForCollision()
 			PhysicsObject* object1 = (*iter0);
 			PhysicsObject* object2 = (*iter1);
 			
-			IntersectionData data;
+			IntersectData data;
+			data.obj1 = object1;
+			data.obj2 = object2;
 
 			switch (object1->GetShapeID())
 			{
@@ -78,43 +81,79 @@ void PhysicsScene::CheckForCollision()
 				switch (object2->GetShapeID())
 				{
 				case PLANE:
-					collision = Plane2Plane(object1, object2, data);
+					collision = Plane2Plane(object1, object2, &data);
+					break;
 				case SPHERE:
-					collision = Plane2Sphere(object1, object2, data);
+					collision = Plane2Sphere(object1, object2, &data);
+					break;
 				case BOX:
-					collision = Plane2Box(object1, object2, data);
+					collision = Plane2Box(object1, object2, &data);
+					break;
 				}
+				break;
 			case SPHERE:
 				switch (object2->GetShapeID())
 				{
 				case PLANE:
-					collision = Sphere2Plane(object1, object2, data);
+					collision = Sphere2Plane(object1, object2, &data);
+					break;
 				case SPHERE:
-					collision = Sphere2Sphere(object1, object2, data);
+					collision = Sphere2Sphere(object1, object2, &data);
+					break;
 				case BOX:
-					collision = Sphere2Box(object1, object2, data);
+					collision = Sphere2Box(object1, object2, &data);
+					break;
 				}
+				break;
 			case BOX:
 				switch (object2->GetShapeID())
 				{
 				case PLANE:
-					collision = Box2Plane(object1, object2, data);
+					collision = Box2Plane(object1, object2, &data);
+					break;
 				case SPHERE:
-					collision = Box2Sphere(object1, object2, data);
+					collision = Box2Sphere(object1, object2, &data);
+					break;
 				case BOX:
-					collision = Box2Box(object1, object2, data);
+					collision = Box2Box(object1, object2, &data);
+					break;
 				}
+				break;
 			}
 
 			if (collision)
 			{
+				m_collisions.push_back(&data);
 				collision = false;
 			}
 		}
 	}
 }
 
-bool PhysicsScene::Plane2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+void PhysicsScene::ResolveCollisions()
+{
+	for (auto iter0 = m_collisions.begin(); iter0 != m_collisions.end(); iter0++)
+	{
+		for (auto iter1 = m_physicsObjects.begin(); iter1 != m_physicsObjects.end(); iter1++)
+		{
+			if ((*iter0)->obj1 == (*iter1))
+			{
+				for (auto iter2 = iter1 + 1; iter2 != m_physicsObjects.end(); iter2++)
+				{
+					if ((*iter0)->obj2 == (*iter2))
+					{
+						vec3 vec = (*iter0)->collisionVec;
+
+						(*iter1)->SetPosition((*iter1)->GetPosition() + vec);
+						(*iter2)->SetPosition((*iter2)->GetPosition() - vec);
+					}
+				}
+			}
+		}
+	}
+}
+
+bool PhysicsScene::Plane2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Plane* plane1 = dynamic_cast<Plane*>(object1);
 	Plane* plane2 = dynamic_cast<Plane*>(object2);
@@ -125,19 +164,19 @@ bool PhysicsScene::Plane2Plane(PhysicsObject* object1, PhysicsObject* object2, I
 	return false;
 }
 
-bool PhysicsScene::Plane2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Plane2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Plane* plane1 = dynamic_cast<Plane*>(object1);
 	Sphere* sphere2 = dynamic_cast<Sphere*>(object2);
 	if (plane1 != NULL && sphere2 != NULL)
 	{
 		vec3 temp(sphere2->GetPosition() - vec3(0.f, plane1->m_distanceToOrigin, 0.f));
-		return (glm::dot(plane1->m_normal, temp) <= sphere2->GetRadius());
+		return (glm::dot(plane1->m_normal, temp) < sphere2->GetRadius());
 	}
 	return false;
 }
 
-bool PhysicsScene::Plane2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Plane2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Plane* plane1 = dynamic_cast<Plane*>(object1);
 	Box* box2 = dynamic_cast<Box*>(object2);
@@ -152,19 +191,19 @@ bool PhysicsScene::Plane2Box(PhysicsObject* object1, PhysicsObject* object2, Int
 	return false;
 }
 
-bool PhysicsScene::Sphere2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Sphere2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Sphere* sphere1 = dynamic_cast<Sphere*>(object1);
 	Plane* plane2 = dynamic_cast<Plane*>(object2);
 	if (sphere1 != NULL && plane2 != NULL)
 	{
 		vec3 temp(sphere1->GetPosition() - vec3(0.f, plane2->m_distanceToOrigin, 0.f));
-		return (glm::dot(plane2->m_normal, temp) <= sphere1->GetRadius());
+		return (glm::dot(plane2->m_normal, temp) < sphere1->GetRadius());
 	}
 	return false;
 }
 
-bool PhysicsScene::Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Sphere* sphere1 = dynamic_cast<Sphere*>(object1);
 	Sphere* sphere2 = dynamic_cast<Sphere*>(object2);
@@ -172,13 +211,22 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2,
 	{
 		float temp1 = glm::distance(sphere1->GetPosition(), sphere2->GetPosition());
 		float temp2 = (sphere1->GetRadius() + sphere2->GetRadius());
-		//temp2 *= temp2;
-		return (temp1 <= temp2);
+		if (temp1 < temp2)
+		{
+			vec3 dist = sphere1->GetPosition() - sphere2->GetPosition();
+			if (data != nullptr)
+			{
+				//data->obj1 = object1;
+				//data->obj2 = object2;
+				data->collisionVec = glm::normalize(dist) * (temp2 - temp1);
+			}
+			return true;
+		}
 	}
 	return false;
 }
 
-bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Sphere* sphere1 = dynamic_cast<Sphere*>(object1);
 	Box* box2 = dynamic_cast<Box*>(object2);
@@ -186,12 +234,12 @@ bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, In
 	{
 		vec3 pc(glm::clamp(sphere1->GetPosition(), box2->m_minVert, box2->m_maxVert));
 		vec3 temp(sphere1->GetPosition() - pc);
-		return (glm::dot(temp, temp) <= (sphere1->GetRadius() * sphere1->GetRadius()));
+		return (glm::dot(temp, temp) < (sphere1->GetRadius() * sphere1->GetRadius()));
 	}
 	return false;
 }
 
-bool PhysicsScene::Box2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Box2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Box* box1 = dynamic_cast<Box*>(object1);
 	Plane* plane2 = dynamic_cast<Plane*>(object2);
@@ -201,12 +249,12 @@ bool PhysicsScene::Box2Plane(PhysicsObject* object1, PhysicsObject* object2, Int
 		float temp2 = ((box1->m_length / 2.f) * glm::abs(glm::dot(plane2->m_normal, vec3(1.f, 0.f, 0.f))));
 		temp2 += ((box1->m_height / 2.f) * glm::abs(glm::dot(plane2->m_normal, vec3(0.f, 1.f, 0.f))));
 		temp2 += ((box1->m_width / 2.f) * glm::abs(glm::dot(plane2->m_normal, vec3(0.f, 0.f, 1.f))));
-		return (temp1 <= temp2);
+		return (temp1 < temp2);
 	}
 	return false;
 }
 
-bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Box* box1 = dynamic_cast<Box*>(object1);
 	Sphere* sphere2 = dynamic_cast<Sphere*>(object2);
@@ -214,20 +262,20 @@ bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, In
 	{
 		vec3 pc(glm::clamp(sphere2->GetPosition(), box1->m_minVert, box1->m_maxVert));
 		vec3 temp(sphere2->GetPosition() - pc);
-		return (glm::dot(temp, temp) <= (sphere2->GetRadius() * sphere2->GetRadius()));
+		return (glm::dot(temp, temp) < (sphere2->GetRadius() * sphere2->GetRadius()));
 	}
 	return false;
 }
 
-bool PhysicsScene::Box2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data)
+bool PhysicsScene::Box2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Box* box1 = dynamic_cast<Box*>(object1);
 	Box* box2 = dynamic_cast<Box*>(object2);
 	if (box1 != NULL && box2 != NULL)
 	{
-		bool temp1 = (box1->m_maxVert.x >= box2->m_minVert.x && box2->m_maxVert.x >= box1->m_minVert.x);
-		bool temp2 = (box1->m_maxVert.y >= box2->m_minVert.y && box2->m_maxVert.y >= box1->m_minVert.y);
-		bool temp3 = (box1->m_maxVert.z >= box2->m_minVert.z && box2->m_maxVert.z >= box1->m_minVert.z);
+		bool temp1 = (box1->m_maxVert.x > box2->m_minVert.x && box2->m_maxVert.x > box1->m_minVert.x);
+		bool temp2 = (box1->m_maxVert.y > box2->m_minVert.y && box2->m_maxVert.y > box1->m_minVert.y);
+		bool temp3 = (box1->m_maxVert.z > box2->m_minVert.z && box2->m_maxVert.z > box1->m_minVert.z);
 		return (temp1 && temp2 && temp3);
 	}
 	return false;

@@ -15,12 +15,6 @@ enum ShapeType
 class PhysicsObject
 {
 public:
-	
-	struct IntersectionData
-	{
-		glm::vec3 collisionVec;
-	};
-
 	PhysicsObject(ShapeType shapeID) : m_shapeID(shapeID) {}
 	virtual ~PhysicsObject() {}
 
@@ -30,10 +24,13 @@ public:
 	virtual void ResetPosition() {}
 
 	ShapeType GetShapeID() { return m_shapeID; }
+	virtual inline void SetPosition(glm::vec3 position) { m_position = position; }
+	virtual inline const glm::vec3& GetPosition() const { return m_position; }
 
 protected:
 	ShapeType m_shapeID;
-	//IntersectData m_data;
+
+	glm::vec3 m_position;
 };
 }
 

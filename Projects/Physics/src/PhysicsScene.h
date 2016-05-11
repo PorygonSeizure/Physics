@@ -8,8 +8,10 @@
 namespace Physics
 {
 class PhysicsObject;
-struct IntersectionData
+struct IntersectData
 {
+	PhysicsObject* obj1;
+	PhysicsObject* obj2;
 	glm::vec3 collisionVec;
 };
 
@@ -36,19 +38,21 @@ public:
 	const std::vector<PhysicsObject*>& GetPhysicsObject() const { return m_physicsObjects; }
 
 	void CheckForCollision();
+	void ResolveCollisions();
 
-	bool Plane2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Plane2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Plane2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Sphere2Plane (PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Box2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
-	bool Box2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectionData& data);
+	bool Plane2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Plane2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Plane2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Sphere2Plane (PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Box2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
+	bool Box2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data);
 
 protected:
 	std::vector<PhysicsObject*> m_physicsObjects;
+	std::vector<IntersectData*> m_collisions;
 };
 }
 

@@ -18,13 +18,11 @@ public:
 	void ApplyForce(glm::vec3 force);
 	void ApplyForceToActor(RigidBody* otherBody, glm::vec3 force);
 
-	virtual inline void SetPosition(glm::vec3 position) { m_position = position; }
 	virtual inline void SetVelocity(glm::vec3 velocity) { m_velocity = velocity; }
 	virtual inline void SetAcceleration(glm::vec3 acceleration) { m_acceleration = acceleration; }
 	virtual inline void SetMass(float mass) { m_mass = mass; m_invMass = 1.f / mass; }
 	virtual inline void SetDampening(float dampening) { m_dampening = glm::max(0.f, glm::min(1.f, dampening)); }
 
-	virtual inline const glm::vec3& GetPosition() const { return m_position; }
 	virtual inline const glm::vec3& GetVelocity() const { return m_velocity; }
 	virtual inline const glm::vec3& GetAcceleration() const { return m_acceleration; }
 
@@ -33,7 +31,6 @@ public:
 	virtual inline const float& GetDampening() const { return m_dampening; }
 
 protected:
-	glm::vec3 m_position;
 	glm::vec3 m_velocity;
 	glm::vec3 m_acceleration;
 
