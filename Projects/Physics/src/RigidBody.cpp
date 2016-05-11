@@ -17,3 +17,9 @@ void RigidBody::ApplyForce(glm::vec3 force)
 {
 	m_acceleration += force / m_mass;
 }
+
+void RigidBody::ApplyForceToActor(RigidBody* otherBody, glm::vec3 force)
+{
+	ApplyForce(-force);
+	otherBody->ApplyForce(force);
+}

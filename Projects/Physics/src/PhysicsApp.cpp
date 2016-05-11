@@ -80,7 +80,7 @@ bool PhysicsApp::Update(float deltaTime)
 	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		m_objects->ApplyForce(glm::vec3(rightVec * 10.f));
 
-	m_physicsScene->Simulate(glm::vec3(0, -0.98, 0), deltaTime);
+	m_physicsScene->Simulate(glm::vec3(0, 0.98, 0), deltaTime);
 
 	//return true, else the application closes
 	return true;

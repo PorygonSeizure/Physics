@@ -1,6 +1,7 @@
 #include "PhysicsRenderer.h"
 #include "PhysicsScene.h"
-#include "PhysicsObject.h"
+//#include "PhysicsObject.h"
+#include "RigidBody.h"
 #include <Gizmos.h>
 #include <glm/glm.hpp>
 
@@ -20,4 +21,4 @@ void PhysicsRenderer::Render(PhysicsScene* scene)
 	}
 }
 
-PhysicsRenderer::RenderInfo* PhysicsRenderer::GetRenderInfo(PhysicsObject* object) { return &m_renderInfo[object]; }
+PhysicsRenderer::RenderInfo* PhysicsRenderer::GetRenderInfo(RigidBody* object) { return &m_renderInfo[object]; }

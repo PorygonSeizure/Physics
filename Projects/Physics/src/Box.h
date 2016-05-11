@@ -23,15 +23,16 @@ public:
 	void SetWidth(float width);
 	void CreateAABB();
 
+	glm::vec3 GetMinVert() { return m_minVert; }
+	glm::vec3 GetMaxVert() { return m_maxVert; }
+
+protected:
 	float m_length;
 	float m_height;
 	float m_width;
 
 	glm::vec3 m_minVert;
 	glm::vec3 m_maxVert;
-
-protected:
-	
 };
 }
 
