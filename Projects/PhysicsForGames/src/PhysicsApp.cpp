@@ -129,7 +129,7 @@ void AddWidget(PxShape* shape, PxRigidActor* actor, vec4 geoColor)
 	glm::quat actorRotation(fullTransform.q.w, fullTransform.q.x, fullTransform.q.y, fullTransform.q.z);
 	glm::mat4 rot(actorRotation);
 
-	mat4 rotateMatrix = glm::rotate(10.f, glm::vec3(7, 7, 7));
+	mat4 rotateMatrix = glm::rotate(10.f, vec3(7, 7, 7));
 
 	PxGeometryType::Enum geoType = shape->getGeometryType();
 
@@ -222,66 +222,89 @@ void PhysicsApp::RenderGizmos(physx::PxScene* physicsScene)
 
 #if _DEBUG
 
-void FormatDebugOutputARB(char outStr[], size_t outStrSize, GLenum source, GLenum type,
-    GLuint id, GLenum severity, const char *msg)
+void FormatDebugOutputARB(char outStr[], size_t outStrSize, GLenum source, GLenum type, GLuint id, GLenum severity, const char* msg)
 {
     char sourceStr[512];
-    const char *sourceFmt = "UNDEFINED(0x%04X)";
+    const char* sourceFmt = "UNDEFINED(0x%04X)";
     switch (source)
-
     {
-    case GL_DEBUG_SOURCE_API:             sourceFmt = "API"; break;
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceFmt = "WINDOW_SYSTEM"; break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceFmt = "SHADER_COMPILER"; break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceFmt = "THIRD_PARTY"; break;
-    case GL_DEBUG_SOURCE_APPLICATION:     sourceFmt = "APPLICATION"; break;
-    case GL_DEBUG_SOURCE_OTHER:           sourceFmt = "OTHER"; break;
+    case GL_DEBUG_SOURCE_API:
+		sourceFmt = "API";
+		break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+		sourceFmt = "WINDOW_SYSTEM";
+		break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+		sourceFmt = "SHADER_COMPILER";
+		break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+		sourceFmt = "THIRD_PARTY";
+		break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+		sourceFmt = "APPLICATION";
+		break;
+    case GL_DEBUG_SOURCE_OTHER:
+		sourceFmt = "OTHER";
+		break;
     }
 
     _snprintf_s(sourceStr, 256, sourceFmt, source);
 
     char typeStr[512];
-    const char *typeFmt = "UNDEFINED(0x%04X)";
+    const char* typeFmt = "UNDEFINED(0x%04X)";
     switch (type)
     {
-
-    case GL_DEBUG_TYPE_ERROR:               typeFmt = "ERROR"; break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeFmt = "DEPRECATED_BEHAVIOR"; break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeFmt = "UNDEFINED_BEHAVIOR"; break;
-    case GL_DEBUG_TYPE_PORTABILITY:         typeFmt = "PORTABILITY"; break;
-    case GL_DEBUG_TYPE_PERFORMANCE:         typeFmt = "PERFORMANCE"; break;
-    case GL_DEBUG_TYPE_OTHER:               typeFmt = "OTHER"; break;
+    case GL_DEBUG_TYPE_ERROR:
+		typeFmt = "ERROR";
+		break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		typeFmt = "DEPRECATED_BEHAVIOR";
+		break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		typeFmt = "UNDEFINED_BEHAVIOR";
+		break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+		typeFmt = "PORTABILITY";
+		break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+		typeFmt = "PERFORMANCE";
+		break;
+    case GL_DEBUG_TYPE_OTHER:
+		typeFmt = "OTHER";
+		break;
     }
     _snprintf(typeStr, 256, typeFmt, type);
 
 
     char severityStr[512];
-    const char *severityFmt = "UNDEFINED";
+    const char* severityFmt = "UNDEFINED";
     switch (severity)
     {
-    case GL_DEBUG_SEVERITY_HIGH:   severityFmt = "HIGH";   break;
-    case GL_DEBUG_SEVERITY_MEDIUM: severityFmt = "MEDIUM"; break;
-    case GL_DEBUG_SEVERITY_LOW:    severityFmt = "LOW"; break;
+    case GL_DEBUG_SEVERITY_HIGH:
+		severityFmt = "HIGH";
+		break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+		severityFmt = "MEDIUM";
+		break;
+    case GL_DEBUG_SEVERITY_LOW:
+		severityFmt = "LOW";
+		break;
     }
 
     _snprintf(severityStr, 256, severityFmt, severity);
 
-    _snprintf(outStr, outStrSize, "OpenGL: %s [source=%s type=%s severity=%s id=%d]",
-        msg, sourceStr, typeStr, severityStr, id);
+    _snprintf(outStr, outStrSize, "OpenGL: %s [source=%s type=%s severity=%s id=%d]", msg, sourceStr, typeStr, severityStr, id);
 }
 
-void __stdcall DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
-    GLsizei length, const GLchar *message, GLvoid *userParam)
+void __stdcall DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 {
     (void)length;
-    FILE *outFile = (FILE*)userParam;
+    FILE* outFile = (FILE*)userParam;
     char finalMessage[512];
     FormatDebugOutputARB(finalMessage, 256, source, type, id, severity, message);
 
     if (type != GL_DEBUG_TYPE_OTHER)
-    {
         fprintf(outFile, "%s\n", finalMessage);
-    }
 }
 
 #endif

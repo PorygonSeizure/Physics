@@ -10,9 +10,9 @@ Box::~Box()
 
 }
 
-void Box::Update(float deltaTime)
+void Box::Update(glm::vec3 gravity, float deltaTime)
 {
-
+	RigidBody::Update(gravity, deltaTime);
 }
 
 void Box::Debug()
@@ -27,7 +27,7 @@ void Box::MakeGizmo(glm::vec4 color)
 
 void Box::ApplyForce(vec3 force)
 {
-
+	RigidBody::ApplyForce(force);
 }
 
 void Box::SetLength(float length)

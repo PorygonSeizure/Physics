@@ -1,8 +1,9 @@
 #include "RigidBody.h"
 
 using namespace Physics;
+using glm::vec3;
 
-void RigidBody::Update(glm::vec3 gravity, float deltaTime)
+void RigidBody::Update(vec3 gravity, float deltaTime)
 {
 	//apply some fake friction
 	ApplyForce(-m_velocity * m_dampening);
@@ -13,12 +14,12 @@ void RigidBody::Update(glm::vec3 gravity, float deltaTime)
 	m_acceleration = gravity;
 }
 
-void RigidBody::ApplyForce(glm::vec3 force)
+void RigidBody::ApplyForce(vec3 force)
 {
 	m_acceleration += force / m_mass;
 }
 
-void RigidBody::ApplyForceToActor(RigidBody* otherBody, glm::vec3 force)
+void RigidBody::ApplyForceToActor(RigidBody* otherBody, vec3 force)
 {
 	ApplyForce(-force);
 	otherBody->ApplyForce(force);

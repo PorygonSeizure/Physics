@@ -7,6 +7,8 @@
 
 using namespace Physics;
 using glm::vec3;
+using glm::dot;
+using glm::normalize;
 
 void PhysicsScene::Simulate(vec3 gravity, float deltaTime)
 {
@@ -14,7 +16,18 @@ void PhysicsScene::Simulate(vec3 gravity, float deltaTime)
 	{
 		RigidBody* obj = (*iter);
 		obj->Update(gravity, deltaTime);
+
+		const vec3& pos = obj->GetPosition();
+		const vec3& vel = obj->GetVelocity();
+		if (pos.y < 0)
+		{
+			obj->SetPosition(vec3(pos.x, 0.f, pos.z));
+			obj->SetVelocity(vec3(vel.x, -vel.y, vel.z));
+		}
 	}
+
+	CheckForCollision();
+	ResolveCollisions();
 }
 
 void PhysicsScene::DestroyPhysicsObject(RigidBody* object)
@@ -157,6 +170,14 @@ void PhysicsScene::ResolveCollisions()
 							(*iter1)->SetPosition((*iter1)->GetPosition() - seperationVec);
 							(*iter2)->SetPosition((*iter2)->GetPosition() + seperationVec);
 						}
+						if (((*iter1)->GetShapeID() == SPHERE && (*iter2)->GetShapeID() == BOX) || ((*iter1)->GetShapeID() == BOX && (*iter2)->GetShapeID() == SPHERE))
+						{
+							(*iter1)->ApplyForceToActor((*iter2), 2.f * temp.forceVec);
+							vec3 seperationVec = temp.collisionNorm * temp.intersection * 0.5f;
+
+							(*iter1)->SetPosition((*iter1)->GetPosition() - seperationVec);
+							(*iter2)->SetPosition((*iter2)->GetPosition() + seperationVec);
+						}
 					}
 				}
 			}
@@ -182,7 +203,7 @@ void PhysicsScene::ResolveCollisions()
 //	if (plane != NULL && sphere != NULL)
 //	{
 //		vec3 temp(sphere->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f));
-//		return (glm::dot(plane->m_normal, temp) < sphere->GetRadius());
+//		return (dot(plane->m_normal, temp) < sphere->GetRadius());
 //	}
 //	return false;
 //}
@@ -190,13 +211,13 @@ void PhysicsScene::ResolveCollisions()
 //bool PhysicsScene::Plane2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 //{
 //	Plane* plane = dynamic_cast<Plane*>(object1);
-//	Box* box2 = dynamic_cast<Box*>(object2);
-//	if (plane != NULL && box2 != NULL)
+//	Box* box = dynamic_cast<Box*>(object2);
+//	if (plane != NULL && box != NULL)
 //	{
-//		float temp1 = glm::dot(plane->m_normal, (box2->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f)));
-//		float temp2 = ((box2->m_length/ 2.f) * glm::abs(glm::dot(plane->m_normal, vec3(1.f, 0.f, 0.f))));
-//		temp2 += ((box2->m_height / 2.f) * glm::abs(glm::dot(plane->m_normal, vec3(0.f, 1.f, 0.f))));
-//		temp2 += ((box2->m_width / 2.f) * glm::abs(glm::dot(plane->m_normal, vec3(0.f, 0.f, 1.f))));
+//		float temp1 = dot(plane->m_normal, (box->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f)));
+//		float temp2 = ((box->m_length/ 2.f) * glm::abs(dot(plane->m_normal, vec3(1.f, 0.f, 0.f))));
+//		temp2 += ((box->m_height / 2.f) * glm::abs(dot(plane->m_normal, vec3(0.f, 1.f, 0.f))));
+//		temp2 += ((box->m_width / 2.f) * glm::abs(dot(plane->m_normal, vec3(0.f, 0.f, 1.f))));
 //		return (temp1 <= temp2);
 //	}
 //	return false;
@@ -209,7 +230,7 @@ void PhysicsScene::ResolveCollisions()
 //	if (sphere != NULL && plane != NULL)
 //	{
 //		vec3 tempVec = plane->m_normal;
-//		float temp = glm::dot(sphere->GetPosition(), plane->m_normal) - plane->m_distanceToOrigin;
+//		float temp = dot(sphere->GetPosition(), plane->m_normal) - plane->m_distanceToOrigin;
 //		if (temp < 0)
 //		{
 //			tempVec *= -1.f;
@@ -223,12 +244,12 @@ void PhysicsScene::ResolveCollisions()
 //				vec3 tempVec2 = plane->m_normal;
 //				if (temp < 0)
 //					tempVec2 *= -1.f;
-//				data->forceVec = -1.f * sphere->GetMass() * tempVec2 * glm::dot(tempVec2, sphere->GetVelocity());
+//				data->forceVec = -1.f * sphere->GetMass() * tempVec2 * dot(tempVec2, sphere->GetVelocity());
 //			}
 //			return true;
 //		}
 //		//vec3 temp(sphere1->GetPosition() - vec3(0.f, plane2->m_distanceToOrigin, 0.f));
-//		//return (glm::dot(plane2->m_normal, temp) < sphere1->GetRadius());
+//		//return (dot(plane2->m_normal, temp) < sphere1->GetRadius());
 //	}
 //	return false;
 //}
@@ -246,9 +267,9 @@ bool PhysicsScene::Sphere2Sphere(RigidBody* object1, RigidBody* object2, Interse
 			if (data != nullptr)
 			{
 				data->intersection = temp2 - temp1;
-				data->collisionNorm = glm::normalize(sphere2->GetPosition() - sphere1->GetPosition());
+				data->collisionNorm = normalize(sphere2->GetPosition() - sphere1->GetPosition());
 				data->relativeVelo = sphere1->GetVelocity() - sphere2->GetVelocity();
-				data->collisionVec = data->collisionNorm * glm::dot(data->relativeVelo, data->collisionNorm);
+				data->collisionVec = data->collisionNorm * dot(data->relativeVelo, data->collisionNorm);
 				data->forceVec = data->collisionVec * 1.f / (sphere1->GetInverseMass() + sphere2->GetInverseMass());
 			}
 			return true;
@@ -260,26 +281,39 @@ bool PhysicsScene::Sphere2Sphere(RigidBody* object1, RigidBody* object2, Interse
 bool PhysicsScene::Sphere2Box(RigidBody* object1, RigidBody* object2, IntersectData* data)
 {
 	Sphere* sphere = dynamic_cast<Sphere*>(object1);
-	Box* box2 = dynamic_cast<Box*>(object2);
-	if (sphere != NULL && box2 != NULL)
+	Box* box = dynamic_cast<Box*>(object2);
+	if (sphere != NULL && box != NULL)
 	{
-		vec3 pc(glm::clamp(sphere->GetPosition(), box2->GetMinVert(), box2->GetMaxVert()));
-		vec3 temp(sphere->GetPosition() - pc);
-		return (glm::dot(temp, temp) < (sphere->GetRadius() * sphere->GetRadius()));
+		vec3 pc(glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert()));
+		vec3 temp0(sphere->GetPosition() - pc);
+		float temp1 = dot(temp0, temp0);
+		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
+		if (temp1 < temp2)
+		{
+			if (data != nullptr)
+			{
+				data->intersection = temp2 - temp1;
+				data->collisionNorm = normalize(box->GetPosition() - sphere->GetPosition());
+				data->relativeVelo = sphere->GetVelocity() - box->GetVelocity();
+				data->collisionVec = data->collisionNorm * dot(data->relativeVelo, data->collisionNorm);
+				data->forceVec = data->collisionVec * 1.f / (sphere->GetInverseMass() + box->GetInverseMass());
+			}
+			return true;
+		}
 	}
 	return false;
 }
 
 //bool PhysicsScene::Box2Plane(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 //{
-//	Box* box1 = dynamic_cast<Box*>(object1);
+//	Box* box = dynamic_cast<Box*>(object1);
 //	Plane* plane = dynamic_cast<Plane*>(object2);
-//	if (box1 != NULL && plane != NULL)
+//	if (box != NULL && plane != NULL)
 //	{
-//		float temp1 = glm::dot(plane->m_normal, (box1->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f)));
-//		float temp2 = ((box1->m_length / 2.f) * glm::abs(glm::dot(plane->m_normal, vec3(1.f, 0.f, 0.f))));
-//		temp2 += ((box1->m_height / 2.f) * glm::abs(glm::dot(plane->m_normal, vec3(0.f, 1.f, 0.f))));
-//		temp2 += ((box1->m_width / 2.f) * glm::abs(glm::dot(plane->m_normal, vec3(0.f, 0.f, 1.f))));
+//		float temp1 = dot(plane->m_normal, (box->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f)));
+//		float temp2 = ((box->m_length / 2.f) * glm::abs(dot(plane->m_normal, vec3(1.f, 0.f, 0.f))));
+//		temp2 += ((box->m_height / 2.f) * glm::abs(dot(plane->m_normal, vec3(0.f, 1.f, 0.f))));
+//		temp2 += ((box->m_width / 2.f) * glm::abs(dot(plane->m_normal, vec3(0.f, 0.f, 1.f))));
 //		return (temp1 < temp2);
 //	}
 //	return false;
@@ -287,13 +321,26 @@ bool PhysicsScene::Sphere2Box(RigidBody* object1, RigidBody* object2, IntersectD
 
 bool PhysicsScene::Box2Sphere(RigidBody* object1, RigidBody* object2, IntersectData* data)
 {
-	Box* box1 = dynamic_cast<Box*>(object1);
+	Box* box = dynamic_cast<Box*>(object1);
 	Sphere* sphere = dynamic_cast<Sphere*>(object2);
-	if (box1 != NULL && sphere != NULL)
+	if (box != NULL && sphere != NULL)
 	{
-		vec3 pc(glm::clamp(sphere->GetPosition(), box1->GetMinVert(), box1->GetMaxVert()));
-		vec3 temp(sphere->GetPosition() - pc);
-		return (glm::dot(temp, temp) < (sphere->GetRadius() * sphere->GetRadius()));
+		vec3 pc(glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert()));
+		vec3 temp0(sphere->GetPosition() - pc);
+		float temp1 = dot(temp0, temp0);
+		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
+		if (temp1 < temp2)
+		{
+			if (data != nullptr)
+			{
+				data->intersection = temp2 - temp1;
+				data->collisionNorm = normalize(sphere->GetPosition() - box->GetPosition());
+				data->relativeVelo = box->GetVelocity() - sphere->GetVelocity();
+				data->collisionVec = data->collisionNorm * dot(data->relativeVelo, data->collisionNorm);
+				data->forceVec = data->collisionVec * 1.f / (box->GetInverseMass() + sphere->GetInverseMass());
+			}
+			return true;
+		}
 	}
 	return false;
 }

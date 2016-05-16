@@ -126,11 +126,8 @@ void ParticleFluidEmitter::Update(float delta)
 	{
 		//get the next free particle
 		int particleIndex = GetNextFreeParticle();
-		if (particleIndex >= 0)
-		{
-			//if we got a particle ID then spawn it
+		if (particleIndex >= 0)	//if we got a particle ID then spawn it
 			AddPhysXParticle(particleIndex);
-		}
 	}
 	//check to see if we need to release particles because they are either too old or have hit the particle sink
 	//lock the particle buffer so we can work on it and get a pointer to read data

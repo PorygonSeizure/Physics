@@ -9,6 +9,7 @@
 #include "Gizmos.h"
 
 #include "Sphere.h"
+#include "Box.h"
 #include "PhysicsScene.h"
 #include "PhysicsRenderer.h"
 
@@ -33,7 +34,7 @@ bool PhysicsApp::Startup()
 	m_physicsScene = new Physics::PhysicsScene();
 	m_objects = m_physicsScene->CreatePhysicsObject<Physics::Sphere>();
 	m_objects->SetPosition(vec3(0.f, 10.f, 0.f));
-	m_physicsRenderer->GetRenderInfo(m_objects)->color = glm::vec4(1.f, 0.f, 0.f, 0.5f);
+	m_physicsRenderer->GetRenderInfo(m_objects)->color = vec4(1.f, 0.f, 0.f, 0.5f);
 
 	Physics::RigidBody* obj = m_physicsScene->CreatePhysicsObject<Physics::Sphere>();
 	m_physicsRenderer->GetRenderInfo(obj)->color = vec4(1.f, 0.f, 0.f, 0.5f);
@@ -64,23 +65,23 @@ bool PhysicsApp::Update(float deltaTime)
 	//update the camera's movement
 	m_camera->Update(deltaTime);
 
-	m_objects->Update(glm::vec3(0, -0.98, 0), deltaTime);
-	m_physicsScene->CheckForCollision();
-	m_physicsScene->ResolveCollisions();
+	m_objects->Update(vec3(0, -0.98, 0), deltaTime);
+	//m_physicsScene->CheckForCollision();
+	//m_physicsScene->ResolveCollisions();
 
-	glm::vec4 forwardVec = m_camera->GetTransform()[2];
-	glm::vec4 rightVec = m_camera->GetTransform()[0];
+	vec4 forwardVec = m_camera->GetTransform()[2];
+	vec4 rightVec = m_camera->GetTransform()[0];
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
-		m_objects->ApplyForce(glm::vec3(forwardVec * 10.f));
+		m_objects->ApplyForce(vec3(forwardVec * 10.f));
 	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		m_objects->ApplyForce(glm::vec3(-forwardVec * 10.f));
+		m_objects->ApplyForce(vec3(-forwardVec * 10.f));
 	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		m_objects->ApplyForce(glm::vec3(-rightVec * 10.f));
+		m_objects->ApplyForce(vec3(-rightVec * 10.f));
 	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		m_objects->ApplyForce(glm::vec3(rightVec * 10.f));
+		m_objects->ApplyForce(vec3(rightVec * 10.f));
 
-	m_physicsScene->Simulate(glm::vec3(0, 0.98, 0), deltaTime);
+	m_physicsScene->Simulate(vec3(0, -0.98, 0), deltaTime);
 
 	//return true, else the application closes
 	return true;

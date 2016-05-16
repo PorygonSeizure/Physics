@@ -14,13 +14,16 @@ using namespace tinyobj;
 
 #include <Shader.h>
 
+using std::string;
+using std::vector;
+
 struct Texture
 {
-	std::string path;
+	string path;
 	unsigned int glID;
 };
 
-struct TextureBank { std::vector<Texture> textures; };
+struct TextureBank { vector<Texture> textures; };
 
 TextureBank textureBank;
 
@@ -224,7 +227,7 @@ Mesh* CreateMeshFromBuffers(SimpleVertex* vertexData, unsigned int vertexCount, 
 		return 0;
 
 	//NOTE(aidan): all data for the scene amortized into a single buffer for easy deallocation
-	//			This is easy to do as its all just simple POD types
+	//This is easy to do as its all just simple POD types
 	size_t totalBytes = sizeof(Mesh) + sizeof(SubMesh) + sizeof(SimpleVertex) * vertexCount + sizeof(unsigned int) * indexCount;
 	void* memory = calloc(totalBytes, 1);
 
@@ -386,15 +389,15 @@ Scene LoadSceneFromOBJ(char* dir, char* filename)
 
 	if (filename && dir)
 	{
-		std::string filePath = std::string(dir) + std::string(filename);
+		string filePath = string(dir) + string(filename);
 
 		//load OBJ
-		std::vector<shape_t> shapes;
-		std::vector<material_t> materials;
-		std::string err;
+		vector<shape_t> shapes;
+		vector<material_t> materials;
+		string err;
 		LoadObj(shapes, materials, err, filePath.c_str(), dir);
 
-		std::string dirStr = "";
+		string dirStr = "";
 		if (dir)
 			dirStr = dir;
 
@@ -428,8 +431,10 @@ Scene LoadSceneFromOBJ(char* dir, char* filename)
 			}
 
 			for (int j = 0; j < mp1; ++j)
+			{
 				if (materialsUsed[mp1 * meshIndex + j] != 0)
 					++totalSubMeshCount;
+			}
 		}
 		
 		Material defaultMaterial = {};
@@ -508,9 +513,9 @@ Scene LoadSceneFromOBJ(char* dir, char* filename)
 						memcpy(&subMeshMap[j]->material.diffuseColor, materials[j - 1].diffuse, sizeof(float) * 3);
 						memcpy(&subMeshMap[j]->material.specularColor, materials[j - 1].specular, sizeof(float) * 3);
 
-						std::string diffuseFilename = (dirStr + materials[j - 1].diffuse_texname);
-						std::string bumpFilename = (dirStr + materials[j - 1].bump_texname);
-						std::string specularFilename = (dirStr + materials[j - 1].specular_texname);
+						string diffuseFilename = (dirStr + materials[j - 1].diffuse_texname);
+						string bumpFilename = (dirStr + materials[j - 1].bump_texname);
+						string specularFilename = (dirStr + materials[j - 1].specular_texname);
 
 						subMeshMap[j]->material.diffuseTexture = LoadGLTextureBasic(diffuseFilename.c_str());
 						subMeshMap[j]->material.normalTexture = LoadGLTextureBasic(bumpFilename.c_str());

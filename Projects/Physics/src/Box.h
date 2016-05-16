@@ -13,7 +13,7 @@ public:
 	inline Box(glm::vec3 position, float length, float height, float width) : RigidBody(ShapeType::BOX), m_length(length), m_height(height), m_width(width) { m_position = position; CreateAABB(); }
 	virtual ~Box();
 
-	virtual void Update(float deltaTime);
+	virtual void Update(glm::vec3 gravity, float deltaTime);
 	virtual void Debug();
 	virtual void MakeGizmo(glm::vec4 color);
 	virtual void ApplyForce(glm::vec3 force);
@@ -23,8 +23,8 @@ public:
 	void SetWidth(float width);
 	void CreateAABB();
 
-	glm::vec3 GetMinVert() { return m_minVert; }
-	glm::vec3 GetMaxVert() { return m_maxVert; }
+	glm::vec3 GetMinVert() { CreateAABB(); return m_minVert; }
+	glm::vec3 GetMaxVert() { CreateAABB(); return m_maxVert; }
 
 protected:
 	float m_length;
