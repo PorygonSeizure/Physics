@@ -8,15 +8,13 @@ class Camera
 {
 public:
 	Camera(float fovY, float aspectRatio, float near, float far);
-	virtual ~Camera() {};
+	virtual ~Camera() {}
 
-	void Update(float deltaTime);
-
-	void SetSpeed(float speed)	{ m_speed = speed; }
+	virtual void Update(float deltaTime) = 0;
 
 	void SetPerspective(float fovY, float aspectRatio, float near, float far);
-
 	void SetLookAtFrom(const glm::vec3& from, const glm::vec3& to);
+	void SetPosition(glm::vec3 pos);
 
 	const glm::mat4& GetTransform() const { return m_transform; }
 	const glm::mat4& GetProjection() const { return m_projection; }
@@ -30,13 +28,27 @@ public:
 	//the plane has a normal of XYZ and is offset from (0,0,0) by -W in the direction of the normal
 	glm::vec3 PickAgainstPlane(float x, float y, const glm::vec4& plane) const;
 
-private:
-	float m_speed;
+protected:
 	glm::vec3 m_up;
 	glm::mat4 m_transform;
 	glm::mat4 m_projection;
 	glm::mat4 m_view;
 	glm::mat4 m_projectionView;
+};
+
+
+
+class FlyCamera : public Camera
+{
+public:
+	FlyCamera(float fovY, float aspectRatio, float near, float far);
+	virtual ~FlyCamera() {}
+
+	virtual void Update(float deltaTime);
+	void SetSpeed(float speed) { m_speed = speed; }
+
+private:
+	float m_speed;
 };
 
 #endif

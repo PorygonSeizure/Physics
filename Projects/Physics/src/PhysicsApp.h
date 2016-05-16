@@ -6,13 +6,14 @@
 //only needed for the camera picking
 #include <glm/vec3.hpp>
 
-class Camera;
+class FlyCamera;
 
 namespace Physics
 {
-	class RigidBody;
-	class PhysicsScene;
-	class PhysicsRenderer;
+class PhysicsObject;
+class RigidBody;
+class PhysicsScene;
+class PhysicsRenderer;
 }
 
 class PhysicsApp : public BaseApp
@@ -27,17 +28,19 @@ public:
 	virtual bool Update(float deltaTime);
 	virtual void Draw();
 
+	void SetupScene();
 	void DrawGizmosGrid();
 
 protected:
-	Camera* m_camera;
+	FlyCamera* m_camera;
 
 	//this is an example position for camera picking
 	glm::vec3 m_pickPosition;
 
 	Physics::PhysicsRenderer* m_physicsRenderer;
 	Physics::PhysicsScene* m_physicsScene;
-	Physics::RigidBody* m_objects;
+	//Physics::PhysicsObject* m_objects;
+	bool m_wasLeftMousePressed;
 };
 
 #endif

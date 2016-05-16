@@ -5,11 +5,6 @@
 using namespace Physics;
 using glm::vec3;
 
-Box::~Box()
-{
-
-}
-
 void Box::Update(glm::vec3 gravity, float deltaTime)
 {
 	RigidBody::Update(gravity, deltaTime);

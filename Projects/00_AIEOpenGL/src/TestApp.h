@@ -6,7 +6,7 @@
 //only needed for the camera picking
 #include <glm/vec3.hpp>
 
-class Camera;
+class FlyCamera;
 
 class TestApp : public BaseApp
 {
@@ -21,7 +21,7 @@ public:
 	virtual void Draw();
 
 protected:
-	Camera* m_camera;
+	FlyCamera* m_camera;
 
 	//this is an example position for camera picking
 	glm::vec3 m_pickPosition;

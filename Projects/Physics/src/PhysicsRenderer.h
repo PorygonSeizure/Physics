@@ -7,7 +7,7 @@
 namespace Physics
 {
 class PhysicsScene;
-//class PhysicsObject;
+class PhysicsObject;
 class RigidBody;
 
 class PhysicsRenderer
@@ -24,10 +24,10 @@ public:
 
 	void Render(PhysicsScene* scene);
 
-	RenderInfo* GetRenderInfo(RigidBody* object);
+	RenderInfo* GetRenderInfo(PhysicsObject* object);
 
 protected:
-	std::unordered_map<RigidBody*, RenderInfo> m_renderInfo;
+	std::unordered_map<PhysicsObject*, RenderInfo> m_renderInfo;
 };
 }
 

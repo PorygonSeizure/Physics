@@ -309,11 +309,7 @@ void Gizmos::AddAABBFilled(const vec3& center, const vec3& rvExtents, const vec4
 	AddTri(verts[6], verts[2], verts[7], fillColour);
 }
 
-void Gizmos::AddCylinderFilled(const vec3& center, float radius, 
-								float halfLength, 
-								unsigned int segments, 
-								const vec4& fillColour, 
-								const mat4* transform /* = nullptr */)
+void Gizmos::AddCylinderFilled(const vec3& center, float radius, float halfLength, unsigned int segments, const vec4& fillColour, const mat4* transform /* = nullptr */)
 {
 	vec4 white(1, 1, 1, 1);
 

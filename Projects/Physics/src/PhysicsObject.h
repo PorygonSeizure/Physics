@@ -22,15 +22,14 @@ public:
 	virtual void Debug() = 0;
 	virtual void MakeGizmo(glm::vec4 color) = 0;
 	virtual void ResetPosition() {}
+	//virtual void SetPosition(glm::vec3 position) = 0;
+
+	//virtual glm::vec3 GetPosition() = 0;
 
 	ShapeType GetShapeID() { return m_shapeID; }
-	virtual inline void SetPosition(glm::vec3 position) { m_position = position; }
-	virtual inline const glm::vec3& GetPosition() const { return m_position; }
 
 protected:
 	ShapeType m_shapeID;
-
-	glm::vec3 m_position;
 };
 }
 

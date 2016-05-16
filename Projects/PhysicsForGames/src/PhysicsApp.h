@@ -6,7 +6,7 @@
 #include <PxScene.h>
 #include <glm/glm.hpp>
 
-class Camera;
+class FlyCamera;
 class Renderer;
 
 class PhysicsApp : public BaseApp
@@ -27,7 +27,7 @@ protected:
     int m_windowWidth;
     int m_windowHeight;
 
-	Camera* m_camera;
+	FlyCamera* m_camera;
 	glm::vec3 m_pickPosition;
 
 	Renderer* m_renderer;

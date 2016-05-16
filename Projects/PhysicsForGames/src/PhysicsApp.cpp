@@ -39,7 +39,7 @@ bool PhysicsApp::Startup()
 	Gizmos::Create();
 
 	//create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.25f, 16.f / 9.f, 0.1f, 1000.f);
+	m_camera = new FlyCamera(glm::pi<float>() * 0.25f, 16.f / 9.f, 0.1f, 1000.f);
 	m_camera->SetLookAtFrom(vec3(10, 10, 10), vec3(0));
 
 	m_renderer = new Renderer();

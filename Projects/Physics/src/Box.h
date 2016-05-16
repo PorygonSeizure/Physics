@@ -10,8 +10,8 @@ class Box : public RigidBody
 public:
 	Box() : RigidBody(ShapeType::BOX), m_length(1.f), m_height(1.f), m_width(1.f) { CreateAABB(); }
 	Box(float length, float height, float width) : RigidBody(ShapeType::BOX), m_length(length), m_height(height), m_width(width) { CreateAABB(); }
-	inline Box(glm::vec3 position, float length, float height, float width) : RigidBody(ShapeType::BOX), m_length(length), m_height(height), m_width(width) { m_position = position; CreateAABB(); }
-	virtual ~Box();
+	Box(glm::vec3 position, float length, float height, float width) : RigidBody(ShapeType::BOX), m_length(length), m_height(height), m_width(width) { m_position = position; CreateAABB(); }
+	virtual ~Box() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime);
 	virtual void Debug();

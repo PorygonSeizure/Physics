@@ -1,7 +1,7 @@
 #include "PhysicsScene.h"
-//#include "PhysicsObject.h"
+#include "PhysicsObject.h"
 #include "RigidBody.h"
-//#include "Plane.h"
+#include "Plane.h"
 #include "Sphere.h"
 #include "Box.h"
 
@@ -9,20 +9,25 @@ using namespace Physics;
 using glm::vec3;
 using glm::dot;
 using glm::normalize;
+using glm::min;
 
 void PhysicsScene::Simulate(vec3 gravity, float deltaTime)
 {
 	for (auto iter = m_physicsObjects.begin(); iter != m_physicsObjects.end(); iter++)
 	{
-		RigidBody* obj = (*iter);
-		obj->Update(gravity, deltaTime);
+		(*iter)->Update(gravity, deltaTime);
 
-		const vec3& pos = obj->GetPosition();
-		const vec3& vel = obj->GetVelocity();
-		if (pos.y < 0)
+		if ((*iter)->GetShapeID() != PLANE)
 		{
-			obj->SetPosition(vec3(pos.x, 0.f, pos.z));
-			obj->SetVelocity(vec3(vel.x, -vel.y, vel.z));
+			RigidBody* obj = dynamic_cast<RigidBody*>(*iter);
+
+			const vec3& pos = obj->GetPosition();
+			const vec3& vel = obj->GetVelocity();
+			if (pos.y < 0)
+			{
+				obj->SetPosition(vec3(pos.x, 0.f, pos.z));
+				obj->SetVelocity(vec3(vel.x, (-vel.y * obj->GetBouciness()), vel.z));
+			}
 		}
 	}
 
@@ -30,7 +35,7 @@ void PhysicsScene::Simulate(vec3 gravity, float deltaTime)
 	ResolveCollisions();
 }
 
-void PhysicsScene::DestroyPhysicsObject(RigidBody* object)
+void PhysicsScene::DestroyPhysicsObject(PhysicsObject* object)
 {
 	//find the object in the collection and remove it
 	auto iter = std::find(m_physicsObjects.begin(), m_physicsObjects.end(), object);
@@ -82,8 +87,8 @@ void PhysicsScene::CheckForCollision()
 		//for (int inner = outer + 1; inner < objectsCount; inner++)
 		for (auto iter1 = iter0 + 1; iter1 != m_physicsObjects.end(); iter1++)
 		{
-			RigidBody* object1 = (*iter0);
-			RigidBody* object2 = (*iter1);
+			PhysicsObject* object1 = (*iter0);
+			PhysicsObject* object2 = (*iter1);
 			
 			IntersectData data;
 			data.obj1 = object1;
@@ -157,26 +162,28 @@ void PhysicsScene::ResolveCollisions()
 				{
 					if ((*iter0).obj2 == (*iter2))
 					{
-						//if ((*iter1)->GetShapeID() == PLANE && (*iter2)->GetShapeID() == SPHERE)
-						//{
-						//	(*iter2)->ApplyForce(2.f * temp.forceVec);
-						//	(*iter2)->SetPosition((*iter2)->GetPosition() + (temp.collisionNorm * temp.intersection * 0.5f));
-						//}
-						if ((*iter1)->GetShapeID() == SPHERE && (*iter2)->GetShapeID() == SPHERE)
+						if ((*iter1)->GetShapeID() == PLANE && (*iter2)->GetShapeID() == SPHERE)
 						{
-							(*iter1)->ApplyForceToActor((*iter2), 2.f * temp.forceVec);
-							vec3 seperationVec = temp.collisionNorm * temp.intersection * 0.5f;
-
-							(*iter1)->SetPosition((*iter1)->GetPosition() - seperationVec);
-							(*iter2)->SetPosition((*iter2)->GetPosition() + seperationVec);
+							Sphere* obj2 = dynamic_cast<Sphere*>(*iter2);
+							obj2->ApplyForce(2.f * temp.forceVec);
+							obj2->SetPosition(obj2->GetPosition() + (temp.collisionNorm * temp.intersection * 0.5f));
 						}
-						if (((*iter1)->GetShapeID() == SPHERE && (*iter2)->GetShapeID() == BOX) || ((*iter1)->GetShapeID() == BOX && (*iter2)->GetShapeID() == SPHERE))
+						else
 						{
-							(*iter1)->ApplyForceToActor((*iter2), 2.f * temp.forceVec);
+							if (temp.velAlongNormal < 0)
+								continue;
+
+							RigidBody* obj1 = dynamic_cast<RigidBody*>(*iter1);
+							RigidBody* obj2 = dynamic_cast<RigidBody*>(*iter2);
+
+							//obj1->SetVelocity(obj1->GetVelocity() - (obj1->GetInverseMass() * temp.forceVec));
+							//obj2->SetVelocity(obj2->GetVelocity() + (obj2->GetInverseMass() * temp.forceVec));
+
+							obj1->ApplyForceToActor(obj2, 2.f * temp.forceVec);
 							vec3 seperationVec = temp.collisionNorm * temp.intersection * 0.5f;
 
-							(*iter1)->SetPosition((*iter1)->GetPosition() - seperationVec);
-							(*iter2)->SetPosition((*iter2)->GetPosition() + seperationVec);
+							obj1->SetPosition(obj1->GetPosition() - seperationVec);
+							obj2->SetPosition(obj2->GetPosition() + seperationVec);
 						}
 					}
 				}
@@ -254,7 +261,7 @@ void PhysicsScene::ResolveCollisions()
 //	return false;
 //}
 
-bool PhysicsScene::Sphere2Sphere(RigidBody* object1, RigidBody* object2, IntersectData* data)
+bool PhysicsScene::Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Sphere* sphere1 = dynamic_cast<Sphere*>(object1);
 	Sphere* sphere2 = dynamic_cast<Sphere*>(object2);
@@ -262,14 +269,16 @@ bool PhysicsScene::Sphere2Sphere(RigidBody* object1, RigidBody* object2, Interse
 	{
 		float temp1 = glm::distance(sphere1->GetPosition(), sphere2->GetPosition());
 		float temp2 = (sphere1->GetRadius() + sphere2->GetRadius());
-		if (temp1 < temp2)
+		if (temp1 <= temp2)
 		{
 			if (data != nullptr)
 			{
 				data->intersection = temp2 - temp1;
+				data->bounciness = min(sphere1->GetBouciness(), sphere2->GetBouciness());
 				data->collisionNorm = normalize(sphere2->GetPosition() - sphere1->GetPosition());
 				data->relativeVelo = sphere1->GetVelocity() - sphere2->GetVelocity();
-				data->collisionVec = data->collisionNorm * dot(data->relativeVelo, data->collisionNorm);
+				data->velAlongNormal = dot(data->relativeVelo, data->collisionNorm);
+				data->collisionVec = data->collisionNorm * data->velAlongNormal * data->bounciness;
 				data->forceVec = data->collisionVec * 1.f / (sphere1->GetInverseMass() + sphere2->GetInverseMass());
 			}
 			return true;
@@ -278,7 +287,7 @@ bool PhysicsScene::Sphere2Sphere(RigidBody* object1, RigidBody* object2, Interse
 	return false;
 }
 
-bool PhysicsScene::Sphere2Box(RigidBody* object1, RigidBody* object2, IntersectData* data)
+bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Sphere* sphere = dynamic_cast<Sphere*>(object1);
 	Box* box = dynamic_cast<Box*>(object2);
@@ -288,15 +297,17 @@ bool PhysicsScene::Sphere2Box(RigidBody* object1, RigidBody* object2, IntersectD
 		vec3 temp0(sphere->GetPosition() - pc);
 		float temp1 = dot(temp0, temp0);
 		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
-		if (temp1 < temp2)
+		if (temp1 <= temp2)
 		{
 			if (data != nullptr)
 			{
 				data->intersection = temp2 - temp1;
+				data->bounciness = min(sphere->GetBouciness(), box->GetBouciness());
 				data->collisionNorm = normalize(box->GetPosition() - sphere->GetPosition());
 				data->relativeVelo = sphere->GetVelocity() - box->GetVelocity();
-				data->collisionVec = data->collisionNorm * dot(data->relativeVelo, data->collisionNorm);
-				data->forceVec = data->collisionVec * 1.f / (sphere->GetInverseMass() + box->GetInverseMass());
+				data->velAlongNormal = dot(data->relativeVelo, data->collisionNorm);
+				data->collisionVec = data->collisionNorm * data->velAlongNormal * data->bounciness;
+				data->forceVec = data->collisionVec / (sphere->GetInverseMass() + box->GetInverseMass());
 			}
 			return true;
 		}
@@ -319,7 +330,7 @@ bool PhysicsScene::Sphere2Box(RigidBody* object1, RigidBody* object2, IntersectD
 //	return false;
 //}
 
-bool PhysicsScene::Box2Sphere(RigidBody* object1, RigidBody* object2, IntersectData* data)
+bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Box* box = dynamic_cast<Box*>(object1);
 	Sphere* sphere = dynamic_cast<Sphere*>(object2);
@@ -329,15 +340,17 @@ bool PhysicsScene::Box2Sphere(RigidBody* object1, RigidBody* object2, IntersectD
 		vec3 temp0(sphere->GetPosition() - pc);
 		float temp1 = dot(temp0, temp0);
 		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
-		if (temp1 < temp2)
+		if (temp1 <= temp2)
 		{
 			if (data != nullptr)
 			{
 				data->intersection = temp2 - temp1;
+				data->bounciness = min(box->GetBouciness(), sphere->GetBouciness());
 				data->collisionNorm = normalize(sphere->GetPosition() - box->GetPosition());
 				data->relativeVelo = box->GetVelocity() - sphere->GetVelocity();
-				data->collisionVec = data->collisionNorm * dot(data->relativeVelo, data->collisionNorm);
-				data->forceVec = data->collisionVec * 1.f / (box->GetInverseMass() + sphere->GetInverseMass());
+				data->velAlongNormal = dot(data->relativeVelo, data->collisionNorm);
+				data->collisionVec = data->collisionNorm * data->velAlongNormal * data->bounciness;
+				data->forceVec = data->collisionVec / (box->GetInverseMass() + sphere->GetInverseMass());
 			}
 			return true;
 		}
@@ -345,15 +358,15 @@ bool PhysicsScene::Box2Sphere(RigidBody* object1, RigidBody* object2, IntersectD
 	return false;
 }
 
-bool PhysicsScene::Box2Box(RigidBody* object1, RigidBody* object2, IntersectData* data)
+bool PhysicsScene::Box2Box(PhysicsObject* object1, PhysicsObject* object2, IntersectData* data)
 {
 	Box* box1 = dynamic_cast<Box*>(object1);
 	Box* box2 = dynamic_cast<Box*>(object2);
 	if (box1 != NULL && box2 != NULL)
 	{
-		bool temp1 = (box1->GetMaxVert().x > box2->GetMinVert().x && box2->GetMaxVert().x > box1->GetMinVert().x);
-		bool temp2 = (box1->GetMaxVert().y > box2->GetMinVert().y && box2->GetMaxVert().y > box1->GetMinVert().y);
-		bool temp3 = (box1->GetMaxVert().z > box2->GetMinVert().z && box2->GetMaxVert().z > box1->GetMinVert().z);
+		bool temp1 = (box1->GetMaxVert().x >= box2->GetMinVert().x && box2->GetMaxVert().x >= box1->GetMinVert().x);
+		bool temp2 = (box1->GetMaxVert().y >= box2->GetMinVert().y && box2->GetMaxVert().y >= box1->GetMinVert().y);
+		bool temp3 = (box1->GetMaxVert().z >= box2->GetMinVert().z && box2->GetMaxVert().z >= box1->GetMinVert().z);
 		return (temp1 && temp2 && temp3);
 	}
 	return false;

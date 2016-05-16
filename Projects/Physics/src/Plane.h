@@ -9,18 +9,20 @@ namespace Physics
 class Plane : public PhysicsObject
 {
 public:
-	Plane() : PhysicsObject(ShapeType::PLANE), m_distanceToOrigin(0.f), m_normal(glm::vec3(0.f, 1.f, 0.f)) {}
+	Plane(float distance, glm::vec3 normal) : PhysicsObject(ShapeType::PLANE), m_distanceToOrigin(distance), m_normal(normal) {}
 	virtual ~Plane();
 
 	virtual void Update(glm::vec3 gravity, float deltaTime) {}
 	virtual void Debug() {}
 	virtual void MakeGizmo(glm::vec4 color);
+	//virtual void SetPosition(glm::vec3 position);
 
-	glm::vec3 m_normal;
-	float m_distanceToOrigin;
+	//virtual glm::vec3 GetPosition();
 
 protected:
-	
+	glm::vec3 m_normal;
+	float m_distanceToOrigin;
+	float m_k;
 };
 }
 

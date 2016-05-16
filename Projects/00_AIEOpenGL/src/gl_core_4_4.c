@@ -1776,12 +1776,12 @@ static void LoadExtByName(const char* extensionName)
 {
 	ogl_StrToExtMap* entry = NULL;
 	entry = FindExtEntry(extensionName);
-	if(entry)
+	if (entry)
 	{
-		if(entry->loadExtension)
+		if (entry->loadExtension)
 		{
 			int numFailed = entry->loadExtension();
-			if(numFailed == 0)
+			if (numFailed == 0)
 				*(entry->extensionVariable) = ogl_LOAD_SUCCEEDED;
 			else
 				*(entry->extensionVariable) = ogl_LOAD_SUCCEEDED + numFailed;
@@ -1791,7 +1791,6 @@ static void LoadExtByName(const char* extensionName)
 	}
 }
 
-
 static void ProcExtsFromExtList()
 {
 	GLint loop;
@@ -1800,7 +1799,7 @@ static void ProcExtsFromExtList()
 
 	for(loop = 0; loop < numExtensions; loop++)
 	{
-		const char*strExtensionName = (const char*)_ptrc_glGetStringi(GL_EXTENSIONS, loop);
+		const char* strExtensionName = (const char*)_ptrc_glGetStringi(GL_EXTENSIONS, loop);
 		LoadExtByName(strExtensionName);
 	}
 }
@@ -1862,4 +1861,3 @@ int OGLIsVersionGEQ(int majorVersion, int minorVersion)
 		return 1;
 	return 0;
 }
-
