@@ -71,7 +71,7 @@ void PhysicsApp::SetupScene()
 	obj1->SetPosition(vec3(-5.f, 5.f, -5.f));
 	m_physicsRenderer->GetRenderInfo(obj1)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
 
-	auto obj2 = m_physicsScene->CreatePhysicsObject<Physics::Box>(0.5f);
+	auto obj2 = m_physicsScene->CreatePhysicsObject<Physics::Box>(0.25f);
 	obj2->SetPosition(vec3(5.f, 5.f, 5.f));
 	m_physicsRenderer->GetRenderInfo(obj2)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
 

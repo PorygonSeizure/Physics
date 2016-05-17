@@ -297,10 +297,10 @@ bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, In
 	Box* box = dynamic_cast<Box*>(object2);
 	if (sphere != NULL && box != NULL)
 	{
-		vec3 pc = box->ClosestPoint(sphere->GetPosition());
-		vec3 temp0(pc - sphere->GetPosition());
-		float temp1 = dot(temp0, temp0);
-		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
+		vec3 pc = glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert());
+		//vec3 pc = box->ClosestPoint(sphere->GetPosition());
+		float temp1 = glm::distance(pc, sphere->GetPosition());
+		float temp2 = sphere->GetRadius();
 		if (temp1 <= temp2)
 		{
 			if (data != nullptr)
@@ -340,10 +340,10 @@ bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, In
 	Sphere* sphere = dynamic_cast<Sphere*>(object2);
 	if (box != NULL && sphere != NULL)
 	{
-		vec3 pc(box->ClosestPoint(sphere->GetPosition()));
-		vec3 temp0(pc - sphere->GetPosition());
-		float temp1 = dot(temp0, temp0);
-		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
+		vec3 pc = glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert());
+		//vec3 pc = box->ClosestPoint(sphere->GetPosition());
+		float temp1 = glm::distance(sphere->GetPosition(), pc);
+		float temp2 = sphere->GetRadius();
 		if (temp1 <= temp2)
 		{
 			if (data != nullptr)

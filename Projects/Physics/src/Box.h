@@ -8,10 +8,10 @@ namespace Physics
 class Box : public RigidBody
 {
 public:
-	Box() : RigidBody(ShapeType::BOX), m_length(1.f), m_height(1.f), m_width(1.f) { SetOBB(); }
-	Box(float value) : RigidBody(ShapeType::BOX), m_length(value), m_height(value), m_width(value) { SetOBB(); }
-	Box(float length, float height, float width) : RigidBody(ShapeType::BOX), m_length(length), m_height(height), m_width(width) { SetOBB(); }
-	Box(glm::vec3 position, float length, float height, float width) : RigidBody(ShapeType::BOX), m_length(length), m_height(height), m_width(width) { m_position = position; SetOBB(); }
+	Box() : RigidBody(ShapeType::BOX), m_xOffset(1.f), m_yOffset(1.f), m_zOffset(1.f) { SetOBB(); }
+	Box(float value) : RigidBody(ShapeType::BOX), m_xOffset(value), m_yOffset(value), m_zOffset(value) { SetOBB(); }
+	Box(float xOffset, float yOffset, float zOffset) : RigidBody(ShapeType::BOX), m_xOffset(xOffset), m_yOffset(yOffset), m_zOffset(zOffset) { SetOBB(); }
+	Box(glm::vec3 position, float xOffset, float yOffset, float zOffset) : RigidBody(ShapeType::BOX), m_xOffset(xOffset), m_yOffset(yOffset), m_zOffset(zOffset) { m_position = position; SetOBB(); }
 	virtual ~Box() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime);
@@ -19,9 +19,9 @@ public:
 	virtual void MakeGizmo(glm::vec4 color);
 	virtual void ApplyForce(glm::vec3 force);
 
-	inline void SetLength(float length) { m_length = length; }
-	inline void SetHeight(float height) { m_height = height; }
-	inline void SetWidth(float width) { m_width = width; }
+	inline void SetXOffset(float xOffset) { m_xOffset = xOffset; }
+	inline void SetYOffset(float yOffset) { m_yOffset = yOffset; }
+	inline void SetZOffset(float zOffset) { m_zOffset = zOffset; }
 	void SetOBB();
 
 	glm::vec3 ClosestPoint(const glm::vec3& point);
@@ -29,9 +29,9 @@ public:
 	inline glm::vec3 GetMaxVert() { return m_verts[7]; }
 
 protected:
-	float m_length;
-	float m_height;
-	float m_width;
+	float m_xOffset;
+	float m_yOffset;
+	float m_zOffset;
 
 	glm::vec3 m_verts[8];
 	glm::vec3 m_axis[3];

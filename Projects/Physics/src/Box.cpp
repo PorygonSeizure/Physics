@@ -18,7 +18,7 @@ void Box::Debug()
 
 void Box::MakeGizmo(glm::vec4 color)
 {
-	Gizmos::AddAABBFilled(m_position, vec3(m_length, m_height, m_width), color);
+	Gizmos::AddAABBFilled(m_position, vec3(m_xOffset, m_yOffset, m_zOffset), color);
 }
 
 void Box::ApplyForce(vec3 force)
@@ -28,30 +28,30 @@ void Box::ApplyForce(vec3 force)
 
 void Box::SetOBB()
 {
-	m_verts[0] = m_position - (m_length / 2.f) - (m_height / 2.f) - (m_width / 2.f);
-	m_verts[1] = m_position - (m_length / 2.f) - (m_height / 2.f) + (m_width / 2.f);
-	m_verts[2] = m_position - (m_length / 2.f) + (m_height / 2.f) - (m_width / 2.f);
-	m_verts[3] = m_position - (m_length / 2.f) + (m_height / 2.f) + (m_width / 2.f);
-	m_verts[4] = m_position + (m_length / 2.f) - (m_height / 2.f) - (m_width / 2.f);
-	m_verts[5] = m_position + (m_length / 2.f) - (m_height / 2.f) + (m_width / 2.f);
-	m_verts[6] = m_position + (m_length / 2.f) + (m_height / 2.f) - (m_width / 2.f);
-	m_verts[7] = m_position + (m_length / 2.f) + (m_height / 2.f) + (m_width / 2.f);
+	m_verts[0] = vec3(m_position.x - m_xOffset, m_position.y - m_yOffset, m_position.z - m_zOffset);
+	m_verts[1] = vec3(m_position.x - m_xOffset, m_position.y - m_yOffset, m_position.z + m_zOffset);
+	m_verts[2] = vec3(m_position.x + m_xOffset, m_position.y - m_yOffset, m_position.z + m_zOffset);
+	m_verts[3] = vec3(m_position.x + m_xOffset, m_position.y - m_yOffset, m_position.z - m_zOffset);
+	m_verts[4] = vec3(m_position.x - m_xOffset, m_position.y + m_yOffset, m_position.z - m_zOffset);
+	m_verts[5] = vec3(m_position.x - m_xOffset, m_position.y + m_yOffset, m_position.z + m_zOffset);
+	m_verts[6] = vec3(m_position.x + m_xOffset, m_position.y + m_yOffset, m_position.z + m_zOffset);
+	m_verts[7] = vec3(m_position.x + m_xOffset, m_position.y + m_yOffset, m_position.z - m_zOffset);
 
-	m_axis[0] = m_verts[4] - m_verts[0];
-	m_axis[1] = m_verts[2] - m_verts[0];
+	m_axis[0] = m_verts[3] - m_verts[0];
+	m_axis[1] = m_verts[4] - m_verts[0];
 	m_axis[2] = m_verts[1] - m_verts[0];
 
 	for (int i = 0; i < 3; i++)
 	{
-		float temp = glm::length(m_axis[i]);
-		temp *= temp;
-		m_axis[i] /= temp;
+		m_axis[i] /= glm::dot(m_axis[i], m_axis[i]);
 		m_origin[i] = glm::dot(m_verts[0], m_axis[i]);
 	}
 }
 
 vec3 Box::ClosestPoint(const vec3& point)
 {
+	SetOBB();
+
 	vec3 closestPoint = m_position;
 	vec3 d = point - m_position;
 
