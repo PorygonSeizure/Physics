@@ -39,7 +39,8 @@ protected:
 
 	Physics::PhysicsRenderer* m_physicsRenderer;
 	Physics::PhysicsScene* m_physicsScene;
-	//Physics::PhysicsObject* m_objects;
+	//Physics::RigidBody* m_object1;
+	//Physics::RigidBody* m_object2;
 	bool m_wasLeftMousePressed;
 };
 

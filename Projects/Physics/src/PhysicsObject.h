@@ -9,7 +9,8 @@ enum ShapeType
 {
 	PLANE = 0,
 	SPHERE = 1,
-	BOX = 2
+	BOX = 2,
+	JOINT = 3
 };
 
 class PhysicsObject

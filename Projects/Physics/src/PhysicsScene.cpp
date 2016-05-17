@@ -17,7 +17,7 @@ void PhysicsScene::Simulate(vec3 gravity, float deltaTime)
 	{
 		(*iter)->Update(gravity, deltaTime);
 
-		if ((*iter)->GetShapeID() != PLANE)
+		if ((*iter)->GetShapeID() != PLANE && (*iter)->GetShapeID() != JOINT)
 		{
 			RigidBody* obj = dynamic_cast<RigidBody*>(*iter);
 
@@ -162,6 +162,10 @@ void PhysicsScene::ResolveCollisions()
 				{
 					if ((*iter0).obj2 == (*iter2))
 					{
+						if ((*iter1)->GetShapeID() == JOINT || (*iter2)->GetShapeID() == JOINT)
+						{
+
+						}
 						if ((*iter1)->GetShapeID() == PLANE && (*iter2)->GetShapeID() == SPHERE)
 						{
 							Sphere* obj2 = dynamic_cast<Sphere*>(*iter2);
@@ -170,8 +174,8 @@ void PhysicsScene::ResolveCollisions()
 						}
 						else
 						{
-							if (temp.velAlongNormal < 0)
-								continue;
+							//if (temp.velAlongNormal < 0)
+							//	continue;
 
 							RigidBody* obj1 = dynamic_cast<RigidBody*>(*iter1);
 							RigidBody* obj2 = dynamic_cast<RigidBody*>(*iter2);
@@ -293,8 +297,8 @@ bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, In
 	Box* box = dynamic_cast<Box*>(object2);
 	if (sphere != NULL && box != NULL)
 	{
-		vec3 pc(glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert()));
-		vec3 temp0(sphere->GetPosition() - pc);
+		vec3 pc = box->ClosestPoint(sphere->GetPosition());
+		vec3 temp0(pc - sphere->GetPosition());
 		float temp1 = dot(temp0, temp0);
 		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
 		if (temp1 <= temp2)
@@ -336,8 +340,8 @@ bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, In
 	Sphere* sphere = dynamic_cast<Sphere*>(object2);
 	if (box != NULL && sphere != NULL)
 	{
-		vec3 pc(glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert()));
-		vec3 temp0(sphere->GetPosition() - pc);
+		vec3 pc(box->ClosestPoint(sphere->GetPosition()));
+		vec3 temp0(pc - sphere->GetPosition());
 		float temp1 = dot(temp0, temp0);
 		float temp2 = (sphere->GetRadius() * sphere->GetRadius());
 		if (temp1 <= temp2)

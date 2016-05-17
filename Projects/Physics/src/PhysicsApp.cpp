@@ -11,6 +11,7 @@
 #include "Plane.h"
 #include "Sphere.h"
 #include "Box.h"
+#include "Spring.h"
 #include "PhysicsScene.h"
 #include "PhysicsRenderer.h"
 
@@ -56,15 +57,29 @@ void PhysicsApp::SetupScene()
 {
 	m_physicsScene = new Physics::PhysicsScene();
 
-	for (int x = 0; x < 10; x++)
-	{
-		for (int z = 0; z < 10; z++)
-		{
-			auto obj = m_physicsScene->CreatePhysicsObject<Physics::Sphere>(0.25f);
-			obj->SetPosition(vec3(-5.f + x, 5.f, -5.f + z));
-			m_physicsRenderer->GetRenderInfo(obj)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
-		}
-	}
+	//for (int x = 0; x < 10; x++)
+	//{
+	//	for (int z = 0; z < 10; z++)
+	//	{
+	//		auto obj = m_physicsScene->CreatePhysicsObject<Physics::Sphere>(0.25f);
+	//		obj->SetPosition(vec3(-5.f + x, 5.f, -5.f + z));
+	//		m_physicsRenderer->GetRenderInfo(obj)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
+	//	}
+	//}
+
+	auto obj1 = m_physicsScene->CreatePhysicsObject<Physics::Sphere>(0.25f);
+	obj1->SetPosition(vec3(-5.f, 5.f, -5.f));
+	m_physicsRenderer->GetRenderInfo(obj1)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
+
+	auto obj2 = m_physicsScene->CreatePhysicsObject<Physics::Box>(0.5f);
+	obj2->SetPosition(vec3(5.f, 5.f, 5.f));
+	m_physicsRenderer->GetRenderInfo(obj2)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
+
+	auto obj3 = m_physicsScene->CreatePhysicsObject<Physics::Spring>(obj1, obj2, 0.5f, 0.9999f);
+	m_physicsRenderer->GetRenderInfo(obj3)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
+
+	//m_object1 = dynamic_cast<Physics::RigidBody*>(obj1);
+	//m_object2 = dynamic_cast<Physics::RigidBody*>(obj2);
 }
 
 bool PhysicsApp::Update(float deltaTime)
@@ -85,19 +100,28 @@ bool PhysicsApp::Update(float deltaTime)
 	bool leftMousePressed = (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS);
 
 	//if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
-	//	m_objects->ApplyForce(vec3(forwardVec * 10.f));
+	//	m_object1->ApplyForce(vec3(forwardVec * 10.f));
 	//if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	//	m_objects->ApplyForce(vec3(-forwardVec * 10.f));
+	//	m_object1->ApplyForce(vec3(-forwardVec * 10.f));
 	//if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	//	m_objects->ApplyForce(vec3(-rightVec * 10.f));
+	//	m_object1->ApplyForce(vec3(-rightVec * 10.f));
 	//if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	//	m_objects->ApplyForce(vec3(rightVec * 10.f));
+	//	m_object1->ApplyForce(vec3(rightVec * 10.f));
+	//
+	//if (glfwGetKey(m_window, GLFW_KEY_KP_8) == GLFW_PRESS)
+	//	m_object2->ApplyForce(vec3(forwardVec * 10.f));
+	//if (glfwGetKey(m_window, GLFW_KEY_KP_2) == GLFW_PRESS)
+	//	m_object2->ApplyForce(vec3(-forwardVec * 10.f));
+	//if (glfwGetKey(m_window, GLFW_KEY_KP_4) == GLFW_PRESS)
+	//	m_object2->ApplyForce(vec3(-rightVec * 10.f));
+	//if (glfwGetKey(m_window, GLFW_KEY_KP_6) == GLFW_PRESS)
+	//	m_object2->ApplyForce(vec3(rightVec * 10.f));
 
 	if (leftMousePressed && !m_wasLeftMousePressed)
 	{
 		auto obj = m_physicsScene->CreatePhysicsObject<Physics::Sphere>(0.25f);
 		obj->SetPosition(vec3(translationVec));
-		obj->ApplyForce(vec3(-translationVec * 10.f));
+		obj->SetVelocity(vec3(-forwardVec * 10.f));
 		m_physicsRenderer->GetRenderInfo(obj)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
 		m_wasLeftMousePressed = true;
 	}

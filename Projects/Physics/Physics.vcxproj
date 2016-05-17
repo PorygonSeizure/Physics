@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Spring.h" />
     <ClInclude Include="src\Box.h" />
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\Plane.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="src\PhysicsApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Spring.cpp" />
     <ClCompile Include="src\Box.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Sphere.cpp" />

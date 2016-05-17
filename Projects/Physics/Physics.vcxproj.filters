@@ -39,6 +39,9 @@
     <ClInclude Include="src\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Spring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\PhysicsScene.cpp">
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Spring.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
