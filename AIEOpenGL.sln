@@ -20,6 +20,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysicsForGames", "Projects
 		{63494F4E-79FA-48AD-AA6C-BDF1FF1619FD} = {63494F4E-79FA-48AD-AA6C-BDF1FF1619FD}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ResourceManager", "Projects\ResourceManager\ResourceManager.vcxproj", "{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{63494F4E-79FA-48AD-AA6C-BDF1FF1619FD} = {63494F4E-79FA-48AD-AA6C-BDF1FF1619FD}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysX", "Projects\PhysX\PhysX.vcxproj", "{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -60,6 +67,22 @@ Global
 		{BCE403F7-836D-481F-AFCA-2EAD899DA8F5}.Release|x64.Build.0 = Release|x64
 		{BCE403F7-836D-481F-AFCA-2EAD899DA8F5}.Release|x86.ActiveCfg = Release|Win32
 		{BCE403F7-836D-481F-AFCA-2EAD899DA8F5}.Release|x86.Build.0 = Release|Win32
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Debug|x64.ActiveCfg = Debug|x64
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Debug|x64.Build.0 = Debug|x64
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Debug|x86.ActiveCfg = Debug|Win32
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Debug|x86.Build.0 = Debug|Win32
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Release|x64.ActiveCfg = Release|x64
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Release|x64.Build.0 = Release|x64
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Release|x86.ActiveCfg = Release|Win32
+		{6DADD699-DDA9-4A27-8F43-63FFDAC4A0F2}.Release|x86.Build.0 = Release|Win32
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Debug|x64.ActiveCfg = Debug|x64
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Debug|x64.Build.0 = Debug|x64
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Debug|x86.ActiveCfg = Debug|Win32
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Debug|x86.Build.0 = Debug|Win32
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Release|x64.ActiveCfg = Release|x64
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Release|x64.Build.0 = Release|x64
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Release|x86.ActiveCfg = Release|Win32
+		{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

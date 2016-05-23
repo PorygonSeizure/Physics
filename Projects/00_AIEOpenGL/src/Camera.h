@@ -16,10 +16,10 @@ public:
 	void SetLookAtFrom(const glm::vec3& from, const glm::vec3& to);
 	void SetPosition(glm::vec3 pos);
 
-	const glm::mat4& GetTransform() const { return m_transform; }
-	const glm::mat4& GetProjection() const { return m_projection; }
-	const glm::mat4& GetView() const { return m_view; }
-	const glm::mat4& GetProjectionView() const { return m_projectionView; }
+	inline const glm::mat4& GetTransform() const { return m_transform; }
+	inline const glm::mat4& GetProjection() const { return m_projection; }
+	inline const glm::mat4& GetView() const { return m_view; }
+	inline const glm::mat4& GetProjectionView() const { return m_projectionView; }
 
 	//returns a world-space normalized vector pointing away from the camera's world-space position
 	glm::vec3 ScreenPositionToDirection(float x, float y) const;
@@ -45,7 +45,7 @@ public:
 	virtual ~FlyCamera() {}
 
 	virtual void Update(float deltaTime);
-	void SetSpeed(float speed) { m_speed = speed; }
+	inline void SetSpeed(float speed) { m_speed = speed; }
 
 private:
 	float m_speed;

@@ -60,8 +60,8 @@ public:
 							const glm::mat4* transform = nullptr);
 
 	//Adds a Sphere at a given position, with a given number of rows, and columns, radius and a max and min long and latitude
-	static void AddSphere(const glm::vec3& center, float radius, int rows, int columns, const glm::vec4& fillColour, const glm::mat4* transform = nullptr, float longMin = 0.f, float longMax = 360.f, 
-							float latMin = -90.f, float latMax = 90.f);
+	static void AddSphere(const glm::vec3& center, float radius, int rows, int columns, const glm::vec4& fillColour, const glm::mat4* transform = nullptr, float longMin = 0.f, 
+							float longMax = 360.f, float latMin = -90.f, float latMax = 90.f);
 
 	//Adds a single Hermite spline curve
 	static void AddHermiteSpline(const glm::vec3& start, const glm::vec3& end, const glm::vec3& tangentStart, const glm::vec3& tangentEnd, unsigned int segments, const glm::vec4& colour);

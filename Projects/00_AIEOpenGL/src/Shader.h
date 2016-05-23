@@ -4,12 +4,7 @@
 class Shader
 {
 public:
-
-	Shader() : m_program(0), m_error(nullptr)
-	{
-		m_shaders[0] = m_shaders[1] = m_shaders[2] = m_shaders[3] = m_shaders[4] = 0;
-		m_error = new char[5];
-	}
+	Shader();
 	~Shader();
 
 	bool LoadShader(unsigned int type, const char* filename);
@@ -25,9 +20,9 @@ public:
 
 	void TransformVaryings(int size, const char* varyings[]);
 
-	unsigned int GetHandle() const { return m_program; }
+	inline unsigned int GetHandle() const { return m_program; }
 
-	const char* GetLastError() const { return m_error; }
+	inline const char* GetLastError() const { return m_error; }
 
 private:
 	unsigned int m_program;

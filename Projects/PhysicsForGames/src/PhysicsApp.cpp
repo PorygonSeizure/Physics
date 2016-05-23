@@ -11,6 +11,7 @@
 
 using glm::vec3;
 using glm::vec4;
+using glm::mat4;
 using physx::PxShape;
 using physx::PxRigidActor;
 using physx::PxGeometryType;
@@ -29,7 +30,7 @@ bool PhysicsApp::Startup()
 	CreateGLFWWindow("AIE OpenGL Application", 1280, 720);
 
 #ifdef _DEBUG
-    glDebugMessageCallback((GLDEBUGPROC)DebugCallback, stderr);	// print debug output to stderr
+    glDebugMessageCallback((GLDEBUGPROC)DebugCallback, stderr);	//print debug output to stderr
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 #endif
 
@@ -113,11 +114,11 @@ void PhysicsApp::Draw()
 	Gizmos::Draw(m_camera->GetProjectionView());
 	m_renderer->RenderAndClear(m_camera->GetProjectionView());
 
-	// get a orthographic projection matrix and draw 2D gizmos
+	//get a orthographic projection matrix and draw 2D gizmos
 	int width = 0;
 	int height = 0;
 	glfwGetWindowSize(m_window, &width, &height);
-	glm::mat4 guiMatrix = glm::ortho<float>(0, (float)width, 0, (float)height);
+	mat4 guiMatrix = glm::ortho<float>(0, (float)width, 0, (float)height);
 
 	Gizmos::Draw2D(guiMatrix);
 }
@@ -127,7 +128,7 @@ void AddWidget(PxShape* shape, PxRigidActor* actor, vec4 geoColor)
 	physx::PxTransform fullTransform = physx::PxShapeExt::getGlobalPose(*shape, *actor);
 	vec3 actorPosition(fullTransform.p.x, fullTransform.p.y, fullTransform.p.z);
 	glm::quat actorRotation(fullTransform.q.w, fullTransform.q.x, fullTransform.q.y, fullTransform.q.z);
-	glm::mat4 rot(actorRotation);
+	mat4 rot(actorRotation);
 
 	mat4 rotateMatrix = glm::rotate(10.f, vec3(7, 7, 7));
 

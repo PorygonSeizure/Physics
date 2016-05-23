@@ -3,6 +3,8 @@
 using namespace Physics;
 using glm::vec3;
 
+RigidBody::RigidBody(ShapeType shapeID) : PhysicsObject(shapeID), m_dampening(1.f), m_bouciness(1.f) { SetMass(1.f); }
+
 void RigidBody::Update(vec3 gravity, float deltaTime)
 {
 	//apply some fake friction

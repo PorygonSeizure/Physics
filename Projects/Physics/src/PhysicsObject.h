@@ -27,7 +27,7 @@ public:
 
 	//virtual glm::vec3 GetPosition() = 0;
 
-	ShapeType GetShapeID() { return m_shapeID; }
+	inline ShapeType GetShapeID() { return m_shapeID; }
 
 protected:
 	ShapeType m_shapeID;

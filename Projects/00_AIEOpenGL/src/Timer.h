@@ -11,7 +11,7 @@ public:
 	void Start() { QueryPerformanceCounter(&m_startTime); }
 	void End() { QueryPerformanceCounter(&m_endTime); }
 
-	double GetTimeDiff() const { return (m_endTime.QuadPart - m_startTime.QuadPart) / (double)m_perfFreq.QuadPart; }
+	inline double GetTimeDiff() const { return (m_endTime.QuadPart - m_startTime.QuadPart) / (double)m_perfFreq.QuadPart; }
 
 private:
 	LARGE_INTEGER m_perfFreq;

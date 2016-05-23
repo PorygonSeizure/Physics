@@ -8,10 +8,10 @@ namespace Physics
 class Box : public RigidBody
 {
 public:
-	Box() : RigidBody(ShapeType::BOX), m_xOffset(1.f), m_yOffset(1.f), m_zOffset(1.f) { SetOBB(); }
-	Box(float value) : RigidBody(ShapeType::BOX), m_xOffset(value), m_yOffset(value), m_zOffset(value) { SetOBB(); }
-	Box(float xOffset, float yOffset, float zOffset) : RigidBody(ShapeType::BOX), m_xOffset(xOffset), m_yOffset(yOffset), m_zOffset(zOffset) { SetOBB(); }
-	Box(glm::vec3 position, float xOffset, float yOffset, float zOffset) : RigidBody(ShapeType::BOX), m_xOffset(xOffset), m_yOffset(yOffset), m_zOffset(zOffset) { m_position = position; SetOBB(); }
+	Box();
+	Box(float value);
+	Box(float xOffset, float yOffset, float zOffset);
+	Box(glm::vec3 position, float xOffset, float yOffset, float zOffset);
 	virtual ~Box() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime);

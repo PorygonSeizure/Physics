@@ -27,9 +27,6 @@
     <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\PhysicsApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

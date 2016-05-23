@@ -121,7 +121,7 @@ void ParticleFluidEmitter::Update(float delta)
 		numberSpawn = (int)(m_respawnTime / m_releaseDelay);
 		m_respawnTime -= (numberSpawn * m_releaseDelay);
 	}
-	// spawn the required number of particles 
+	//spawn the required number of particles 
 	for (int count = 0; count < numberSpawn; count++)
 	{
 		//get the next free particle
@@ -132,7 +132,7 @@ void ParticleFluidEmitter::Update(float delta)
 	//check to see if we need to release particles because they are either too old or have hit the particle sink
 	//lock the particle buffer so we can work on it and get a pointer to read data
 	physx::PxParticleReadData* rd = m_pf->lockParticleReadData();
-	// access particle data from PxParticleReadData was OK
+	//access particle data from PxParticleReadData was OK
 	if (rd)
 	{
 		vector<PxU32> particlesToRemove;	//we need to build a list of particles to remove so we can do it all in one go
@@ -153,7 +153,7 @@ void ParticleFluidEmitter::Update(float delta)
 				}
 			}
 		}
-		// return ownership of the buffers back to the SDK
+		//return ownership of the buffers back to the SDK
 		rd->unlock();
 		//if we have particles to release then pass the particles to remove to PhysX so it can release them
 		if (particlesToRemove.size() > 0)
@@ -169,9 +169,9 @@ void ParticleFluidEmitter::Update(float delta)
 //simple routine to render our particles
 void ParticleFluidEmitter::RenderParticles()
 {
-	// lock SDK buffers of *PxParticleSystem* ps for reading
+	//lock SDK buffers of *PxParticleSystem* ps for reading
 	physx::PxParticleFluidReadData* fd = m_pf->lockParticleFluidReadData();
-	// access particle data from PxParticleReadData
+	//access particle data from PxParticleReadData
 	float minX = 1000;
 	float maxX = -1000;
 	float minZ = 1000;
@@ -194,7 +194,7 @@ void ParticleFluidEmitter::RenderParticles()
 				Gizmos::AddAABBFilled(pos, glm::vec3(0.12, 0.12, 0.12), glm::vec4(1, 0, 1, 1));
 			}
 		}
-		// return ownership of the buffers back to the SDK
+		//return ownership of the buffers back to the SDK
 		fd->unlock();
 	}
 }

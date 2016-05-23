@@ -9,7 +9,7 @@ namespace Physics
 class RigidBody : public PhysicsObject
 {
 public:
-	RigidBody(ShapeType shapeID) : PhysicsObject(shapeID), m_bouciness(1.f) { SetMass(1.f); SetDampening(1.f); }
+	RigidBody(ShapeType shapeID);
 	virtual ~RigidBody() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime);

@@ -12,7 +12,7 @@ using namespace tinyobj;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include <Shader.h>
+//#include <Shader.h>
 
 using std::string;
 using std::vector;
@@ -27,119 +27,119 @@ struct TextureBank { vector<Texture> textures; };
 
 TextureBank textureBank;
 
-//bool LoadShaderType(char* filename, GLenum shaderType, unsigned int* output)
-//{
-//    //we want to be able to return if we succeded
-//    bool succeeded = true;
-//
-//    //open the shader file
-//	FILE* shaderFile;
-//	fopen_s(&shaderFile, filename, "r");
-//
-//    //did it open successfully 
-//    if (shaderFile == 0)
-//        succeeded = false;
-//    else
-//    {
-//        //find out how long the file is
-//        fseek(shaderFile, 0, SEEK_END);
-//        int shaderFileLength = ftell(shaderFile);
-//        fseek(shaderFile, 0, SEEK_SET);
-//        //allocate enough space for the file
-//        char* shaderSource = new char[shaderFileLength];
-//        //read the file and update the length to be accurate
-//        shaderFileLength = fread(shaderSource, 1, shaderFileLength, shaderFile);
-//
-//        //create the shader based on the type that got passed in
-//        unsigned int shaderHandle = glCreateShader(shaderType);
-//        //compile the shader
-//        glShaderSource(shaderHandle, 1, &shaderSource, &shaderFileLength);
-//        glCompileShader(shaderHandle);
-//
-//        //chech the shader for errors
-//        int success = GL_FALSE;
-//        glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &success);
-//        if (success == GL_FALSE)
-//        {
-//            int logLength = 0;
-//            glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLength);
-//            char* log = new char[logLength];
-//            glGetShaderInfoLog(shaderHandle, logLength, NULL, log);
-//            printf("%s\n", log);
-//            delete[] log;
-//            succeeded = false;
-//        }
-//        //only give the result to the caller if we succeeded
-//        if (succeeded)
-//            *output = shaderHandle;
-//
-//        //clean up the stuff we allocated
-//        delete[] shaderSource;
-//        fclose(shaderFile);
-//    }
-//
-//    return succeeded;
-//}
+bool LoadShaderType(char* filename, GLenum shaderType, unsigned int* output)
+{
+    //we want to be able to return if we succeded
+    bool succeeded = true;
 
-//bool LoadShader(char* vertexFilename, char* geometryFilename, char* fragmentFilename, GLuint* result)
-//{
-//    bool succeeded = true;
-//
-//    *result = glCreateProgram();
-//
-//    unsigned int vertexShader;
-//
-//    if (LoadShaderType(vertexFilename, GL_VERTEX_SHADER, &vertexShader))
-//    {
-//        glAttachShader(*result, vertexShader);
-//        glDeleteShader(vertexShader);
-//    }
-//    else
-//        printf("FAILED TO LOAD VERTEX SHADER\n");
-//
-//    if (geometryFilename != nullptr)
-//    {
-//        unsigned int geometryShader;
-//        if (LoadShaderType(geometryFilename, GL_GEOMETRY_SHADER, &geometryShader))
-//        {
-//            glAttachShader(*result, geometryShader);
-//            glDeleteShader(geometryShader);
-//        }
-//        else
-//            printf("FAILED TO LOAD GEOMETRY SHADER\n");
-//    }
-//    if (fragmentFilename != nullptr)
-//    {
-//        unsigned int fragmentShader;
-//        if (LoadShaderType(fragmentFilename, GL_FRAGMENT_SHADER, &fragmentShader))
-//        {
-//            glAttachShader(*result, fragmentShader);
-//            glDeleteShader(fragmentShader);
-//        }
-//        else
-//            printf("FAILED TO LOAD FRAGMENT SHADER\n");
-//    }
-//
-//    glLinkProgram(*result);
-//
-//    GLint success;
-//    glGetProgramiv(*result, GL_LINK_STATUS, &success);
-//    if (success == GL_FALSE)
-//    {
-//        GLint logLength;
-//        glGetProgramiv(*result, GL_INFO_LOG_LENGTH, &logLength);
-//        char* log = new char[logLength];
-//        glGetProgramInfoLog(*result, logLength, 0, log);
-//
-//        printf("ERROR: STUFF DONE SCREWED UP IN UR SHADER BUDDY!\n\n");
-//        printf("%s", log);
-//
-//        delete[] log;
-//        succeeded = false;
-//    }
-//
-//    return succeeded;
-//}
+    //open the shader file
+	FILE* shaderFile;
+	fopen_s(&shaderFile, filename, "r");
+
+    //did it open successfully 
+    if (shaderFile == 0)
+        succeeded = false;
+    else
+    {
+        //find out how long the file is
+        fseek(shaderFile, 0, SEEK_END);
+        int shaderFileLength = ftell(shaderFile);
+        fseek(shaderFile, 0, SEEK_SET);
+        //allocate enough space for the file
+        char* shaderSource = new char[shaderFileLength];
+        //read the file and update the length to be accurate
+        shaderFileLength = fread(shaderSource, 1, shaderFileLength, shaderFile);
+
+        //create the shader based on the type that got passed in
+        unsigned int shaderHandle = glCreateShader(shaderType);
+        //compile the shader
+        glShaderSource(shaderHandle, 1, &shaderSource, &shaderFileLength);
+        glCompileShader(shaderHandle);
+
+        //chech the shader for errors
+        int success = GL_FALSE;
+        glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &success);
+        if (success == GL_FALSE)
+        {
+            int logLength = 0;
+            glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLength);
+            char* log = new char[logLength];
+            glGetShaderInfoLog(shaderHandle, logLength, NULL, log);
+            printf("%s\n", log);
+            delete[] log;
+            succeeded = false;
+        }
+        //only give the result to the caller if we succeeded
+        if (succeeded)
+            *output = shaderHandle;
+
+        //clean up the stuff we allocated
+        delete[] shaderSource;
+        fclose(shaderFile);
+    }
+
+    return succeeded;
+}
+
+bool LoadShader(char* vertexFilename, char* geometryFilename, char* fragmentFilename, GLuint* result)
+{
+    bool succeeded = true;
+
+    *result = glCreateProgram();
+
+    unsigned int vertexShader;
+
+    if (LoadShaderType(vertexFilename, GL_VERTEX_SHADER, &vertexShader))
+    {
+        glAttachShader(*result, vertexShader);
+        glDeleteShader(vertexShader);
+    }
+    else
+        printf("FAILED TO LOAD VERTEX SHADER\n");
+
+    if (geometryFilename != nullptr)
+    {
+        unsigned int geometryShader;
+        if (LoadShaderType(geometryFilename, GL_GEOMETRY_SHADER, &geometryShader))
+        {
+            glAttachShader(*result, geometryShader);
+            glDeleteShader(geometryShader);
+        }
+        else
+            printf("FAILED TO LOAD GEOMETRY SHADER\n");
+    }
+    if (fragmentFilename != nullptr)
+    {
+        unsigned int fragmentShader;
+        if (LoadShaderType(fragmentFilename, GL_FRAGMENT_SHADER, &fragmentShader))
+        {
+            glAttachShader(*result, fragmentShader);
+            glDeleteShader(fragmentShader);
+        }
+        else
+            printf("FAILED TO LOAD FRAGMENT SHADER\n");
+    }
+
+    glLinkProgram(*result);
+
+    GLint success;
+    glGetProgramiv(*result, GL_LINK_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+        GLint logLength;
+        glGetProgramiv(*result, GL_INFO_LOG_LENGTH, &logLength);
+        char* log = new char[logLength];
+        glGetProgramInfoLog(*result, logLength, 0, log);
+
+        printf("ERROR: STUFF DONE SCREWED UP IN UR SHADER BUDDY!\n\n");
+        printf("%s", log);
+
+        delete[] log;
+        succeeded = false;
+    }
+
+    return succeeded;
+}
 
 unsigned int CreateGLTextureBasic(unsigned char* data, int width, int height, int channels)
 {
@@ -288,11 +288,11 @@ void RebuildVertexBuffer(Mesh* mesh)
 
 Renderer::Renderer()
 {
-	mainShader = new Shader();
-	//LoadShader("shaders/mainShader.vs", 0, "shaders/mainShader.fs", &mainShader);
-	mainShader->LoadShader(GL_VERTEX_SHADER, "./res/shaders/mainShader.vs");
-	mainShader->LoadShader(GL_FRAGMENT_SHADER, "./res/shaders/mainShader.fs");
-	mainShader->Link();
+	//mainShader = new Shader();
+	LoadShader("./res/shaders/mainShader.vs", 0, "./res/shaders/mainShader.fs", &mainShader);
+	//mainShader->LoadShader(GL_VERTEX_SHADER, "./res/shaders/mainShader.vs");
+	//mainShader->LoadShader(GL_FRAGMENT_SHADER, "./res/shaders/mainShader.fs");
+	//mainShader->Link();
 }
 
 Renderer::~Renderer() {}
@@ -308,36 +308,36 @@ void Renderer::PushMesh(Mesh* mesh, mat4 transform)
 
 void Renderer::RenderAndClear(mat4 viewProj)
 {
-    //glUseProgram(mainShader);
-	mainShader->Bind();
+    glUseProgram(mainShader);
+	//mainShader->Bind();
 
-    //int viewProjLoc = glGetUniformLocation(mainShader, "viewProj");
+    int viewProjLoc = glGetUniformLocation(mainShader, "viewProj");
+	
+    int modelLoc = glGetUniformLocation(mainShader, "model");
+    int modelViewProjLoc = glGetUniformLocation(mainShader, "modelViewProj");
+	
+    int diffuseLoc = glGetUniformLocation(mainShader, "diffuseTex");
+    int normalLoc = glGetUniformLocation(mainShader, "normalTex");
+    int specularLoc = glGetUniformLocation(mainShader, "specularTex");
+	
+    int ambientLocation = glGetUniformLocation(mainShader, "ambientLight");
+    int lightDirLocation = glGetUniformLocation(mainShader, "lightDir");
+    int lightColorLocation = glGetUniformLocation(mainShader, "lightColor");
+    int specPowLocation = glGetUniformLocation(mainShader, "specularPower");
+
+	//int viewProjLoc = mainShader->GetUniform("viewProj");
 	//
-    //int modelLoc = glGetUniformLocation(mainShader, "model");
-    //int modelViewProjLoc = glGetUniformLocation(mainShader, "modelViewProj");
+	//int modelLoc = mainShader->GetUniform("model");
+	//int modelViewProjLoc = mainShader->GetUniform("modelViewProj");
 	//
-    //int diffuseLoc = glGetUniformLocation(mainShader, "diffuseTex");
-    //int normalLoc = glGetUniformLocation(mainShader, "normalTex");
-    //int specularLoc = glGetUniformLocation(mainShader, "specularTex");
+	//int diffuseLoc = mainShader->GetUniform("diffuseTex");
+	//int normalLoc = mainShader->GetUniform("normalTex");
+	//int specularLoc = mainShader->GetUniform("specularTex");
 	//
-    //int ambientLocation = glGetUniformLocation(mainShader, "ambientLight");
-    //int lightDirLocation = glGetUniformLocation(mainShader, "lightDir");
-    //int lightColorLocation = glGetUniformLocation(mainShader, "lightColor");
-    //int specPowLocation = glGetUniformLocation(mainShader, "specularPower");
-
-	int viewProjLoc = mainShader->GetUniform("viewProj");
-
-	int modelLoc = mainShader->GetUniform("model");
-	int modelViewProjLoc = mainShader->GetUniform("modelViewProj");
-
-	int diffuseLoc = mainShader->GetUniform("diffuseTex");
-	int normalLoc = mainShader->GetUniform("normalTex");
-	int specularLoc = mainShader->GetUniform("specularTex");
-
-	int ambientLocation = mainShader->GetUniform("ambientLight");
-	int lightDirLocation = mainShader->GetUniform("lightDir");
-	int lightColorLocation = mainShader->GetUniform("lightColor");
-	int specPowLocation = mainShader->GetUniform("specularPower");
+	//int ambientLocation = mainShader->GetUniform("ambientLight");
+	//int lightDirLocation = mainShader->GetUniform("lightDir");
+	//int lightColorLocation = mainShader->GetUniform("lightColor");
+	//int specPowLocation = mainShader->GetUniform("specularPower");
 
     float sq3 = sqrt(3.f);
 

@@ -69,7 +69,7 @@ Mesh* CreateMeshFromBuffers(SimpleVertex* vertexData, unsigned int vertexCount, 
 void FreeMesh(Mesh* mesh);
 void RebuildVertexBuffer(Mesh* mesh);
 
-class Shader;
+//class Shader;
 
 class Renderer
 {
@@ -88,8 +88,8 @@ public:
 
 	std::vector<RenderItem> renderQueue;
 
-    //unsigned int mainShader;
-	Shader* mainShader;
+    unsigned int mainShader;
+	//Shader* mainShader;
 };
 
 #endif	

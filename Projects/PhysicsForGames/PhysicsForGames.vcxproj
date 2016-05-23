@@ -155,7 +155,6 @@
     <ClCompile Include="src\ParticleEmitter.cpp" />
     <ClCompile Include="src\ParticleFluidEmitter.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\PhysicsApp.h" />

@@ -42,7 +42,7 @@ public:
 
 	void DestroyPhysicsObject(PhysicsObject* object);
 
-	const std::vector<PhysicsObject*>& GetPhysicsObject() const { return m_physicsObjects; }
+	inline const std::vector<PhysicsObject*>& GetPhysicsObject() const { return m_physicsObjects; }
 
 	void CheckForCollision();
 	void ResolveCollisions();

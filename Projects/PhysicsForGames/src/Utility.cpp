@@ -56,60 +56,60 @@ bool LoadShaderType(char* filename, GLenum shaderType, unsigned int* output)
 
 bool LoadShader(char* vertexFilename, char* geometryFilename, char* fragmentFilename, GLuint* result)
 {
-    bool succeeded = true;
-
-    *result = glCreateProgram();
-
-    unsigned int vertexShader;
-
-    if (LoadShaderType(vertexFilename, GL_VERTEX_SHADER, &vertexShader))
-    {
-        glAttachShader(*result, vertexShader);
-        glDeleteShader(vertexShader);
-    }
-    else
-        printf("FAILED TO LOAD VERTEX SHADER\n");
-
-    if (geometryFilename != nullptr)
-    {
-        unsigned int geometryShader;
-        if (LoadShaderType(geometryFilename, GL_GEOMETRY_SHADER, &geometryShader))
-        {
-            glAttachShader(*result, geometryShader);
-            glDeleteShader(geometryShader);
-        }
-        else
-            printf("FAILED TO LOAD GEOMETRY SHADER\n");
-    }
-    if (fragmentFilename != nullptr)
-    {
-        unsigned int fragmentShader;
-        if (LoadShaderType(fragmentFilename, GL_FRAGMENT_SHADER, &fragmentShader))
-        {
-            glAttachShader(*result, fragmentShader);
-            glDeleteShader(fragmentShader);
-        }
-        else
-            printf("FAILED TO LOAD FRAGMENT SHADER\n");
-    }
-
-    glLinkProgram(*result);
-
-    GLint success;
-    glGetProgramiv(*result, GL_LINK_STATUS, &success);
-    if (success == GL_FALSE)
-    {
-        GLint logLength;
-        glGetProgramiv(*result, GL_INFO_LOG_LENGTH, &logLength);
-        char* log = new char[logLength];
-        glGetProgramInfoLog(*result, logLength, 0, log);
-
-        printf("ERROR: STUFF DONE SCREWED UP IN UR SHADER BUDDY!\n\n");
-        printf("%s", log);
-
-        delete[] log;
-        succeeded = false;
-    }
-
-    return succeeded;
+	bool succeeded = true;
+	
+	*result = glCreateProgram();
+	
+	unsigned int vertexShader;
+	
+	if (LoadShaderType(vertexFilename, GL_VERTEX_SHADER, &vertexShader))
+	{
+		glAttachShader(*result, vertexShader);
+		glDeleteShader(vertexShader);
+	}
+	else
+	    printf("FAILED TO LOAD VERTEX SHADER\n");
+	
+	if (geometryFilename != nullptr)
+	{
+		unsigned int geometryShader;
+		if (LoadShaderType(geometryFilename, GL_GEOMETRY_SHADER, &geometryShader))
+		{
+			glAttachShader(*result, geometryShader);
+			glDeleteShader(geometryShader);
+		}
+		else
+			printf("FAILED TO LOAD GEOMETRY SHADER\n");
+	}
+	if (fragmentFilename != nullptr)
+	{
+		unsigned int fragmentShader;
+		if (LoadShaderType(fragmentFilename, GL_FRAGMENT_SHADER, &fragmentShader))
+		{
+			glAttachShader(*result, fragmentShader);
+			glDeleteShader(fragmentShader);
+		}
+		else
+			printf("FAILED TO LOAD FRAGMENT SHADER\n");
+	}
+	
+	glLinkProgram(*result);
+	
+	GLint success;
+	glGetProgramiv(*result, GL_LINK_STATUS, &success);
+	if (success == GL_FALSE)
+	{
+		GLint logLength;
+		glGetProgramiv(*result, GL_INFO_LOG_LENGTH, &logLength);
+		char* log = new char[logLength];
+		glGetProgramInfoLog(*result, logLength, 0, log);
+		
+		printf("ERROR: STUFF DONE SCREWED UP IN UR SHADER BUDDY!\n\n");
+		printf("%s", log);
+		
+		delete[] log;
+		succeeded = false;
+	}
+	
+	return succeeded;
 }

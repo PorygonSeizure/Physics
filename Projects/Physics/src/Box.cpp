@@ -5,6 +5,18 @@
 using namespace Physics;
 using glm::vec3;
 
+Box::Box() : RigidBody(ShapeType::BOX), m_xOffset(1.f), m_yOffset(1.f), m_zOffset(1.f) { SetOBB(); }
+
+Box::Box(float value) : RigidBody(ShapeType::BOX), m_xOffset(value), m_yOffset(value), m_zOffset(value) { SetOBB(); }
+
+Box::Box(float xOffset, float yOffset, float zOffset) : RigidBody(ShapeType::BOX), m_xOffset(xOffset), m_yOffset(yOffset), m_zOffset(zOffset) { SetOBB(); }
+
+Box::Box(glm::vec3 position, float xOffset, float yOffset, float zOffset) : RigidBody(ShapeType::BOX), m_xOffset(xOffset), m_yOffset(yOffset), m_zOffset(zOffset)
+{
+	m_position = position;
+	SetOBB();
+}
+
 void Box::Update(vec3 gravity, float deltaTime)
 {
 	RigidBody::Update(gravity, deltaTime);
