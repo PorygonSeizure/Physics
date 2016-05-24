@@ -93,9 +93,10 @@ bool PhysicsApp::Update(float deltaTime)
 
 	//m_objects->Update(vec3(0, -0.98, 0), deltaTime);
 
-	vec4 translationVec = m_camera->GetTransform()[3];
+	vec4 leftVec = m_camera->GetTransform()[0];
+	vec4 upVec = m_camera->GetTransform()[1];
 	vec4 forwardVec = m_camera->GetTransform()[2];
-	vec4 rightVec = m_camera->GetTransform()[0];
+	vec4 cameraPos = m_camera->GetTransform()[3];
 
 	bool leftMousePressed = (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS);
 
@@ -120,8 +121,8 @@ bool PhysicsApp::Update(float deltaTime)
 	if (leftMousePressed && !m_wasLeftMousePressed)
 	{
 		auto obj = m_physicsScene->CreatePhysicsObject<Physics::Sphere>(0.25f);
-		obj->SetPosition(vec3(translationVec));
-		obj->SetVelocity(vec3(-forwardVec * 10.f));
+		obj->SetPosition(vec3(cameraPos));
+		obj->SetVelocity(vec3(forwardVec * -10.f));
 		m_physicsRenderer->GetRenderInfo(obj)->color = vec4(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 1.f);
 		m_wasLeftMousePressed = true;
 	}
