@@ -18,12 +18,12 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PhysicsApp.cpp">
+    <ClCompile Include="src\PhysXApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\PhysicsApp.h">
+    <ClInclude Include="src\PhysXApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,9 +1,9 @@
-#include "PhysicsApp.h"
+#include "PhysXApp.h"
 #include <GLFW/glfw3.h>
 
 int main()
 {
-	BaseApp* app = new PhysicsApp();
+	BaseApp* app = new PhysXApp();
 	if (app->Startup())
 		app->Run();
 	app->Shutdown();
