@@ -7,9 +7,11 @@
 
 #include "Camera.h"
 #include "Gizmos.h"
+#include "Ragdoll.h"
 
 using glm::vec3;
 using glm::vec4;
+using glm::mat4;
 using namespace physx;
 
 bool PhysXApp::Startup()
@@ -77,14 +79,15 @@ void PhysXApp::SetupScene()
 	m_material = m_physics->createMaterial(0.5f, 0.5f, 0.6f);
 
 	PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane(0, 1, 0, 0), *m_material);
+	//PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane(0, (1.f / sqrtf(2.f)), (1.f / sqrtf(2.f)), 0), *m_material);
 	m_physXActors.push_back(groundPlane);
 	m_scene->addActor(*groundPlane);
 
-	//PxShape* shape = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
-	//PxRigidDynamic* boxActor = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 0.f));
-	//boxActor->attachShape(*shape);
-	//m_physXActors.push_back(boxActor);
-	//m_scene->addActor(*boxActor);
+	//PxShape* shape = m_physics->createShape(PxSphereGeometry(0.25f), *m_material);
+	//PxRigidDynamic* sphereActor = m_physics->createRigidDynamic(PxTransform(-5.f, 0.25f, -5.f));
+	//sphereActor->attachShape(*shape);
+	//m_physXActors.push_back(sphereActor);
+	//m_scene->addActor(*sphereActor);
 
 	PxShape* shapes[55];
 	PxRigidDynamic* boxes[55];
@@ -113,7 +116,7 @@ void PhysXApp::SetupScene()
 	boxes[22] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 1.f));
 	boxes[23] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 1.f));
 	boxes[24] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 1.f));
-
+	
 	boxes[25] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, -0.75f));
 	boxes[26] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, -0.75f));
 	boxes[27] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, -0.75f));
@@ -130,7 +133,7 @@ void PhysXApp::SetupScene()
 	boxes[38] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, 0.75f));
 	boxes[39] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, 0.75f));
 	boxes[40] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, 0.75f));
-
+	
 	boxes[41] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, -0.5f));
 	boxes[42] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, -0.5f));
 	boxes[43] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, -0.5f));
@@ -140,14 +143,14 @@ void PhysXApp::SetupScene()
 	boxes[47] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, 0.5f));
 	boxes[48] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, 0.5f));
 	boxes[49] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, 0.5f));
-
+	
 	boxes[50] = m_physics->createRigidDynamic(PxTransform(-0.25f, 1.75f, -0.25f));
 	boxes[51] = m_physics->createRigidDynamic(PxTransform(0.25f, 1.75f, -0.25f));
 	boxes[52] = m_physics->createRigidDynamic(PxTransform(-0.25f, 1.75f, 0.25f));
 	boxes[53] = m_physics->createRigidDynamic(PxTransform(0.25f, 1.75f, 0.25f));
-
+	
 	boxes[54] = m_physics->createRigidDynamic(PxTransform(0.f, 2.25f, 0.f));
-
+	
 	for (int i = 0; i < 55; i++)
 	{
 		shapes[i] = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
@@ -155,6 +158,36 @@ void PhysXApp::SetupScene()
 		m_physXActors.push_back(boxes[i]);
 		m_scene->addActor(*boxes[i]);
 	}
+
+	//create some constants for axis of rotation to make definition of quaternions a bit neater
+	const physx::PxVec3 X_AXIS = physx::PxVec3(1, 0, 0);
+	const physx::PxVec3 Y_AXIS = physx::PxVec3(0, 1, 0);
+	const physx::PxVec3 Z_AXIS = physx::PxVec3(0, 0, 1);
+
+	RagdollNode* ragdollData[] =
+	{
+		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), NO_PARENT, 1, 3, 1, 1, "lower spine"),
+		new RagdollNode(PxQuat(PxPi, Z_AXIS), LOWER_SPINE, 1, 1, -1, 1, "left pelvis"),
+		new RagdollNode(PxQuat(0, Z_AXIS), LOWER_SPINE, 1, 1, -1, 1, "right pelvis"),
+		new RagdollNode(PxQuat(PxPi / 2.f + 0.2f, Z_AXIS), LEFT_PELVIS, 5, 2, -1, 1, "L upper leg"),
+		new RagdollNode(PxQuat(PxPi / 2.f - 0.2f, Z_AXIS), RIGHT_PELVIS, 5, 2, -1, 1, "R upper leg"),
+		new RagdollNode(PxQuat(PxPi / 2.f + 0.2f, Z_AXIS), LEFT_UPPER_LEG, 5, 1.75, -1, 1, "L lower leg"),
+		new RagdollNode(PxQuat(PxPi / 2.f - 0.2f, Z_AXIS), RIGHT_UPPER_LEG, 5, 1.75, -1, 1, "R lowerleg"),
+		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), LOWER_SPINE, 1, 3, 1, -1, "upper spine"),
+		new RagdollNode(PxQuat(PxPi, Z_AXIS), UPPER_SPINE, 1, 1.5, 1, 1, "left clavicle"),
+		new RagdollNode(PxQuat(0, Z_AXIS), UPPER_SPINE, 1, 1.5, 1, 1, "right clavicle"),
+		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), UPPER_SPINE, 1, 1, 1, -1, "neck"),
+		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), NECK, 1, 3, 1, -1, "HEAD"),
+		new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_CLAVICLE, 3, 1.5, -1, 1, "left upper arm"),
+		new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_CLAVICLE, 3, 1.5, -1, 1, "right upper arm"),
+		new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_UPPER_ARM, 3, 1, -1, 1, "left lower arm"),
+		new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_UPPER_ARM, 3, 1, -1, 1, "right lower arm"),
+		NULL
+	};
+
+	PxArticulation* ragdollArticulation = MakeRagdoll(m_physics, ragdollData, PxTransform(PxVec3(5, 5, 5)), 0.1f, m_material);
+	m_ragdolls.push_back(ragdollArticulation);
+	m_scene->addArticulation(*ragdollArticulation);
 }
 
 bool PhysXApp::Update(float deltaTime)
@@ -214,6 +247,25 @@ void PhysXApp::Draw()
 		delete[] shapes;
 	}
 
+	for (auto artiulcation : m_ragdolls)
+	{
+		PxU32 numberLinks = artiulcation->getNbLinks();
+		PxArticulationLink** links = new PxArticulationLink*[numberLinks];
+		artiulcation->getLinks(links, numberLinks);
+
+		while (numberLinks--)
+		{
+			PxArticulationLink* link = links[numberLinks];
+			PxU32 numberShapes = link->getNbShapes();
+			PxShape** shapes = new PxShape*[numberShapes];
+			link->getShapes(shapes, numberShapes);
+			while (numberShapes--)
+				AddWidget(shapes[numberShapes], link);
+		}
+
+		delete[] links;
+	}
+
 	//clear the screen for this frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -224,7 +276,7 @@ void PhysXApp::Draw()
 	int width = 0;
 	int height = 0;
 	glfwGetWindowSize(m_window, &width, &height);
-	glm::mat4 guiMatrix = glm::ortho<float>(0, (float)width, 0, (float)height);
+	mat4 guiMatrix = glm::ortho<float>(0, (float)width, 0, (float)height);
 
 	Gizmos::Draw2D(guiMatrix);
 }
@@ -265,7 +317,7 @@ void PhysXApp::AddWidget(PxShape* shape, PxRigidActor* actor)
 			AddPlane(shape, actor);
 			break;
 		case PxGeometryType::eCAPSULE:
-			//AddCapsule(shape, actor);
+			AddCapsule(shape, actor);
 			break;
 		case PxGeometryType::eBOX:
 			AddBox(shape, actor);
@@ -284,7 +336,7 @@ void PhysXApp::AddSphere(PxShape* shape, PxRigidActor* actor)
 		radius = geometry.radius;
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	glm::mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
 		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
 		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
 		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
@@ -297,33 +349,26 @@ void PhysXApp::AddSphere(PxShape* shape, PxRigidActor* actor)
 	if (actor->getName() != NULL && strcmp(actor->getName(), "Pickup1"))
 		colour = vec4(0, 1, 0, 1);
 
-	Gizmos::AddSphere(position, radius, 8, 8, colour, &m);
+	Gizmos::AddSphere(position, radius, 8, 8, colour, nullptr, 0.f, 360.f, -90.f, 90.f);
 }
 
 void DrawPlane(vec3 position, vec3 normal, vec4 colour)
 {
-	vec3 xVert(1, 0, 0);
-	vec3 yVert(0, 1, 0);
-	vec3 zVert(0, 0, 1);
+	if (normal.x < 0.f)
+		normal.x = 0.f;
+	if (normal.y < 0.f)
+		normal.y = 0.f;
+	if (normal.z < 0.f)
+		normal.z = 0.f;
+	vec3 vert(0, 0, 1);
 
-	vec3 vector1;
-	vec3 vector2;
-
-	if (normal == xVert)
-	{
-		vector1 = yVert;
-		vector2 = zVert;
-	}
-	else if (normal == yVert)
-	{
-		vector1 = zVert;
-		vector2 = xVert;
-	}
-	else if (normal == zVert)
-	{
-		vector1 = xVert;
-		vector2 = yVert;
-	}
+	if (glm::length(glm::cross(vert, normal)) < (1.f / 360.f))
+		vert = vec3(0, 1, 0);
+	if (glm::length(glm::cross(vert, normal)) < (1.f / 360.f))
+		vert = vec3(1, 0, 0);
+	
+	vec3 vector1 = glm::normalize(glm::cross(normal, vert));
+	vec3 vector2 = glm::cross(vector1, normal);
 
 	vector1 *= 100.f;
 	vector2 *= 100.f;
@@ -337,16 +382,28 @@ void DrawPlane(vec3 position, vec3 normal, vec4 colour)
 	Gizmos::AddLine(three, four, colour);
 	Gizmos::AddLine(four, one, colour);
 
-	vec3 min = glm::min(three, one);
-	vec3 dif = glm::abs(three - one);
+	vec3 dif = glm::abs(four - one);
 	int lineVar = 1;
 	glm::ivec3 num = dif / lineVar;
-	for (int i = 0; i < num.x; i++)
-		Gizmos::AddLine(vec3(min.x + (i * lineVar), min.y, min.z), vec3(min.x + (i * lineVar), -min.y, -min.z), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
-	for (int i = 0; i < num.y; i++)
-		Gizmos::AddLine(vec3(min.x, min.y + (i * lineVar), min.z), vec3(-min.x, min.y + (i * lineVar), -min.z), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
-	for (int i = 0; i < num.z; i++)
-		Gizmos::AddLine(vec3(min.x, min.y, min.z + (i * lineVar)), vec3(-min.x, -min.y, min.z + (i * lineVar)), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
+
+	for (glm::ivec3 i(0); glm::length(vec3(i)) < glm::length(vec3(num)); i++)
+	{
+		vec3 p1(one.x + (i.x * lineVar), one.y + (i.y * lineVar), one.z + (i.z * lineVar));
+		vec3 p2(two.x + (i.x * lineVar), two.y + (i.y * lineVar), two.z + (i.z * lineVar));
+
+		Gizmos::AddLine(p1, p2, vec4(0, 0, 0, 1));
+	}
+		
+	dif = glm::abs(two - one);
+	num = dif / lineVar;
+
+	for (glm::ivec3 i(0); glm::length(vec3(i)) < glm::length(vec3(num)); i++)
+	{
+		vec3 p1(one.x + (i.x * lineVar), one.y + (i.y * lineVar), one.z + (i.z * lineVar));
+		vec3 p2(four.x + (i.x * lineVar), four.y + (i.y * lineVar), four.z + (i.z * lineVar));
+
+		Gizmos::AddLine(p1, p2, vec4(0, 0, 0, 1));
+	}
 }
 
 void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
@@ -354,7 +411,7 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 	PxPlaneGeometry geometry;
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	glm::mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
 				pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
 				pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
 				pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
@@ -369,7 +426,7 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 	if (status)
 	{
 		PxPlane plane = PxPlaneEquationFromTransform(PxTransform(pxm));
-		normal = vec3((int)plane.n.x, (int)plane.n.y, (int)plane.n.z);
+		normal = vec3(plane.n.x, plane.n.y, plane.n.z);
 	}
 
 	vec4 colour = vec4(1, 0, 0, 1);
@@ -378,6 +435,40 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 
 	DrawPlane(position, normal, colour);
 	//Gizmos::AddAABB(position, vec3(100.f * m[0].x, 100.f * m[1].y, 100.f * m[2].z), colour, &m);
+}
+
+void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
+{
+	PxCapsuleGeometry geometry;
+	float radius = 1.f;
+	float halfHeight = 2.f;
+
+	bool status = shape->getCapsuleGeometry(geometry);
+	if (status)
+	{
+		radius = geometry.radius;
+		halfHeight = geometry.halfHeight;
+	}
+
+	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
+		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
+		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
+		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
+	//mat4 m(pxm.column0.x, pxm.column1.x, pxm.column2.x, pxm.column3.x,
+	//	pxm.column0.y, pxm.column1.y, pxm.column2.y, pxm.column3.y,
+	//	pxm.column0.z, pxm.column1.z, pxm.column2.z, pxm.column3.z,
+	//	pxm.column0.w, pxm.column1.w, pxm.column2.w, pxm.column3.w);
+	vec3 position;
+
+	position.x = pxm.getPosition().x;
+	position.y = pxm.getPosition().y;
+	position.z = pxm.getPosition().z;
+	vec4 colour = vec4(1, 0, 0, 1);
+	if (actor->getName() != NULL && strcmp(actor->getName(), "Pickup1"))
+		colour = vec4(0, 1, 0, 1);
+
+	Gizmos::AddCapsule(position, radius, halfHeight, 8, 8, colour, &m);
 }
 
 void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
@@ -395,7 +486,7 @@ void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
 	}
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	glm::mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
 		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
 		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
 		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);

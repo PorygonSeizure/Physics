@@ -39,8 +39,9 @@ public:
 	//Adds an Axis-Aligned Bounding-Box with optional transform for rotation.
 	static void AddAABBFilled(const glm::vec3& center, const glm::vec3& extents, const glm::vec4& fillColour, const glm::mat4* transform = nullptr);
 
-	//Adds a cylinder aligned to the Y-axis with optional transform for rotation.
-	static void AddCylinderFilled(const glm::vec3& center, float radius, float halfLength, unsigned int segments, const glm::vec4& fillColour, const glm::mat4* transform = nullptr);
+	//Adds a cylinder with optional transform for rotation.
+	static void AddCylinderFilledX(const glm::vec3& center, float radius, float halfHeight, unsigned int segments, const glm::vec4& fillColour, const glm::mat4* transform = nullptr);
+	static void AddCylinderFilledY(const glm::vec3& center, float radius, float halfLength, unsigned int segments, const glm::vec4& fillColour, const glm::mat4* transform = nullptr);
 
 	//Adds a double-sided hollow ring in the XZ axis with optional transform for rotation.
 	//If rvFilLColour.w == 0 then only an outer and inner line is drawn.
@@ -66,7 +67,7 @@ public:
 	//Adds a single Hermite spline curve
 	static void AddHermiteSpline(const glm::vec3& start, const glm::vec3& end, const glm::vec3& tangentStart, const glm::vec3& tangentEnd, unsigned int segments, const glm::vec4& colour);
 
-	static void AddCapsule(const glm::vec3 center, const float length, const float radius, const int rows, const int cols, const glm::vec4 color, const glm::mat4* rotation = 0);
+	static void AddCapsule(const glm::vec3 center, float radius, float halfHeight, unsigned int rows, unsigned int cols, const glm::vec4 fillColour, const glm::mat4* transform = 0);
 	//2-dimensional gizmos
 	static void Add2DLine(const glm::vec2& start, const glm::vec2& end, const glm::vec4& colour);
 	static void Add2DLine(const glm::vec2& start, const glm::vec2& end, const glm::vec4& colour0, const glm::vec4& colour1);	

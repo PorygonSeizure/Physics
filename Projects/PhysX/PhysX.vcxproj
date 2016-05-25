@@ -151,10 +151,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Ragdoll.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PhysXApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Ragdoll.h" />
     <ClInclude Include="src\PhysXApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

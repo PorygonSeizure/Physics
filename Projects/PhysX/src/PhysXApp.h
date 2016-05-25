@@ -35,6 +35,7 @@ public:
 	void AddWidget(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddSphere(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddPlane(physx::PxShape* shape, physx::PxRigidActor* actor);
+	void AddCapsule(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddBox(physx::PxShape* shape, physx::PxRigidActor* actor);
 
 protected:
@@ -59,6 +60,7 @@ protected:
 	//physx::PxRigidDynamic* m_actor = NULL;
 
 	std::vector<physx::PxRigidActor*> m_physXActors;
+	std::vector<physx::PxArticulation*> m_ragdolls;
 };
 
 #endif

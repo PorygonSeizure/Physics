@@ -208,39 +208,6 @@ void Gizmos::AddAABB(const vec3& center, const vec3& rvExtents, const vec4& colo
 	AddLine(verts[3], verts[7], colour, colour);
 }
 
-void Gizmos::AddCapsule(const vec3 center, const float length, const float radius, const int rows, const int cols, const vec4 color, const mat4* rotation /* = 0*/)
-{
-	float halfSphereCenter = (length * 0.5f) - radius;
-	vec4 right = vec4(halfSphereCenter, 0, 0, 0);
-	vec4 left = vec4(-halfSphereCenter, 0, 0, 0);
-
-	if (rotation)
-	{
-		right = (*rotation) * right;
-		left = (*rotation) * left;
-	}
-
-	vec3 rightCenter = center + right.xyz();
-	vec3 leftCenter = center + left.xyz();
-
-	AddSphere(rightCenter, radius, rows, cols, color);
-	AddSphere(leftCenter, radius, rows, cols, color);
-
-	for (int i = 0; i < cols; ++i)
-	{
-		float x = (float)i / (float)cols;
-		x *= 2.f * pi<float>();
-
-		vec4 pos = vec4(0, cosf(x), sinf(x), 0) * radius;
-
-		if (rotation)
-			pos = (*rotation) * pos;
-
-		AddLine(leftCenter + pos.xyz(), rightCenter + pos.xyz(), color);
-	}
-
-}
-
 void Gizmos::AddAABBFilled(const vec3& center, const vec3& rvExtents, const vec4& fillColour, const mat4* transform /* = nullptr */)
 {
 	vec3 verts[8];
@@ -309,7 +276,45 @@ void Gizmos::AddAABBFilled(const vec3& center, const vec3& rvExtents, const vec4
 	AddTri(verts[6], verts[2], verts[7], fillColour);
 }
 
-void Gizmos::AddCylinderFilled(const vec3& center, float radius, float halfLength, unsigned int segments, const vec4& fillColour, const mat4* transform /* = nullptr */)
+void Gizmos::AddCylinderFilledX(const vec3& center, float radius, float halfHeight, unsigned int segments, const vec4& fillColour, const mat4* transform /* = nullptr */)
+{
+	vec4 white(1, 1, 1, 1);
+
+	float segmentSize = (2.f * pi<float>()) / segments;
+
+	for (unsigned int i = 0; i < segments; ++i)
+	{
+		vec3 top0(halfHeight, 0, 0);
+		vec3 top1(halfHeight, sinf(i * segmentSize) * radius, cosf(i * segmentSize) * radius);
+		vec3 top2(halfHeight, sinf((i + 1) * segmentSize) * radius, cosf((i + 1) * segmentSize) * radius);
+		vec3 bottom0(-halfHeight, 0, 0);
+		vec3 bottom1(-halfHeight, sinf(i * segmentSize) * radius, cosf(i * segmentSize) * radius);
+		vec3 bottom2(-halfHeight, sinf((i + 1) * segmentSize) * radius, cosf((i + 1) * segmentSize) * radius);
+
+		if (transform != nullptr)
+		{
+			top0 = (*transform * vec4(top0, 0)).xyz();
+			top1 = (*transform * vec4(top1, 0)).xyz();
+			top2 = (*transform * vec4(top2, 0)).xyz();
+			bottom0 = (*transform * vec4(bottom0, 0)).xyz();
+			bottom1 = (*transform * vec4(bottom1, 0)).xyz();
+			bottom2 = (*transform * vec4(bottom2, 0)).xyz();
+		}
+
+		//triangles
+		AddTri(center + top0, center + top1, center + top2, fillColour);
+		AddTri(center + bottom0, center + bottom2, center + bottom1, fillColour);
+		AddTri(center + top2, center + top1, center + bottom1, fillColour);
+		AddTri(center + bottom1, center + bottom2, center + top2, fillColour);
+
+		//lines
+		AddLine(center + top1, center + top2, white, white);
+		AddLine(center + top1, center + bottom1, white, white);
+		AddLine(center + bottom1, center + bottom2, white, white);
+	}
+}
+
+void Gizmos::AddCylinderFilledY(const vec3& center, float radius, float halfLength, unsigned int segments, const vec4& fillColour, const mat4* transform /* = nullptr */)
 {
 	vec4 white(1, 1, 1, 1);
 
@@ -600,6 +605,45 @@ void Gizmos::AddSphere(const vec3& center, float radius,
 	}
 
 	delete[] vectorArray;	
+}
+
+void Gizmos::AddCapsule(const vec3 center, float radius, float halfHeight, unsigned int rows, unsigned int cols, const vec4 fillColour, const mat4* transform /*= 0*/)
+{
+	//float halfSphereCenter = halfHeight + radius;
+	vec4 right = vec4(halfHeight, 0, 0, 0);
+	vec4 left = vec4(-halfHeight, 0, 0, 0);
+
+	if (transform)
+	{
+		right = (*transform) * right;
+		left = (*transform) * left;
+	}
+
+	vec3 rightCenter = center + right.xyz();
+	vec3 leftCenter = center + left.xyz();
+
+	//rightCenter.x -= radius;
+	//leftCenter.x += radius;
+
+	//AddSphere(rightCenter, radius, rows, cols, fillColour);
+	AddSphere(rightCenter, radius, rows, cols, fillColour, transform/*, 180.f, 360.f*/);
+	//AddSphere(leftCenter, radius, rows, cols, fillColour);
+	AddSphere(leftCenter, radius, rows, cols, fillColour, transform/*, 0.f, 180.f*/);
+
+	AddCylinderFilledX(center, radius, halfHeight, cols, fillColour, transform);
+
+	for (int i = 0; i < cols; ++i)
+	{
+		float x = (float)i / (float)cols;
+		x *= 2.f * pi<float>();
+
+		vec4 pos = vec4(0, cosf(x), sinf(x), 0) * radius;
+
+		if (transform)
+			pos = (*transform) * pos;
+
+		AddLine(leftCenter + pos.xyz(), rightCenter + pos.xyz(), fillColour);
+	}
 }
 
 void Gizmos::AddHermiteSpline(const vec3& start, const vec3& end,

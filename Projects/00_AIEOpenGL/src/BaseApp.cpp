@@ -64,8 +64,10 @@ void BaseApp::Run()
 		//cap dt to 12 FPS
 		if (deltaTime > 1.f / 12.f)
 			deltaTime = 1.f / 12.f;
+		if (deltaTime <= 1.f / 360.f)
+			deltaTime = 1.f / 360.f;
 
-		if(!Update(deltaTime))
+		if (!Update(deltaTime))
 			break;
 
 		glfwPollEvents();

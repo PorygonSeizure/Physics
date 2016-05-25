@@ -26,6 +26,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ResourceManager", "Projects
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysX", "Projects\PhysX\PhysX.vcxproj", "{41BC5087-DB7B-4A3F-A65B-E8C141A8A20F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{63494F4E-79FA-48AD-AA6C-BDF1FF1619FD} = {63494F4E-79FA-48AD-AA6C-BDF1FF1619FD}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
