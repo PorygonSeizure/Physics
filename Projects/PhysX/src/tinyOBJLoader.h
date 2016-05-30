@@ -1,42 +1,36 @@
 //
-// Copyright 2012-2016, Syoyo Fujita.
+//Copyright 2012-2016, Syoyo Fujita.
 //
-// Licensed under 2-clause BSD license.
-//
-
-//
-// version 0.9.22: Introduce `LoadFlagsT`.
-// version 0.9.20: Fixes creating per-face material using `usemtl`(#68)
-// version 0.9.17: Support n-polygon and crease tag(OpenSubdiv extension)
-// version 0.9.16: Make tinyobjloader header-only
-// version 0.9.15: Change API to handle no mtl file case correctly(#58)
-// version 0.9.14: Support specular highlight, bump, displacement and alpha
-// map(#53)
-// version 0.9.13: Report "Material file not found message" in `err`(#46)
-// version 0.9.12: Fix groups being ignored if they have 'usemtl' just before
-// 'g' (#44)
-// version 0.9.11: Invert `Tr` parameter(#43)
-// version 0.9.10: Fix seg fault on windows.
-// version 0.9.9 : Replace atof() with custom parser.
-// version 0.9.8 : Fix multi-materials(per-face material ID).
-// version 0.9.7 : Support multi-materials(per-face material ID) per
-// object/group.
-// version 0.9.6 : Support Ni(index of refraction) mtl parameter.
-//                 Parse transmittance material parameter correctly.
-// version 0.9.5 : Parse multiple group name.
-//                 Add support of specifying the base path to load material
-//                 file.
-// version 0.9.4 : Initial support of group tag(g)
-// version 0.9.3 : Fix parsing triple 'x/y/z'
-// version 0.9.2 : Add more .mtl load support
-// version 0.9.1 : Add initial .mtl load support
-// version 0.9.0 : Initial
+//Licensed under 2-clause BSD license.
 //
 
 //
-// Use this in *one* .cc
-//   #define TINYOBJLOADER_IMPLEMENTATION
-//   #include "tiny_obj_loader.h"
+//version 0.9.22: Introduce `LoadFlagsT`.
+//version 0.9.20: Fixes creating per-face material using `usemtl`(#68)
+//version 0.9.17: Support n-polygon and crease tag(OpenSubdiv extension)
+//version 0.9.16: Make tinyobjloader header-only
+//version 0.9.15: Change API to handle no mtl file case correctly(#58)
+//version 0.9.14: Support specular highlight, bump, displacement and alpha map(#53)
+//version 0.9.13: Report "Material file not found message" in `err`(#46)
+//version 0.9.12: Fix groups being ignored if they have 'usemtl' just before 'g' (#44)
+//version 0.9.11: Invert `Tr` parameter(#43)
+//version 0.9.10: Fix seg fault on windows.
+//version 0.9.9 : Replace atof() with custom parser.
+//version 0.9.8 : Fix multi-materials(per-face material ID).
+//version 0.9.7 : Support multi-materials(per-face material ID) per object/group.
+//version 0.9.6 : Support Ni(index of refraction) mtl parameter. Parse transmittance material parameter correctly.
+//version 0.9.5 : Parse multiple group name. Add support of specifying the base path to load material file.
+//version 0.9.4 : Initial support of group tag(g)
+//version 0.9.3 : Fix parsing triple 'x/y/z'
+//version 0.9.2 : Add more .mtl load support
+//version 0.9.1 : Add initial .mtl load support
+//version 0.9.0 : Initial
+//
+
+//
+//Use this in *one* .cc
+//  #define TINYOBJLOADER_IMPLEMENTATION
+//  #include "tiny_obj_loader.h"
 //
 
 #ifndef TINY_OBJ_LOADER_H_
@@ -92,9 +86,9 @@ typedef struct MeshT
 	std::vector<float> normals;
 	std::vector<float> texcoords;
 	std::vector<unsigned int> indices;
-	std::vector<unsigned char> numVertices;	// The number of vertices per face. Up to 255.
-	std::vector<int> materialIDs;	// per-face material ID
-	std::vector<TagT> tags;	 // SubD tag
+	std::vector<unsigned char> numVertices;	//The number of vertices per face. Up to 255.
+	std::vector<int> materialIDs;	//per-face material ID
+	std::vector<TagT> tags;	 //SubD tag
 };
 
 typedef struct ShapeT
@@ -105,9 +99,9 @@ typedef struct ShapeT
 
 typedef enum LoadFlagsT
 {
-	triangulation = 1,	// used whether triangulate polygon face in .obj
-	calculateNormals = 2,	// used whether calculate the normals if the .obj normals are empty
-	// Some nice stuff here
+	triangulation = 1,	//used whether triangulate polygon face in .obj
+	calculateNormals = 2,	//used whether calculate the normals if the .obj normals are empty
+	//Some nice stuff here
 };
 
 class Float3
@@ -124,7 +118,7 @@ public:
 		coord[2] = to.coord[2] - from.coord[2];
 	}
 
-	Float3 CrossProduct(const Float3 & vec)
+	Float3 CrossProduct(const Float3& vec)
 	{
 		float a = y * vec.z - z * vec.y;
 		float b = z * vec.x - x * vec.z;
@@ -162,15 +156,15 @@ public:
 	MaterialReader() {}
 	virtual ~MaterialReader();
 
-	virtual bool operator()(const std::string &matId, std::vector<MaterialT> &materials, std::map<std::string, int> &matMap, std::string &err) = 0;
+	virtual bool operator()(const std::string& matId, std::vector<MaterialT>& materials, std::map<std::string, int>& matMap, std::string& err) = 0;
 };
 
 class MaterialFileReader : public MaterialReader
 {
 public:
-	MaterialFileReader(const std::string &mtlBasepath) : m_mtlBasePath(mtlBasepath) {}
+	MaterialFileReader(const std::string& mtlBasepath) : m_mtlBasePath(mtlBasepath) {}
 	virtual ~MaterialFileReader() {}
-	virtual bool operator()(const std::string &matId, std::vector<MaterialT> &materials, std::map<std::string, int> &matMap, std::string &err);
+	virtual bool operator()(const std::string& matId, std::vector<MaterialT>& materials, std::map<std::string, int>& matMap, std::string& err);
 
 private:
 	std::string m_mtlBasePath;
@@ -194,7 +188,7 @@ bool LoadObj(std::vector<ShapeT>& shapes /*[output]*/, std::vector<MaterialT>& m
 				unsigned int flags = 1);
 
 ///Loads materials into std::map
-void LoadMtl(std::map<std::string, int>& materialMap /*[output]*/, std::vector<MaterialT>& materials /*[output]*/, std::istream &inStream);
+void LoadMtl(std::map<std::string, int>& materialMap /*[output]*/, std::vector<MaterialT>& materials /*[output]*/, std::istream& inStream);
 }
 
 #ifdef TINYOBJLOADER_IMPLEMENTATION
@@ -235,8 +229,8 @@ struct TagSizes
 	int numStrings;
 };
 
-// for std::map
-static inline bool operator<(const VertexIndex &a, const VertexIndex &b)
+//for std::map
+static inline bool operator<(const VertexIndex& a, const VertexIndex& b)
 {
 	if (a.vIdx != b.vIdx)
 		return (a.vIdx < b.vIdx);
@@ -302,7 +296,7 @@ static inline int FixIndex(int idx, int n)
 		return idx - 1;
 	if (idx == 0)
 		return 0;
-	return n + idx;	// negative value = relative
+	return n + idx;	//negative value = relative
 }
 
 static inline std::string ParseString(const char*& token)
@@ -329,26 +323,26 @@ static inline int ParseInt(const char*& token)
 //stop. For example at the end of the string, to prevent buffer overflows.
 //
 //Parses the following EBNF grammar:
-//  sign    = "+" | "-" ;
-//  END     = ? anything not in digit ?
-//  digit   = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-//  integer = [sign] , digit , {digit} ;
-//  decimal = integer , ["." , integer] ;
-//  float   = (decimal , END) | (decimal , ("E" | "e") , integer , END) ;
+//	sign    = "+" | "-" ;
+//	END     = ? anything not in digit ?
+//	digit   = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+//	integer = [sign] , digit , {digit} ;
+//	decimal = integer , ["." , integer] ;
+//	float   = (decimal , END) | (decimal , ("E" | "e") , integer , END) ;
 //
-// Valid strings are for example:
-//  -0	 +3.1417e+2  -0.0E-3  1.0324  -1.41   11e2
+//	Valid strings are for example:
+//	 -0	 +3.1417e+2  -0.0E-3  1.0324  -1.41   11e2
 //
 //If the parsing is a success, result is set to the parsed value and true
 //is returned.
 //
 //The function is greedy and will parse until any of the following happens:
-// - a non-conforming character is encountered.
-// - sEnd is reached.
+//	- a non-conforming character is encountered.
+//	- sEnd is reached.
 //
 //The following situations triggers a failure:
-// - s >= sEnd.
-// - parse failure.
+//	- s >= sEnd.
+//	- parse failure.
 //
 static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 {
@@ -356,31 +350,27 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 		return false;
 
 	double mantissa = 0.0;
-	// This exponent is base 2 rather than 10.
-	// However the exponent we parse is supposed to be one of ten,
-	// thus we must take care to convert the exponent/and or the
-	// mantissa to a * 2^E, where a is the mantissa and E is the
-	// exponent.
-	// To get the final double we will use ldexp, it requires the
-	// exponent to be in base 2.
+	//This exponent is base 2 rather than 10.
+	//However the exponent we parse is supposed to be one of ten, thus we must take care to convert the exponent/and or the mantissa to a * 2^E, where a is the mantissa and E is the exponent.
+	//To get the final double we will use ldexp, it requires the exponent to be in base 2.
 	int exponent = 0;
 
-	// NOTE: THESE MUST BE DECLARED HERE SINCE WE ARE NOT ALLOWED
-	// TO JUMP OVER DEFINITIONS.
+	//NOTE: THESE MUST BE DECLARED HERE SINCE WE ARE NOT ALLOWED
+	//TO JUMP OVER DEFINITIONS.
 	char sign = '+';
 	char expSign = '+';
 	char const* curr = s;
 
-	// How many characters were read in a loop.
+	//How many characters were read in a loop.
 	int read = 0;
-	// Tells whether a loop terminated due to reaching sEnd.
+	//Tells whether a loop terminated due to reaching sEnd.
 	bool endNotReached = false;
 
 	/*
 	BEGIN PARSING.
 	*/
 
-	// Find out what sign we've got.
+	//Find out what sign we've got.
 	if (*curr == '+' || *curr == '-')
 	{
 		sign = *curr;
@@ -390,7 +380,7 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 	else
 		goto fail;
 
-	// Read the integer part.
+	//Read the integer part.
 	while ((endNotReached = (curr != sEnd)) && IS_DIGIT(*curr))
 	{
 		mantissa *= 10;
@@ -399,21 +389,21 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 		read++;
 	}
 
-	// We must make sure we actually got something.
+	//We must make sure we actually got something.
 	if (read == 0)
 		goto fail;
-	// We allow numbers of form "#", "###" etc.
+	//We allow numbers of form "#", "###" etc.
 	if (!endNotReached)
 		goto assemble;
 
-	// Read the decimal part.
+	//Read the decimal part.
 	if (*curr == '.')
 	{
 		curr++;
 		read = 1;
 		while ((endNotReached = (curr != sEnd)) && IS_DIGIT(*curr))
 		{
-			// NOTE: Don't use powf here, it will absolutely murder precision.
+			//NOTE: Don't use powf here, it will absolutely murder precision.
 			mantissa += static_cast<int>(*curr - 0x30) * pow(10.0, -read);
 			read++;
 			curr++;
@@ -425,18 +415,18 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 	if (!endNotReached)
 		goto assemble;
 
-	// Read the exponent part.
+	//Read the exponent part.
 	if (*curr == 'e' || *curr == 'E')
 	{
 		curr++;
-		// Figure out if a sign is present and if it is.
+		//Figure out if a sign is present and if it is.
 		if ((endNotReached = (curr != sEnd)) && (*curr == '+' || *curr == '-'))
 		{
 			expSign = *curr;
 			curr++;
 		}
 		else if (IS_DIGIT(*curr)) { /*Pass through.*/ }
-		else { goto fail; }	// Empty E is not allowed.
+		else { goto fail; }	//Empty E is not allowed.
 
 		read = 0;
 		while ((endNotReached = (curr != sEnd)) && IS_DIGIT(*curr))
@@ -457,6 +447,7 @@ assemble:
 fail:
 	return false;
 }
+
 static inline float ParseFloat(const char*& token)
 {
 	token += strspn(token, " \t");
@@ -609,10 +600,10 @@ static bool ExportFaceGroupToShape(ShapeT& shape, std::map<VertexIndex, unsigned
 	bool triangulate((flags & triangulation) == triangulation);
 	bool normalsCalculation((flags & calculateNormals) == calculateNormals);
 
-	// Flatten vertices and indices
+	//Flatten vertices and indices
 	for (size_t i = 0; i < faceGroup.size(); i++)
 	{
-		const std::vector<VertexIndex> &face = faceGroup[i];
+		const std::vector<VertexIndex>& face = faceGroup[i];
 
 		VertexIndex i0 = face[0];
 		VertexIndex i1(-1);
@@ -622,7 +613,7 @@ static bool ExportFaceGroupToShape(ShapeT& shape, std::map<VertexIndex, unsigned
 
 		if (triangulate)
 		{
-			// Polygon -> triangle fan conversion
+			//Polygon -> triangle fan conversion
 			for (size_t k = 2; k < npolys; k++)
 			{
 				i1 = i2;
@@ -650,7 +641,7 @@ static bool ExportFaceGroupToShape(ShapeT& shape, std::map<VertexIndex, unsigned
 			}
 
 			shape.mesh.numVertices.push_back(static_cast<unsigned char>(npolys));
-			shape.mesh.materialIDs.push_back(materialID);	// per face
+			shape.mesh.materialIDs.push_back(materialID);	//per face
 		}
 	}
 
@@ -1028,11 +1019,11 @@ bool LoadObj(std::vector<ShapeT>& shapes /*[output]*/, std::vector<MaterialT>& m
 				linebuf.erase(linebuf.size() - 1);
 		}
 
-		// Skip if empty line.
+		//Skip if empty line.
 		if (linebuf.empty())
 			continue;
 
-		// Skip leading space.
+		//Skip leading space.
 		const char* token = linebuf.c_str();
 		token += strspn(token, " \t");
 
@@ -1125,7 +1116,7 @@ bool LoadObj(std::vector<ShapeT>& shapes /*[output]*/, std::vector<MaterialT>& m
 
 			if (newMaterialId != material)
 			{
-				// Create per-face material
+				//Create per-face material
 				ExportFaceGroupToShape(shape, vertexCache, v, vn, vt, faceGroup, tags, material, name, true, flags, err);
 				faceGroup.clear();
 				material = newMaterialId;
@@ -1134,7 +1125,7 @@ bool LoadObj(std::vector<ShapeT>& shapes /*[output]*/, std::vector<MaterialT>& m
 			continue;
 		}
 
-		// load mtl
+		//load mtl
 		if ((0 == strncmp(token, "mtllib", 6)) && IS_SPACE((token[6])))
 		{
 			char namebuf[TINYOBJ_SSCANF_BUFFER_SIZE];

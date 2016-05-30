@@ -60,16 +60,16 @@
 // #included from: catch_common.h
 #define TWOBLUECUBES_CATCH_COMMON_H_INCLUDED
 
-#define INTERNAL_CATCH_UNIQUE_NAME_LINE2( name, line ) name##line
-#define INTERNAL_CATCH_UNIQUE_NAME_LINE( name, line ) INTERNAL_CATCH_UNIQUE_NAME_LINE2( name, line )
+#define INTERNAL_CATCH_UNIQUE_NAME_LINE2(name, line) name##line
+#define INTERNAL_CATCH_UNIQUE_NAME_LINE(name, line) INTERNAL_CATCH_UNIQUE_NAME_LINE2(name, line)
 #ifdef CATCH_CONFIG_COUNTER
-#  define INTERNAL_CATCH_UNIQUE_NAME( name ) INTERNAL_CATCH_UNIQUE_NAME_LINE( name, __COUNTER__ )
+#  define INTERNAL_CATCH_UNIQUE_NAME(name) INTERNAL_CATCH_UNIQUE_NAME_LINE(name, __COUNTER__)
 #else
-#  define INTERNAL_CATCH_UNIQUE_NAME( name ) INTERNAL_CATCH_UNIQUE_NAME_LINE( name, __LINE__ )
+#  define INTERNAL_CATCH_UNIQUE_NAME(name) INTERNAL_CATCH_UNIQUE_NAME_LINE(name, __LINE__)
 #endif
 
-#define INTERNAL_CATCH_STRINGIFY2( expr ) #expr
-#define INTERNAL_CATCH_STRINGIFY( expr ) INTERNAL_CATCH_STRINGIFY2( expr )
+#define INTERNAL_CATCH_STRINGIFY2(expr) #expr
+#define INTERNAL_CATCH_STRINGIFY(expr) INTERNAL_CATCH_STRINGIFY2(expr)
 
 #include <sstream>
 #include <stdexcept>
@@ -121,7 +121,7 @@
 #  endif
 
 #   if defined(CATCH_CPP11_OR_GREATER)
-#       define CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS _Pragma( "clang diagnostic ignored \"-Wparentheses\"" )
+#       define CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS _Pragma("clang diagnostic ignored \"-Wparentheses\"")
 #   endif
 
 #endif // __clang__
@@ -153,7 +153,7 @@
 #   endif
 
 #   if !defined(CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS) && defined(CATCH_CPP11_OR_GREATER)
-#       define CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS _Pragma( "GCC diagnostic ignored \"-Wparentheses\"" )
+#       define CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS _Pragma("GCC diagnostic ignored \"-Wparentheses\"")
 #   endif
 
 // - otherwise more recent versions define __cplusplus >= 201103L
@@ -170,7 +170,7 @@
 #   define CATCH_INTERNAL_CONFIG_CPP11_UNIQUE_PTR
 #endif
 
-#if (_MSC_VER >= 1900 ) // (VC++ 13 (VS2015))
+#if (_MSC_VER >= 1900) // (VC++ 13 (VS2015))
 #define CATCH_INTERNAL_CONFIG_CPP11_NOEXCEPT
 #define CATCH_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
 #endif
@@ -180,19 +180,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Use variadic macros if the compiler supports them
-#if ( defined _MSC_VER && _MSC_VER > 1400 && !defined __EDGE__) || \
-    ( defined __WAVE__ && __WAVE_HAS_VARIADICS ) || \
-    ( defined __GNUC__ && __GNUC__ >= 3 ) || \
-    ( !defined __cplusplus && __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L )
+#if (defined _MSC_VER && _MSC_VER > 1400 && !defined __EDGE__) || \
+    (defined __WAVE__ && __WAVE_HAS_VARIADICS) || \
+    (defined __GNUC__ && __GNUC__ >= 3) || \
+    (!defined __cplusplus && __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L)
 
 #define CATCH_INTERNAL_CONFIG_VARIADIC_MACROS
 
 #endif
 
 // Use __COUNTER__ if the compiler supports it
-#if ( defined _MSC_VER && _MSC_VER >= 1300 ) || \
-    ( defined __GNUC__  && __GNUC__ >= 4 && __GNUC_MINOR__ >= 3 ) || \
-    ( defined __clang__ && __clang_major__ >= 3 )
+#if (defined _MSC_VER && _MSC_VER >= 1300) || \
+    (defined __GNUC__  && __GNUC__ >= 4 && __GNUC_MINOR__ >= 3) || \
+    (defined __clang__ && __clang_major__ >= 3)
 
 #define CATCH_INTERNAL_CONFIG_COUNTER
 
@@ -302,9 +302,9 @@
 
 // unique_ptr support
 #ifdef CATCH_CONFIG_CPP11_UNIQUE_PTR
-#   define CATCH_AUTO_PTR( T ) std::unique_ptr<T>
+#   define CATCH_AUTO_PTR(T) std::unique_ptr<T>
 #else
-#   define CATCH_AUTO_PTR( T ) std::auto_ptr<T>
+#   define CATCH_AUTO_PTR(T) std::auto_ptr<T>
 #endif
 
 namespace Catch
@@ -330,7 +330,7 @@ class NonCopyable
 	NonCopyable& operator = (NonCopyable &&) = delete;
 #else
 	NonCopyable(NonCopyable const& info);
-	NonCopyable& operator = (NonCopyable const&);
+	NonCopyable& operator=(NonCopyable const&);
 #endif
 
 protected:
@@ -343,10 +343,7 @@ class SafeBool
 public:
 	typedef void (SafeBool::*type)() const;
 
-	static type makeSafe(bool value)
-	{
-		return value ? &SafeBool::trueValue : 0;
-	}
+	static type makeSafe(bool value) { return value ? &SafeBool::trueValue : 0; }
 private:
 	void trueValue() const {}
 };
@@ -388,24 +385,23 @@ struct pluralise
 
 struct SourceLineInfo
 {
-
 	SourceLineInfo();
 	SourceLineInfo(char const* _file, std::size_t _line);
 	SourceLineInfo(SourceLineInfo const& other);
 #  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
 	SourceLineInfo(SourceLineInfo &&) = default;
-	SourceLineInfo& operator = (SourceLineInfo const&) = default;
-	SourceLineInfo& operator = (SourceLineInfo &&) = default;
+	SourceLineInfo& operator=(SourceLineInfo const&) = default;
+	SourceLineInfo& operator=(SourceLineInfo &&) = default;
 #  endif
 	bool empty() const;
-	bool operator == (SourceLineInfo const& other) const;
-	bool operator < (SourceLineInfo const& other) const;
+	bool operator==(SourceLineInfo const& other) const;
+	bool operator<(SourceLineInfo const& other) const;
 
 	std::string file;
 	std::size_t line;
 };
 
-std::ostream& operator << (std::ostream& os, SourceLineInfo const& info);
+std::ostream& operator<<(std::ostream& os, SourceLineInfo const& info);
 
 // This is just here to avoid compiler warnings with macro constants and boolean literals
 inline bool isTrue(bool value) { return value; }
@@ -423,20 +419,14 @@ unsigned int rngSeed();
 //    >> stuff +StreamEndStop
 struct StreamEndStop
 {
-	std::string operator+()
-	{
-		return std::string();
-	}
+	std::string operator+() { return std::string(); }
 };
 template<typename T>
-T const& operator + (T const& value, StreamEndStop)
-{
-	return value;
-}
+T const& operator+(T const& value, StreamEndStop) { return value; }
 }
 
-#define CATCH_INTERNAL_LINEINFO ::Catch::SourceLineInfo( __FILE__, static_cast<std::size_t>( __LINE__ ) )
-#define CATCH_INTERNAL_ERROR( msg ) ::Catch::throwLogicError( msg, CATCH_INTERNAL_LINEINFO );
+#define CATCH_INTERNAL_LINEINFO ::Catch::SourceLineInfo(__FILE__, static_cast<std::size_t>(__LINE__))
+#define CATCH_INTERNAL_ERROR(msg) ::Catch::throwLogicError(msg, CATCH_INTERNAL_LINEINFO);
 
 #include <ostream>
 
@@ -461,7 +451,7 @@ private:
 } // end namespace Catch
 
   ///////////////////////////////////////////////////////////////////////////////
-#define CATCH_NOT_IMPLEMENTED throw Catch::NotImplementedException( CATCH_INTERNAL_LINEINFO )
+#define CATCH_NOT_IMPLEMENTED throw Catch::NotImplementedException(CATCH_INTERNAL_LINEINFO)
 
   // #included from: internal/catch_context.h
 #define TWOBLUECUBES_CATCH_CONTEXT_H_INCLUDED
@@ -491,9 +481,9 @@ struct IGeneratorsForTest
 
 IGeneratorsForTest* createGeneratorsForTest();
 
-} // end namespace Catch
+}	//end namespace Catch
 
-  // #included from: catch_ptr.hpp
+  //#included from: catch_ptr.hpp
 #define TWOBLUECUBES_CATCH_PTR_HPP_INCLUDED
 
 #ifdef __clang__
@@ -504,9 +494,9 @@ IGeneratorsForTest* createGeneratorsForTest();
 namespace Catch
 {
 
-// An intrusive reference counting smart pointer.
-// T must implement addRef() and release() methods
-// typically implementing the IShared interface
+//An intrusive reference counting smart pointer.
+//T must implement addRef() and release() methods
+//typically implementing the IShared interface
 template<typename T>
 class Ptr
 {
@@ -533,13 +523,13 @@ public:
 			m_p->release();
 		m_p = CATCH_NULL;
 	}
-	Ptr& operator = (T* p)
+	Ptr& operator=(T* p)
 	{
 		Ptr temp(p);
 		swap(temp);
 		return *this;
 	}
-	Ptr& operator = (Ptr const& other)
+	Ptr& operator=(Ptr const& other)
 	{
 		Ptr temp(other);
 		swap(temp);
@@ -549,7 +539,7 @@ public:
 	T* get() const { return m_p; }
 	T& operator*() const { return *m_p; }
 	T* operator->() const { return m_p; }
-	bool operator !() const { return m_p == CATCH_NULL; }
+	bool operator!() const { return m_p == CATCH_NULL; }
 	operator SafeBool::type() const { return SafeBool::makeSafe(m_p != CATCH_NULL); }
 
 private:
@@ -569,10 +559,7 @@ struct SharedImpl : T
 
 	SharedImpl() : m_rc(0) {}
 
-	virtual void addRef() const
-	{
-		++m_rc;
-	}
+	virtual void addRef() const { ++m_rc; }
 	virtual void release() const
 	{
 		if (--m_rc == 0)
@@ -690,115 +677,90 @@ typedef void(*TestFunction)();
 
 struct NameAndDesc
 {
-	NameAndDesc(const char* _name = "", const char* _description = "")
-		: name(_name), description(_description)
-	{
-	}
+	NameAndDesc(const char* _name = "", const char* _description = "") : name(_name), description(_description) {}
 
 	const char* name;
 	const char* description;
 };
 
-void registerTestCase
-(ITestCase* testCase,
-	char const* className,
-	NameAndDesc const& nameAndDesc,
-	SourceLineInfo const& lineInfo);
+void registerTestCase(ITestCase* testCase, char const* className, NameAndDesc const& nameAndDesc, SourceLineInfo const& lineInfo);
 
 struct AutoReg
 {
-
-	AutoReg
-		(TestFunction function,
-			SourceLineInfo const& lineInfo,
-			NameAndDesc const& nameAndDesc);
+	AutoReg(TestFunction function, SourceLineInfo const& lineInfo, NameAndDesc const& nameAndDesc);
 
 	template<typename C>
-	AutoReg
-		(void (C::*method)(),
-			char const* className,
-			NameAndDesc const& nameAndDesc,
-			SourceLineInfo const& lineInfo)
-	{
-
-		registerTestCase
-			(new MethodTestCase<C>(method),
-				className,
-				nameAndDesc,
-				lineInfo);
-	}
+	AutoReg(void (C::*method)(), char const* className, NameAndDesc const& nameAndDesc, SourceLineInfo const& lineInfo)
+	{ registerTestCase(new MethodTestCase<C>(method), className, nameAndDesc, lineInfo); }
 
 	~AutoReg();
 
 private:
 	AutoReg(AutoReg const&);
-	void operator= (AutoReg const&);
+	void operator=(AutoReg const&);
 };
 
-void registerTestCaseFunction
-(TestFunction function,
-	SourceLineInfo const& lineInfo,
-	NameAndDesc const& nameAndDesc);
+void registerTestCaseFunction(TestFunction function, SourceLineInfo const& lineInfo, NameAndDesc const& nameAndDesc);
 
-} // end namespace Catch
+}	//end namespace Catch
 
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TESTCASE2( TestName, ... ) \
+#define INTERNAL_CATCH_TESTCASE2(TestName, ...) \
         static void TestName(); \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &TestName, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( __VA_ARGS__ ) ); }\
+        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME(autoRegistrar)(&TestName, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc(__VA_ARGS__)); }\
         static void TestName()
-#define INTERNAL_CATCH_TESTCASE( ... ) \
-        INTERNAL_CATCH_TESTCASE2( INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ), __VA_ARGS__ )
+#define INTERNAL_CATCH_TESTCASE(...) \
+        INTERNAL_CATCH_TESTCASE2(INTERNAL_CATCH_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____), __VA_ARGS__)
 
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_METHOD_AS_TEST_CASE( QualifiedMethod, ... ) \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, Catch::NameAndDesc( __VA_ARGS__ ), CATCH_INTERNAL_LINEINFO ); }
+#define INTERNAL_CATCH_METHOD_AS_TEST_CASE(QualifiedMethod, ...) \
+        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME(autoRegistrar)(&QualifiedMethod, "&" #QualifiedMethod, Catch::NameAndDesc(__VA_ARGS__), CATCH_INTERNAL_LINEINFO); }
 
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TEST_CASE_METHOD2( TestName, ClassName, ... )\
+#define INTERNAL_CATCH_TEST_CASE_METHOD2(TestName, ClassName, ...)\
         namespace{ \
             struct TestName : ClassName{ \
                 void test(); \
             }; \
-            Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar ) ( &TestName::test, #ClassName, Catch::NameAndDesc( __VA_ARGS__ ), CATCH_INTERNAL_LINEINFO ); \
+            Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME(autoRegistrar) (&TestName::test, #ClassName, Catch::NameAndDesc(__VA_ARGS__), CATCH_INTERNAL_LINEINFO); \
         } \
         void TestName::test()
-#define INTERNAL_CATCH_TEST_CASE_METHOD( ClassName, ... ) \
-        INTERNAL_CATCH_TEST_CASE_METHOD2( INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ), ClassName, __VA_ARGS__ )
+#define INTERNAL_CATCH_TEST_CASE_METHOD(ClassName, ...) \
+        INTERNAL_CATCH_TEST_CASE_METHOD2(INTERNAL_CATCH_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____), ClassName, __VA_ARGS__)
 
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_REGISTER_TESTCASE( Function, ... ) \
-        Catch::AutoReg( Function, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( __VA_ARGS__ ) );
+#define INTERNAL_CATCH_REGISTER_TESTCASE(Function, ...) \
+        Catch::AutoReg(Function, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc(__VA_ARGS__));
 
 #else
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TESTCASE2( TestName, Name, Desc ) \
+#define INTERNAL_CATCH_TESTCASE2(TestName, Name, Desc) \
         static void TestName(); \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &TestName, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( Name, Desc ) ); }\
+        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME(autoRegistrar)(&TestName, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc(Name, Desc)); }\
         static void TestName()
-#define INTERNAL_CATCH_TESTCASE( Name, Desc ) \
-        INTERNAL_CATCH_TESTCASE2( INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ), Name, Desc )
+#define INTERNAL_CATCH_TESTCASE(Name, Desc) \
+        INTERNAL_CATCH_TESTCASE2(INTERNAL_CATCH_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____), Name, Desc)
 
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_METHOD_AS_TEST_CASE( QualifiedMethod, Name, Desc ) \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, Catch::NameAndDesc( Name, Desc ), CATCH_INTERNAL_LINEINFO ); }
+#define INTERNAL_CATCH_METHOD_AS_TEST_CASE(QualifiedMethod, Name, Desc) \
+        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME(autoRegistrar)(&QualifiedMethod, "&" #QualifiedMethod, Catch::NameAndDesc(Name, Desc), CATCH_INTERNAL_LINEINFO); }
 
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TEST_CASE_METHOD2( TestCaseName, ClassName, TestName, Desc )\
+#define INTERNAL_CATCH_TEST_CASE_METHOD2(TestCaseName, ClassName, TestName, Desc)\
         namespace{ \
             struct TestCaseName : ClassName{ \
                 void test(); \
             }; \
-            Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar ) ( &TestCaseName::test, #ClassName, Catch::NameAndDesc( TestName, Desc ), CATCH_INTERNAL_LINEINFO ); \
+            Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME(autoRegistrar) (&TestCaseName::test, #ClassName, Catch::NameAndDesc(TestName, Desc), CATCH_INTERNAL_LINEINFO); \
         } \
         void TestCaseName::test()
-#define INTERNAL_CATCH_TEST_CASE_METHOD( ClassName, TestName, Desc )\
-        INTERNAL_CATCH_TEST_CASE_METHOD2( INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ), ClassName, TestName, Desc )
+#define INTERNAL_CATCH_TEST_CASE_METHOD(ClassName, TestName, Desc)\
+        INTERNAL_CATCH_TEST_CASE_METHOD2(INTERNAL_CATCH_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____), ClassName, TestName, Desc)
 
   ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_REGISTER_TESTCASE( Function, Name, Desc ) \
-        Catch::AutoReg( Function, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( Name, Desc ) );
+#define INTERNAL_CATCH_REGISTER_TESTCASE(Function, Name, Desc) \
+        Catch::AutoReg(Function, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc(Name, Desc));
 #endif
 
   // #included from: internal/catch_capture.hpp
@@ -838,14 +800,8 @@ struct ResultWas
 	};
 };
 
-inline bool isOk(ResultWas::OfType resultType)
-{
-	return (resultType & ResultWas::FailureBit) == 0;
-}
-inline bool isJustInfo(int flags)
-{
-	return flags == ResultWas::Info;
-}
+inline bool isOk(ResultWas::OfType resultType) { return (resultType & ResultWas::FailureBit) == 0; }
+inline bool isJustInfo(int flags) { return flags == ResultWas::Info; }
 
 // ResultDisposition::Flags enum
 struct ResultDisposition
@@ -854,24 +810,21 @@ struct ResultDisposition
 	{
 		Normal = 0x01,
 
-		ContinueOnFailure = 0x02,   // Failures fail test, but execution continues
-		FalseTest = 0x04,           // Prefix expression with !
-		SuppressFail = 0x08         // Failures are reported but do not fail the test
+		ContinueOnFailure = 0x02,	//Failures fail test, but execution continues
+		FalseTest = 0x04,	//Prefix expression with !
+		SuppressFail = 0x08	//Failures are reported but do not fail the test
 	};
 };
 
-inline ResultDisposition::Flags operator | (ResultDisposition::Flags lhs, ResultDisposition::Flags rhs)
-{
-	return static_cast<ResultDisposition::Flags>(static_cast<int>(lhs) | static_cast<int>(rhs));
-}
+inline ResultDisposition::Flags operator|(ResultDisposition::Flags lhs, ResultDisposition::Flags rhs) { return static_cast<ResultDisposition::Flags>(static_cast<int>(lhs) | static_cast<int>(rhs)); }
 
 inline bool shouldContinueOnFailure(int flags) { return (flags & ResultDisposition::ContinueOnFailure) != 0; }
 inline bool isFalseTest(int flags) { return (flags & ResultDisposition::FalseTest) != 0; }
 inline bool shouldSuppressFailure(int flags) { return (flags & ResultDisposition::SuppressFail) != 0; }
 
-} // end namespace Catch
+}	//end namespace Catch
 
-  // #included from: catch_assertionresult.h
+	//#included from: catch_assertionresult.h
 #define TWOBLUECUBES_CATCH_ASSERTIONRESULT_H_INCLUDED
 
 #include <string>
@@ -882,10 +835,7 @@ namespace Catch
 struct AssertionInfo
 {
 	AssertionInfo() {}
-	AssertionInfo(std::string const& _macroName,
-		SourceLineInfo const& _lineInfo,
-		std::string const& _capturedExpression,
-		ResultDisposition::Flags _resultDisposition);
+	AssertionInfo(std::string const& _macroName, SourceLineInfo const& _lineInfo, std::string const& _capturedExpression, ResultDisposition::Flags _resultDisposition);
 
 	std::string macroName;
 	SourceLineInfo lineInfo;
@@ -911,8 +861,8 @@ public:
 #  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
 	AssertionResult(AssertionResult const&) = default;
 	AssertionResult(AssertionResult &&) = default;
-	AssertionResult& operator = (AssertionResult const&) = default;
-	AssertionResult& operator = (AssertionResult &&) = default;
+	AssertionResult& operator=(AssertionResult const&) = default;
+	AssertionResult& operator=(AssertionResult &&) = default;
 #  endif
 
 	bool isOk() const;
@@ -962,20 +912,13 @@ struct Matcher : SharedImpl<IShared>
 	virtual bool match(ExpressionT const& expr) const = 0;
 	virtual std::string toString() const = 0;
 
-	Generic::AllOf<ExpressionT> operator && (Matcher<ExpressionT> const& other) const;
-	Generic::AnyOf<ExpressionT> operator || (Matcher<ExpressionT> const& other) const;
-	Generic::Not<ExpressionT> operator ! () const;
+	Generic::AllOf<ExpressionT> operator&&(Matcher<ExpressionT> const& other) const;
+	Generic::AnyOf<ExpressionT> operator||(Matcher<ExpressionT> const& other) const;
+	Generic::Not<ExpressionT> operator!() const;
 };
 
 template<typename DerivedT, typename ExpressionT>
-struct MatcherImpl : Matcher<ExpressionT>
-{
-
-	virtual Ptr<Matcher<ExpressionT> > clone() const
-	{
-		return Ptr<Matcher<ExpressionT> >(new DerivedT(static_cast<DerivedT const&>(*this)));
-	}
-};
+struct MatcherImpl : Matcher<ExpressionT> { virtual Ptr<Matcher<ExpressionT>> clone() const { return Ptr<Matcher<ExpressionT>>(new DerivedT(static_cast<DerivedT const&>(*this))); } };
 
 namespace Generic
 {
@@ -986,24 +929,17 @@ public:
 	explicit Not(Matcher<ExpressionT> const& matcher) : m_matcher(matcher.clone()) {}
 	Not(Not const& other) : m_matcher(other.m_matcher) {}
 
-	virtual bool match(ExpressionT const& expr) const CATCH_OVERRIDE
-	{
-		return !m_matcher->match(expr);
-	}
+	virtual bool match(ExpressionT const& expr) const CATCH_OVERRIDE { return !m_matcher->match(expr); }
 
-	virtual std::string toString() const CATCH_OVERRIDE
-	{
-		return "not " + m_matcher->toString();
-	}
+	virtual std::string toString() const CATCH_OVERRIDE { return "not " + m_matcher->toString(); }
 private:
-	Ptr< Matcher<ExpressionT> > m_matcher;
+	Ptr< Matcher<ExpressionT>> m_matcher;
 };
 
 template<typename ExpressionT>
 class AllOf : public MatcherImpl<AllOf<ExpressionT>, ExpressionT>
 {
 public:
-
 	AllOf() {}
 	AllOf(AllOf const& other) : m_matchers(other.m_matchers) {}
 
@@ -1015,21 +951,23 @@ public:
 	virtual bool match(ExpressionT const& expr) const
 	{
 		for (std::size_t i = 0; i < m_matchers.size(); ++i)
+		{
 			if (!m_matchers[i]->match(expr))
 				return false;
+		}
 		return true;
 	}
 	virtual std::string toString() const
 	{
 		std::ostringstream oss;
-		oss << "( ";
+		oss << "(";
 		for (std::size_t i = 0; i < m_matchers.size(); ++i)
 		{
 			if (i != 0)
 				oss << " and ";
 			oss << m_matchers[i]->toString();
 		}
-		oss << " )";
+		oss << ")";
 		return oss.str();
 	}
 
@@ -1041,14 +979,13 @@ public:
 	}
 
 private:
-	std::vector<Ptr<Matcher<ExpressionT> > > m_matchers;
+	std::vector<Ptr<Matcher<ExpressionT>>> m_matchers;
 };
 
 template<typename ExpressionT>
 class AnyOf : public MatcherImpl<AnyOf<ExpressionT>, ExpressionT>
 {
 public:
-
 	AnyOf() {}
 	AnyOf(AnyOf const& other) : m_matchers(other.m_matchers) {}
 
@@ -1060,25 +997,27 @@ public:
 	virtual bool match(ExpressionT const& expr) const
 	{
 		for (std::size_t i = 0; i < m_matchers.size(); ++i)
+		{
 			if (m_matchers[i]->match(expr))
 				return true;
+		}
 		return false;
 	}
 	virtual std::string toString() const
 	{
 		std::ostringstream oss;
-		oss << "( ";
+		oss << "(";
 		for (std::size_t i = 0; i < m_matchers.size(); ++i)
 		{
 			if (i != 0)
 				oss << " or ";
 			oss << m_matchers[i]->toString();
 		}
-		oss << " )";
+		oss << ")";
 		return oss.str();
 	}
 
-	AnyOf operator || (Matcher<ExpressionT> const& other) const
+	AnyOf operator||(Matcher<ExpressionT> const& other) const
 	{
 		AnyOf anyOfExpr(*this);
 		anyOfExpr.add(other);
@@ -1086,13 +1025,13 @@ public:
 	}
 
 private:
-	std::vector<Ptr<Matcher<ExpressionT> > > m_matchers;
+	std::vector<Ptr<Matcher<ExpressionT>>> m_matchers;
 };
 
-} // namespace Generic
+}	//namespace Generic
 
 template<typename ExpressionT>
-Generic::AllOf<ExpressionT> Matcher<ExpressionT>::operator && (Matcher<ExpressionT> const& other) const
+Generic::AllOf<ExpressionT> Matcher<ExpressionT>::operator&&(Matcher<ExpressionT> const& other) const
 {
 	Generic::AllOf<ExpressionT> allOfExpr;
 	allOfExpr.add(*this);
@@ -1101,7 +1040,7 @@ Generic::AllOf<ExpressionT> Matcher<ExpressionT>::operator && (Matcher<Expressio
 }
 
 template<typename ExpressionT>
-Generic::AnyOf<ExpressionT> Matcher<ExpressionT>::operator || (Matcher<ExpressionT> const& other) const
+Generic::AnyOf<ExpressionT> Matcher<ExpressionT>::operator||(Matcher<ExpressionT> const& other) const
 {
 	Generic::AnyOf<ExpressionT> anyOfExpr;
 	anyOfExpr.add(*this);
@@ -1110,10 +1049,7 @@ Generic::AnyOf<ExpressionT> Matcher<ExpressionT>::operator || (Matcher<Expressio
 }
 
 template<typename ExpressionT>
-Generic::Not<ExpressionT> Matcher<ExpressionT>::operator ! () const
-{
-	return Generic::Not<ExpressionT>(*this);
-}
+Generic::Not<ExpressionT> Matcher<ExpressionT>::operator!() const { return Generic::Not<ExpressionT>(*this); }
 
 namespace StdString
 {
@@ -1123,113 +1059,60 @@ inline std::string makeString(const char* str) { return str ? std::string(str) :
 
 struct CasedString
 {
-	CasedString(std::string const& str, CaseSensitive::Choice caseSensitivity)
-		: m_caseSensitivity(caseSensitivity),
-		m_str(adjustString(str))
-	{
-	}
-	std::string adjustString(std::string const& str) const
-	{
-		return m_caseSensitivity == CaseSensitive::No
-			? toLower(str)
-			: str;
-
-	}
-	std::string toStringSuffix() const
-	{
-		return m_caseSensitivity == CaseSensitive::No
-			? " (case insensitive)"
-			: "";
-	}
+	CasedString(std::string const& str, CaseSensitive::Choice caseSensitivity) : m_caseSensitivity(caseSensitivity), m_str(adjustString(str)) {}
+	std::string adjustString(std::string const& str) const { return m_caseSensitivity == CaseSensitive::No ? toLower(str) : str; }
+	std::string toStringSuffix() const { return m_caseSensitivity == CaseSensitive::No ? " (case insensitive)" : ""; }
 	CaseSensitive::Choice m_caseSensitivity;
 	std::string m_str;
 };
 
 struct Equals : MatcherImpl<Equals, std::string>
 {
-	Equals(std::string const& str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-		: m_data(str, caseSensitivity)
-	{
-	}
+	Equals(std::string const& str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes) : m_data(str, caseSensitivity) {}
 	Equals(Equals const& other) : m_data(other.m_data) {}
 
 	virtual ~Equals();
 
-	virtual bool match(std::string const& expr) const
-	{
-		return m_data.m_str == m_data.adjustString(expr);;
-	}
-	virtual std::string toString() const
-	{
-		return "equals: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
-	}
+	virtual bool match(std::string const& expr) const { return m_data.m_str == m_data.adjustString(expr); }
+	virtual std::string toString() const { return "equals: \"" + m_data.m_str + "\"" + m_data.toStringSuffix(); }
 
 	CasedString m_data;
 };
 
 struct Contains : MatcherImpl<Contains, std::string>
 {
-	Contains(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-		: m_data(substr, caseSensitivity)
-	{
-	}
+	Contains(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes) : m_data(substr, caseSensitivity) {}
 	Contains(Contains const& other) : m_data(other.m_data) {}
 
 	virtual ~Contains();
 
-	virtual bool match(std::string const& expr) const
-	{
-		return m_data.adjustString(expr).find(m_data.m_str) != std::string::npos;
-	}
-	virtual std::string toString() const
-	{
-		return "contains: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
-	}
+	virtual bool match(std::string const& expr) const { return m_data.adjustString(expr).find(m_data.m_str) != std::string::npos; }
+	virtual std::string toString() const { return "contains: \"" + m_data.m_str + "\"" + m_data.toStringSuffix(); }
 
 	CasedString m_data;
 };
 
 struct StartsWith : MatcherImpl<StartsWith, std::string>
 {
-	StartsWith(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-		: m_data(substr, caseSensitivity)
-	{
-	}
-
+	StartsWith(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes) : m_data(substr, caseSensitivity) {}
 	StartsWith(StartsWith const& other) : m_data(other.m_data) {}
-
 	virtual ~StartsWith();
 
-	virtual bool match(std::string const& expr) const
-	{
-		return startsWith(m_data.adjustString(expr), m_data.m_str);
-	}
-	virtual std::string toString() const
-	{
-		return "starts with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
-	}
+	virtual bool match(std::string const& expr) const { return startsWith(m_data.adjustString(expr), m_data.m_str); }
+	virtual std::string toString() const { return "starts with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix(); }
 
 	CasedString m_data;
 };
 
 struct EndsWith : MatcherImpl<EndsWith, std::string>
 {
-	EndsWith(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-		: m_data(substr, caseSensitivity)
-	{
-	}
+	EndsWith(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes) : m_data(substr, caseSensitivity) {}
 	EndsWith(EndsWith const& other) : m_data(other.m_data) {}
 
 	virtual ~EndsWith();
 
-	virtual bool match(std::string const& expr) const
-	{
-		return endsWith(m_data.adjustString(expr), m_data.m_str);
-	}
-	virtual std::string toString() const
-	{
-		return "ends with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
-	}
+	virtual bool match(std::string const& expr) const { return endsWith(m_data.adjustString(expr), m_data.m_str); }
+	virtual std::string toString() const { return "ends with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix(); }
 
 	CasedString m_data;
 };
@@ -1239,70 +1122,29 @@ struct EndsWith : MatcherImpl<EndsWith, std::string>
   // The following functions create the actual matcher objects.
   // This allows the types to be inferred
 template<typename ExpressionT>
-inline Impl::Generic::Not<ExpressionT> Not(Impl::Matcher<ExpressionT> const& m)
-{
-	return Impl::Generic::Not<ExpressionT>(m);
-}
+inline Impl::Generic::Not<ExpressionT> Not(Impl::Matcher<ExpressionT> const& m) { return Impl::Generic::Not<ExpressionT>(m); }
 
 template<typename ExpressionT>
-inline Impl::Generic::AllOf<ExpressionT> AllOf(Impl::Matcher<ExpressionT> const& m1,
-	Impl::Matcher<ExpressionT> const& m2)
-{
-	return Impl::Generic::AllOf<ExpressionT>().add(m1).add(m2);
-}
+inline Impl::Generic::AllOf<ExpressionT> AllOf(Impl::Matcher<ExpressionT> const& m1, Impl::Matcher<ExpressionT> const& m2) { return Impl::Generic::AllOf<ExpressionT>().add(m1).add(m2); }
 template<typename ExpressionT>
-inline Impl::Generic::AllOf<ExpressionT> AllOf(Impl::Matcher<ExpressionT> const& m1,
-	Impl::Matcher<ExpressionT> const& m2,
-	Impl::Matcher<ExpressionT> const& m3)
-{
-	return Impl::Generic::AllOf<ExpressionT>().add(m1).add(m2).add(m3);
-}
+inline Impl::Generic::AllOf<ExpressionT> AllOf(Impl::Matcher<ExpressionT> const& m1, Impl::Matcher<ExpressionT> const& m2, Impl::Matcher<ExpressionT> const& m3)
+{ return Impl::Generic::AllOf<ExpressionT>().add(m1).add(m2).add(m3); }
 template<typename ExpressionT>
-inline Impl::Generic::AnyOf<ExpressionT> AnyOf(Impl::Matcher<ExpressionT> const& m1,
-	Impl::Matcher<ExpressionT> const& m2)
-{
-	return Impl::Generic::AnyOf<ExpressionT>().add(m1).add(m2);
-}
+inline Impl::Generic::AnyOf<ExpressionT> AnyOf(Impl::Matcher<ExpressionT> const& m1, Impl::Matcher<ExpressionT> const& m2) { return Impl::Generic::AnyOf<ExpressionT>().add(m1).add(m2); }
 template<typename ExpressionT>
-inline Impl::Generic::AnyOf<ExpressionT> AnyOf(Impl::Matcher<ExpressionT> const& m1,
-	Impl::Matcher<ExpressionT> const& m2,
-	Impl::Matcher<ExpressionT> const& m3)
-{
-	return Impl::Generic::AnyOf<ExpressionT>().add(m1).add(m2).add(m3);
-}
+inline Impl::Generic::AnyOf<ExpressionT> AnyOf(Impl::Matcher<ExpressionT> const& m1, Impl::Matcher<ExpressionT> const& m2, Impl::Matcher<ExpressionT> const& m3)
+{ return Impl::Generic::AnyOf<ExpressionT>().add(m1).add(m2).add(m3); }
 
-inline Impl::StdString::Equals      Equals(std::string const& str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-{
-	return Impl::StdString::Equals(str, caseSensitivity);
-}
-inline Impl::StdString::Equals      Equals(const char* str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-{
-	return Impl::StdString::Equals(Impl::StdString::makeString(str), caseSensitivity);
-}
-inline Impl::StdString::Contains    Contains(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-{
-	return Impl::StdString::Contains(substr, caseSensitivity);
-}
-inline Impl::StdString::Contains    Contains(const char* substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
-{
-	return Impl::StdString::Contains(Impl::StdString::makeString(substr), caseSensitivity);
-}
-inline Impl::StdString::StartsWith  StartsWith(std::string const& substr)
-{
-	return Impl::StdString::StartsWith(substr);
-}
-inline Impl::StdString::StartsWith  StartsWith(const char* substr)
-{
-	return Impl::StdString::StartsWith(Impl::StdString::makeString(substr));
-}
-inline Impl::StdString::EndsWith    EndsWith(std::string const& substr)
-{
-	return Impl::StdString::EndsWith(substr);
-}
-inline Impl::StdString::EndsWith    EndsWith(const char* substr)
-{
-	return Impl::StdString::EndsWith(Impl::StdString::makeString(substr));
-}
+inline Impl::StdString::Equals Equals(std::string const& str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes) { return Impl::StdString::Equals(str, caseSensitivity); }
+inline Impl::StdString::Equals Equals(const char* str, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
+{ return Impl::StdString::Equals(Impl::StdString::makeString(str), caseSensitivity); }
+inline Impl::StdString::Contains Contains(std::string const& substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes) { return Impl::StdString::Contains(substr, caseSensitivity); }
+inline Impl::StdString::Contains Contains(const char* substr, CaseSensitive::Choice caseSensitivity = CaseSensitive::Yes)
+{ return Impl::StdString::Contains(Impl::StdString::makeString(substr), caseSensitivity); }
+inline Impl::StdString::StartsWith StartsWith(std::string const& substr) { return Impl::StdString::StartsWith(substr); }
+inline Impl::StdString::StartsWith StartsWith(const char* substr) { return Impl::StdString::StartsWith(Impl::StdString::makeString(substr)); }
+inline Impl::StdString::EndsWith EndsWith(std::string const& substr) { return Impl::StdString::EndsWith(substr); }
+inline Impl::StdString::EndsWith EndsWith(const char* substr) { return Impl::StdString::EndsWith(Impl::StdString::makeString(substr)); }
 
 } // namespace Matchers
 
@@ -1322,10 +1164,7 @@ struct STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison;
 struct CopyableStream
 {
 	CopyableStream() {}
-	CopyableStream(CopyableStream const& other)
-	{
-		oss << other.oss.str();
-	}
+	CopyableStream(CopyableStream const& other) { oss << other.oss.str(); }
 	CopyableStream& operator=(CopyableStream const& other)
 	{
 		oss.str("");
@@ -1338,25 +1177,21 @@ struct CopyableStream
 class ResultBuilder
 {
 public:
-	ResultBuilder(char const* macroName,
-		SourceLineInfo const& lineInfo,
-		char const* capturedExpression,
-		ResultDisposition::Flags resultDisposition,
-		char const* secondArg = "");
+	ResultBuilder(char const* macroName, SourceLineInfo const& lineInfo, char const* capturedExpression, ResultDisposition::Flags resultDisposition, char const* secondArg = "");
 
 	template<typename T>
-	ExpressionLhs<T const&> operator <= (T const& operand);
-	ExpressionLhs<bool> operator <= (bool value);
+	ExpressionLhs<T const&> operator<=(T const& operand);
+	ExpressionLhs<bool> operator<=(bool value);
 
 	template<typename T>
-	ResultBuilder& operator << (T const& value)
+	ResultBuilder& operator<<(T const& value)
 	{
 		m_stream.oss << value;
 		return *this;
 	}
 
-	template<typename RhsT> STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison& operator && (RhsT const&);
-	template<typename RhsT> STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison& operator || (RhsT const&);
+	template<typename RhsT> STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison& operator&&(RhsT const&);
+	template<typename RhsT> STATIC_ASSERT_Expression_Too_Complex_Please_Rewrite_As_Binary_Comparison& operator||(RhsT const&);
 
 	ResultBuilder& setResultType(ResultWas::OfType result);
 	ResultBuilder& setResultType(bool result);
@@ -1386,7 +1221,9 @@ private:
 	{
 		ExprComponents() : testFalse(false) {}
 		bool testFalse;
-		std::string lhs, rhs, op;
+		std::string lhs;
+		std::string rhs;
+		std::string op;
 	} m_exprComponents;
 	CopyableStream m_stream;
 
@@ -1394,18 +1231,18 @@ private:
 	bool m_shouldThrow;
 };
 
-} // namespace Catch
+}	//namespace Catch
 
-  // Include after due to circular dependency:
-  // #included from: catch_expression_lhs.hpp
+	//Include after due to circular dependency:
+	//#included from: catch_expression_lhs.hpp
 #define TWOBLUECUBES_CATCH_EXPRESSION_LHS_HPP_INCLUDED
 
-  // #included from: catch_evaluate.hpp
+	//#included from: catch_evaluate.hpp
 #define TWOBLUECUBES_CATCH_EVALUATE_HPP_INCLUDED
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4389) // '==' : signed/unsigned mismatch
+#pragma warning(disable:4389)	//'==' : signed/unsigned mismatch
 #endif
 
 #include <cstddef>
@@ -1436,225 +1273,97 @@ template<> struct OperatorTraits<IsGreaterThanOrEqualTo> { static const char* ge
 template<typename T>
 inline T& opCast(T const& t) { return const_cast<T&>(t); }
 
-// nullptr_t support based on pull request #154 from Konstantin Baumann
+//nullptr_t support based on pull request #154 from Konstantin Baumann
 #ifdef CATCH_CONFIG_CPP11_NULLPTR
 inline std::nullptr_t opCast(std::nullptr_t) { return nullptr; }
 #endif // CATCH_CONFIG_CPP11_NULLPTR
 
-// So the compare overloads can be operator agnostic we convey the operator as a template
-// enum, which is used to specialise an Evaluator for doing the comparison.
+//So the compare overloads can be operator agnostic we convey the operator as a template enum, which is used to specialise an Evaluator for doing the comparison.
 template<typename T1, typename T2, Operator Op>
 class Evaluator {};
 
 template<typename T1, typename T2>
-struct Evaluator<T1, T2, IsEqualTo>
-{
-	static bool evaluate(T1 const& lhs, T2 const& rhs)
-	{
-		return bool(opCast(lhs) == opCast(rhs));
-	}
-};
+struct Evaluator<T1, T2, IsEqualTo> { static bool evaluate(T1 const& lhs, T2 const& rhs) { return bool(opCast(lhs) == opCast(rhs)); } };
 template<typename T1, typename T2>
-struct Evaluator<T1, T2, IsNotEqualTo>
-{
-	static bool evaluate(T1 const& lhs, T2 const& rhs)
-	{
-		return bool(opCast(lhs) != opCast(rhs));
-	}
-};
+struct Evaluator<T1, T2, IsNotEqualTo> { static bool evaluate(T1 const& lhs, T2 const& rhs) { return bool(opCast(lhs) != opCast(rhs)); } };
 template<typename T1, typename T2>
-struct Evaluator<T1, T2, IsLessThan>
-{
-	static bool evaluate(T1 const& lhs, T2 const& rhs)
-	{
-		return bool(opCast(lhs) < opCast(rhs));
-	}
-};
+struct Evaluator<T1, T2, IsLessThan> { static bool evaluate(T1 const& lhs, T2 const& rhs) { return bool(opCast(lhs) < opCast(rhs)); } };
 template<typename T1, typename T2>
-struct Evaluator<T1, T2, IsGreaterThan>
-{
-	static bool evaluate(T1 const& lhs, T2 const& rhs)
-	{
-		return bool(opCast(lhs) > opCast(rhs));
-	}
-};
+struct Evaluator<T1, T2, IsGreaterThan> { static bool evaluate(T1 const& lhs, T2 const& rhs) { return bool(opCast(lhs) > opCast(rhs)); } };
 template<typename T1, typename T2>
-struct Evaluator<T1, T2, IsGreaterThanOrEqualTo>
-{
-	static bool evaluate(T1 const& lhs, T2 const& rhs)
-	{
-		return bool(opCast(lhs) >= opCast(rhs));
-	}
-};
+struct Evaluator<T1, T2, IsGreaterThanOrEqualTo> { static bool evaluate(T1 const& lhs, T2 const& rhs) { return bool(opCast(lhs) >= opCast(rhs)); } };
 template<typename T1, typename T2>
-struct Evaluator<T1, T2, IsLessThanOrEqualTo>
-{
-	static bool evaluate(T1 const& lhs, T2 const& rhs)
-	{
-		return bool(opCast(lhs) <= opCast(rhs));
-	}
-};
+struct Evaluator<T1, T2, IsLessThanOrEqualTo> { static bool evaluate(T1 const& lhs, T2 const& rhs) { return bool(opCast(lhs) <= opCast(rhs)); } };
 
 template<Operator Op, typename T1, typename T2>
-bool applyEvaluator(T1 const& lhs, T2 const& rhs)
-{
-	return Evaluator<T1, T2, Op>::evaluate(lhs, rhs);
-}
+bool applyEvaluator(T1 const& lhs, T2 const& rhs) { return Evaluator<T1, T2, Op>::evaluate(lhs, rhs); }
 
-// This level of indirection allows us to specialise for integer types
-// to avoid signed/ unsigned warnings
+//This level of indirection allows us to specialise for integer types to avoid signed/unsigned warnings
 
-// "base" overload
+//"base" overload
 template<Operator Op, typename T1, typename T2>
-bool compare(T1 const& lhs, T2 const& rhs)
-{
-	return Evaluator<T1, T2, Op>::evaluate(lhs, rhs);
-}
+bool compare(T1 const& lhs, T2 const& rhs) { return Evaluator<T1, T2, Op>::evaluate(lhs, rhs); }
 
-// unsigned X to int
-template<Operator Op> bool compare(unsigned int lhs, int rhs)
-{
-	return applyEvaluator<Op>(lhs, static_cast<unsigned int>(rhs));
-}
-template<Operator Op> bool compare(unsigned long lhs, int rhs)
-{
-	return applyEvaluator<Op>(lhs, static_cast<unsigned int>(rhs));
-}
-template<Operator Op> bool compare(unsigned char lhs, int rhs)
-{
-	return applyEvaluator<Op>(lhs, static_cast<unsigned int>(rhs));
-}
+//unsigned X to int
+template<Operator Op> bool compare(unsigned int lhs, int rhs) { return applyEvaluator<Op>(lhs, static_cast<unsigned int>(rhs)); }
+template<Operator Op> bool compare(unsigned long lhs, int rhs) { return applyEvaluator<Op>(lhs, static_cast<unsigned int>(rhs)); }
+template<Operator Op> bool compare(unsigned char lhs, int rhs) { return applyEvaluator<Op>(lhs, static_cast<unsigned int>(rhs)); }
 
-// unsigned X to long
-template<Operator Op> bool compare(unsigned int lhs, long rhs)
-{
-	return applyEvaluator<Op>(lhs, static_cast<unsigned long>(rhs));
-}
-template<Operator Op> bool compare(unsigned long lhs, long rhs)
-{
-	return applyEvaluator<Op>(lhs, static_cast<unsigned long>(rhs));
-}
-template<Operator Op> bool compare(unsigned char lhs, long rhs)
-{
-	return applyEvaluator<Op>(lhs, static_cast<unsigned long>(rhs));
-}
+//unsigned X to long
+template<Operator Op> bool compare(unsigned int lhs, long rhs) { return applyEvaluator<Op>(lhs, static_cast<unsigned long>(rhs)); }
+template<Operator Op> bool compare(unsigned long lhs, long rhs) { return applyEvaluator<Op>(lhs, static_cast<unsigned long>(rhs)); }
+template<Operator Op> bool compare(unsigned char lhs, long rhs) { return applyEvaluator<Op>(lhs, static_cast<unsigned long>(rhs)); }
 
-// int to unsigned X
-template<Operator Op> bool compare(int lhs, unsigned int rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned int>(lhs), rhs);
-}
-template<Operator Op> bool compare(int lhs, unsigned long rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned int>(lhs), rhs);
-}
-template<Operator Op> bool compare(int lhs, unsigned char rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned int>(lhs), rhs);
-}
+//int to unsigned X
+template<Operator Op> bool compare(int lhs, unsigned int rhs) { return applyEvaluator<Op>(static_cast<unsigned int>(lhs), rhs); }
+template<Operator Op> bool compare(int lhs, unsigned long rhs) { return applyEvaluator<Op>(static_cast<unsigned int>(lhs), rhs); }
+template<Operator Op> bool compare(int lhs, unsigned char rhs) { return applyEvaluator<Op>(static_cast<unsigned int>(lhs), rhs); }
 
-// long to unsigned X
-template<Operator Op> bool compare(long lhs, unsigned int rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
-template<Operator Op> bool compare(long lhs, unsigned long rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
-template<Operator Op> bool compare(long lhs, unsigned char rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
+//long to unsigned X
+template<Operator Op> bool compare(long lhs, unsigned int rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
+template<Operator Op> bool compare(long lhs, unsigned long rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
+template<Operator Op> bool compare(long lhs, unsigned char rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
 
-// pointer to long (when comparing against NULL)
-template<Operator Op, typename T> bool compare(long lhs, T* rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(reinterpret_cast<T*>(lhs), rhs);
-}
-template<Operator Op, typename T> bool compare(T* lhs, long rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(lhs, reinterpret_cast<T*>(rhs));
-}
+//pointer to long (when comparing against NULL)
+template<Operator Op, typename T> bool compare(long lhs, T* rhs) { return Evaluator<T*, T*, Op>::evaluate(reinterpret_cast<T*>(lhs), rhs); }
+template<Operator Op, typename T> bool compare(T* lhs, long rhs) { return Evaluator<T*, T*, Op>::evaluate(lhs, reinterpret_cast<T*>(rhs)); }
 
-// pointer to int (when comparing against NULL)
-template<Operator Op, typename T> bool compare(int lhs, T* rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(reinterpret_cast<T*>(lhs), rhs);
-}
-template<Operator Op, typename T> bool compare(T* lhs, int rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(lhs, reinterpret_cast<T*>(rhs));
-}
+//pointer to int (when comparing against NULL)
+template<Operator Op, typename T> bool compare(int lhs, T* rhs) { return Evaluator<T*, T*, Op>::evaluate(reinterpret_cast<T*>(lhs), rhs); }
+template<Operator Op, typename T> bool compare(T* lhs, int rhs) { return Evaluator<T*, T*, Op>::evaluate(lhs, reinterpret_cast<T*>(rhs)); }
 
 #ifdef CATCH_CONFIG_CPP11_LONG_LONG
-// long long to unsigned X
-template<Operator Op> bool compare(long long lhs, unsigned int rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
-template<Operator Op> bool compare(long long lhs, unsigned long rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
-template<Operator Op> bool compare(long long lhs, unsigned long long rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
-template<Operator Op> bool compare(long long lhs, unsigned char rhs)
-{
-	return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs);
-}
+//long long to unsigned X
+template<Operator Op> bool compare(long long lhs, unsigned int rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
+template<Operator Op> bool compare(long long lhs, unsigned long rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
+template<Operator Op> bool compare(long long lhs, unsigned long long rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
+template<Operator Op> bool compare(long long lhs, unsigned char rhs) { return applyEvaluator<Op>(static_cast<unsigned long>(lhs), rhs); }
 
-// unsigned long long to X
-template<Operator Op> bool compare(unsigned long long lhs, int rhs)
-{
-	return applyEvaluator<Op>(static_cast<long>(lhs), rhs);
-}
-template<Operator Op> bool compare(unsigned long long lhs, long rhs)
-{
-	return applyEvaluator<Op>(static_cast<long>(lhs), rhs);
-}
-template<Operator Op> bool compare(unsigned long long lhs, long long rhs)
-{
-	return applyEvaluator<Op>(static_cast<long>(lhs), rhs);
-}
-template<Operator Op> bool compare(unsigned long long lhs, char rhs)
-{
-	return applyEvaluator<Op>(static_cast<long>(lhs), rhs);
-}
+//unsigned long long to X
+template<Operator Op> bool compare(unsigned long long lhs, int rhs) { return applyEvaluator<Op>(static_cast<long>(lhs), rhs); }
+template<Operator Op> bool compare(unsigned long long lhs, long rhs) { return applyEvaluator<Op>(static_cast<long>(lhs), rhs); }
+template<Operator Op> bool compare(unsigned long long lhs, long long rhs) { return applyEvaluator<Op>(static_cast<long>(lhs), rhs); }
+template<Operator Op> bool compare(unsigned long long lhs, char rhs) { return applyEvaluator<Op>(static_cast<long>(lhs), rhs); }
 
-// pointer to long long (when comparing against NULL)
-template<Operator Op, typename T> bool compare(long long lhs, T* rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(reinterpret_cast<T*>(lhs), rhs);
-}
-template<Operator Op, typename T> bool compare(T* lhs, long long rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(lhs, reinterpret_cast<T*>(rhs));
-}
-#endif // CATCH_CONFIG_CPP11_LONG_LONG
+//pointer to long long (when comparing against NULL)
+template<Operator Op, typename T> bool compare(long long lhs, T* rhs) { return Evaluator<T*, T*, Op>::evaluate(reinterpret_cast<T*>(lhs), rhs); }
+template<Operator Op, typename T> bool compare(T* lhs, long long rhs) { return Evaluator<T*, T*, Op>::evaluate(lhs, reinterpret_cast<T*>(rhs)); }
+#endif	//CATCH_CONFIG_CPP11_LONG_LONG
 
 #ifdef CATCH_CONFIG_CPP11_NULLPTR
-// pointer to nullptr_t (when comparing against nullptr)
-template<Operator Op, typename T> bool compare(std::nullptr_t, T* rhs)
-{
-	return Evaluator<T*, T*, Op>::evaluate(nullptr, rhs);
-}
-template<Operator Op, typename T> bool compare(T* lhs, std::nullptr_t)
-{
-	return Evaluator<T*, T*, Op>::evaluate(lhs, nullptr);
-}
-#endif // CATCH_CONFIG_CPP11_NULLPTR
+//pointer to nullptr_t (when comparing against nullptr)
+template<Operator Op, typename T> bool compare(std::nullptr_t, T* rhs) { return Evaluator<T*, T*, Op>::evaluate(nullptr, rhs); }
+template<Operator Op, typename T> bool compare(T* lhs, std::nullptr_t) { return Evaluator<T*, T*, Op>::evaluate(lhs, nullptr); }
+#endif	//CATCH_CONFIG_CPP11_NULLPTR
 
-} // end of namespace Internal
-} // end of namespace Catch
+}	//end of namespace Internal
+}	//end of namespace Catch
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-  // #included from: catch_tostring.h
+	//#included from: catch_tostring.h
 #define TWOBLUECUBES_CATCH_TOSTRING_H_INCLUDED
 
 #include <sstream>
@@ -1679,10 +1388,7 @@ void arcSafeRelease(NSObject* obj);
 id performOptionalSelector(id obj, SEL sel);
 
 #if !CATCH_ARC_ENABLED
-inline void arcSafeRelease(NSObject* obj)
-{
-	[obj release];
-}
+inline void arcSafeRelease(NSObject* obj) { [obj release]; }
 inline id performOptionalSelector(id obj, SEL sel)
 {
 	if ([obj respondsToSelector : sel])
@@ -1882,8 +1588,8 @@ std::string rangeToString(InputIterator first, InputIterator last);
 
 //template<typename T, typename Allocator>
 //struct StringMaker<std::vector<T, Allocator> > {
-//    static std::string convert( std::vector<T,Allocator> const& v ) {
-//        return Detail::rangeToString( v.begin(), v.end() );
+//    static std::string convert(std::vector<T,Allocator> const& v) {
+//        return Detail::rangeToString(v.begin(), v.end());
 //    }
 //};
 
@@ -2233,20 +1939,20 @@ void writeToDebugConsole(std::string const& text);
 #ifdef DEBUG
 #if defined(__ppc64__) || defined(__ppc__)
 #define CATCH_BREAK_INTO_DEBUGGER() \
-                if( Catch::isDebuggerActive() ) { \
+                if(Catch::isDebuggerActive()) { \
                     __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
-                    : : : "memory","r0","r3","r4" ); \
+                    : : : "memory","r0","r3","r4"); \
                 }
 #else
-#define CATCH_BREAK_INTO_DEBUGGER() if( Catch::isDebuggerActive() ) {__asm__("int $3\n" : : );}
+#define CATCH_BREAK_INTO_DEBUGGER() if(Catch::isDebuggerActive()) {__asm__("int $3\n" : :);}
 #endif
 #endif
 
 #elif defined(_MSC_VER)
-#define CATCH_BREAK_INTO_DEBUGGER() if( Catch::isDebuggerActive() ) { __debugbreak(); }
+#define CATCH_BREAK_INTO_DEBUGGER() if(Catch::isDebuggerActive()) { __debugbreak(); }
 #elif defined(__MINGW32__)
 extern "C" __declspec(dllimport) void __stdcall DebugBreak();
-#define CATCH_BREAK_INTO_DEBUGGER() if( Catch::isDebuggerActive() ) { DebugBreak(); }
+#define CATCH_BREAK_INTO_DEBUGGER() if(Catch::isDebuggerActive()) { DebugBreak(); }
 #endif
 
 #ifndef CATCH_BREAK_INTO_DEBUGGER
@@ -2272,125 +1978,125 @@ struct IRunner
 // and/or an exception thrown and takes appropriate action.
 // This needs to be done as a macro so the debugger will stop in the user
 // source code rather than in Catch library code
-#define INTERNAL_CATCH_REACT( resultBuilder ) \
-    if( resultBuilder.shouldDebugBreak() ) CATCH_BREAK_INTO_DEBUGGER(); \
+#define INTERNAL_CATCH_REACT(resultBuilder) \
+    if(resultBuilder.shouldDebugBreak()) CATCH_BREAK_INTO_DEBUGGER(); \
     resultBuilder.react();
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TEST( expr, resultDisposition, macroName ) \
+#define INTERNAL_CATCH_TEST(expr, resultDisposition, macroName) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition ); \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition); \
         try { \
             CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS \
-            ( __catchResult <= expr ).endExpression(); \
+            (__catchResult <= expr).endExpression(); \
         } \
-        catch( ... ) { \
-            __catchResult.useActiveException( Catch::ResultDisposition::Normal ); \
+        catch(...) { \
+            __catchResult.useActiveException(Catch::ResultDisposition::Normal); \
         } \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::isTrue( false && !!(expr) ) ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
+        INTERNAL_CATCH_REACT(__catchResult) \
+    } while(Catch::isTrue(false && !!(expr))) // expr here is never evaluated at runtime but it forces the compiler to give it a look
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_IF( expr, resultDisposition, macroName ) \
-    INTERNAL_CATCH_TEST( expr, resultDisposition, macroName ); \
-    if( Catch::getResultCapture().getLastResult()->succeeded() )
+#define INTERNAL_CATCH_IF(expr, resultDisposition, macroName) \
+    INTERNAL_CATCH_TEST(expr, resultDisposition, macroName); \
+    if(Catch::getResultCapture().getLastResult()->succeeded())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_ELSE( expr, resultDisposition, macroName ) \
-    INTERNAL_CATCH_TEST( expr, resultDisposition, macroName ); \
-    if( !Catch::getResultCapture().getLastResult()->succeeded() )
+#define INTERNAL_CATCH_ELSE(expr, resultDisposition, macroName) \
+    INTERNAL_CATCH_TEST(expr, resultDisposition, macroName); \
+    if(!Catch::getResultCapture().getLastResult()->succeeded())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_NO_THROW( expr, resultDisposition, macroName ) \
+#define INTERNAL_CATCH_NO_THROW(expr, resultDisposition, macroName) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition ); \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition); \
         try { \
             expr; \
-            __catchResult.captureResult( Catch::ResultWas::Ok ); \
+            __catchResult.captureResult(Catch::ResultWas::Ok); \
         } \
-        catch( ... ) { \
-            __catchResult.useActiveException( resultDisposition ); \
+        catch(...) { \
+            __catchResult.useActiveException(resultDisposition); \
         } \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+        INTERNAL_CATCH_REACT(__catchResult) \
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_THROWS( expr, resultDisposition, matcher, macroName ) \
+#define INTERNAL_CATCH_THROWS(expr, resultDisposition, matcher, macroName) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition, #matcher ); \
-        if( __catchResult.allowThrows() ) \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition, #matcher); \
+        if(__catchResult.allowThrows()) \
             try { \
                 expr; \
-                __catchResult.captureResult( Catch::ResultWas::DidntThrowException ); \
+                __catchResult.captureResult(Catch::ResultWas::DidntThrowException); \
             } \
-            catch( ... ) { \
-                __catchResult.captureExpectedException( matcher ); \
+            catch(...) { \
+                __catchResult.captureExpectedException(matcher); \
             } \
         else \
-            __catchResult.captureResult( Catch::ResultWas::Ok ); \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+            __catchResult.captureResult(Catch::ResultWas::Ok); \
+        INTERNAL_CATCH_REACT(__catchResult) \
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_THROWS_AS( expr, exceptionType, resultDisposition, macroName ) \
+#define INTERNAL_CATCH_THROWS_AS(expr, exceptionType, resultDisposition, macroName) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition ); \
-        if( __catchResult.allowThrows() ) \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition); \
+        if(__catchResult.allowThrows()) \
             try { \
                 expr; \
-                __catchResult.captureResult( Catch::ResultWas::DidntThrowException ); \
+                __catchResult.captureResult(Catch::ResultWas::DidntThrowException); \
             } \
-            catch( exceptionType ) { \
-                __catchResult.captureResult( Catch::ResultWas::Ok ); \
+            catch(exceptionType) { \
+                __catchResult.captureResult(Catch::ResultWas::Ok); \
             } \
-            catch( ... ) { \
-                __catchResult.useActiveException( resultDisposition ); \
+            catch(...) { \
+                __catchResult.useActiveException(resultDisposition); \
             } \
         else \
-            __catchResult.captureResult( Catch::ResultWas::Ok ); \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+            __catchResult.captureResult(Catch::ResultWas::Ok); \
+        INTERNAL_CATCH_REACT(__catchResult) \
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define INTERNAL_CATCH_MSG( messageType, resultDisposition, macroName, ... ) \
+#define INTERNAL_CATCH_MSG(messageType, resultDisposition, macroName, ...) \
         do { \
-            Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, "", resultDisposition ); \
+            Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, "", resultDisposition); \
             __catchResult << __VA_ARGS__ + ::Catch::StreamEndStop(); \
-            __catchResult.captureResult( messageType ); \
-            INTERNAL_CATCH_REACT( __catchResult ) \
-        } while( Catch::alwaysFalse() )
+            __catchResult.captureResult(messageType); \
+            INTERNAL_CATCH_REACT(__catchResult) \
+        } while(Catch::alwaysFalse())
 #else
-#define INTERNAL_CATCH_MSG( messageType, resultDisposition, macroName, log ) \
+#define INTERNAL_CATCH_MSG(messageType, resultDisposition, macroName, log) \
         do { \
-            Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, "", resultDisposition ); \
+            Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, "", resultDisposition); \
             __catchResult << log + ::Catch::StreamEndStop(); \
-            __catchResult.captureResult( messageType ); \
-            INTERNAL_CATCH_REACT( __catchResult ) \
-        } while( Catch::alwaysFalse() )
+            __catchResult.captureResult(messageType); \
+            INTERNAL_CATCH_REACT(__catchResult) \
+        } while(Catch::alwaysFalse())
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_INFO( log, macroName ) \
-    Catch::ScopedMessage INTERNAL_CATCH_UNIQUE_NAME( scopedMessage ) = Catch::MessageBuilder( macroName, CATCH_INTERNAL_LINEINFO, Catch::ResultWas::Info ) << log;
+#define INTERNAL_CATCH_INFO(log, macroName) \
+    Catch::ScopedMessage INTERNAL_CATCH_UNIQUE_NAME(scopedMessage) = Catch::MessageBuilder(macroName, CATCH_INTERNAL_LINEINFO, Catch::ResultWas::Info) << log;
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CHECK_THAT( arg, matcher, resultDisposition, macroName ) \
+#define INTERNAL_CHECK_THAT(arg, matcher, resultDisposition, macroName) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #arg ", " #matcher, resultDisposition ); \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, #arg ", " #matcher, resultDisposition); \
         try { \
             std::string matcherAsString = (matcher).toString(); \
             __catchResult \
-                .setLhs( Catch::toString( arg ) ) \
-                .setRhs( matcherAsString == Catch::Detail::unprintableString ? #matcher : matcherAsString ) \
-                .setOp( "matches" ) \
-                .setResultType( (matcher).match( arg ) ); \
+                .setLhs(Catch::toString(arg)) \
+                .setRhs(matcherAsString == Catch::Detail::unprintableString ? #matcher : matcherAsString) \
+                .setOp("matches") \
+                .setResultType((matcher).match(arg)); \
             __catchResult.captureExpression(); \
-        } catch( ... ) { \
-            __catchResult.useActiveException( resultDisposition | Catch::ResultDisposition::ContinueOnFailure ); \
+        } catch(...) { \
+            __catchResult.useActiveException(resultDisposition | Catch::ResultDisposition::ContinueOnFailure); \
         } \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+        INTERNAL_CATCH_REACT(__catchResult) \
+    } while(Catch::alwaysFalse())
 
 // #included from: internal/catch_section.h
 #define TWOBLUECUBES_CATCH_SECTION_H_INCLUDED
@@ -2561,11 +2267,11 @@ private:
 } // end namespace Catch
 
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define INTERNAL_CATCH_SECTION( ... ) \
-        if( Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME( catch_internal_Section ) = Catch::SectionInfo( CATCH_INTERNAL_LINEINFO, __VA_ARGS__ ) )
+#define INTERNAL_CATCH_SECTION(...) \
+        if(Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME(catch_internal_Section) = Catch::SectionInfo(CATCH_INTERNAL_LINEINFO, __VA_ARGS__))
 #else
-#define INTERNAL_CATCH_SECTION( name, desc ) \
-        if( Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME( catch_internal_Section ) = Catch::SectionInfo( CATCH_INTERNAL_LINEINFO, name, desc ) )
+#define INTERNAL_CATCH_SECTION(name, desc) \
+        if(Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME(catch_internal_Section) = Catch::SectionInfo(CATCH_INTERNAL_LINEINFO, name, desc))
 #endif
 
   // #included from: internal/catch_generators.hpp
@@ -2764,10 +2470,10 @@ using namespace Generators;
 
 } // end namespace Catch
 
-#define INTERNAL_CATCH_LINESTR2( line ) #line
-#define INTERNAL_CATCH_LINESTR( line ) INTERNAL_CATCH_LINESTR2( line )
+#define INTERNAL_CATCH_LINESTR2(line) #line
+#define INTERNAL_CATCH_LINESTR(line) INTERNAL_CATCH_LINESTR2(line)
 
-#define INTERNAL_CATCH_GENERATE( expr ) expr.setFileInfo( __FILE__ "(" INTERNAL_CATCH_LINESTR( __LINE__ ) ")" )
+#define INTERNAL_CATCH_GENERATE(expr) expr.setFileInfo(__FILE__ "(" INTERNAL_CATCH_LINESTR(__LINE__) ")")
 
   // #included from: internal/catch_interfaces_exception.h
 #define TWOBLUECUBES_CATCH_INTERFACES_EXCEPTION_H_INCLUDED
@@ -2878,12 +2584,12 @@ public:
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TRANSLATE_EXCEPTION2( translatorName, signature ) \
-    static std::string translatorName( signature ); \
-    namespace{ Catch::ExceptionTranslatorRegistrar INTERNAL_CATCH_UNIQUE_NAME( catch_internal_ExceptionRegistrar )( &translatorName ); }\
-    static std::string translatorName( signature )
+#define INTERNAL_CATCH_TRANSLATE_EXCEPTION2(translatorName, signature) \
+    static std::string translatorName(signature); \
+    namespace{ Catch::ExceptionTranslatorRegistrar INTERNAL_CATCH_UNIQUE_NAME(catch_internal_ExceptionRegistrar)(&translatorName); }\
+    static std::string translatorName(signature)
 
-#define INTERNAL_CATCH_TRANSLATE_EXCEPTION( signature ) INTERNAL_CATCH_TRANSLATE_EXCEPTION2( INTERNAL_CATCH_UNIQUE_NAME( catch_internal_ExceptionTranslator ), signature )
+#define INTERNAL_CATCH_TRANSLATE_EXCEPTION(signature) INTERNAL_CATCH_TRANSLATE_EXCEPTION2(INTERNAL_CATCH_UNIQUE_NAME(catch_internal_ExceptionTranslator), signature)
 
 // #included from: internal/catch_approx.hpp
 #define TWOBLUECUBES_CATCH_APPROX_HPP_INCLUDED
@@ -2962,7 +2668,7 @@ public:
 	std::string toString() const
 	{
 		std::ostringstream oss;
-		oss << "Approx( " << Catch::toString(m_value) << " )";
+		oss << "Approx(" << Catch::toString(m_value) << ")";
 		return oss.str();
 	}
 
@@ -3007,7 +2713,7 @@ struct RegistrarForTagAliases
 
 } // end namespace Catch
 
-#define CATCH_REGISTER_TAG_ALIAS( alias, spec ) namespace{ Catch::RegistrarForTagAliases INTERNAL_CATCH_UNIQUE_NAME( AutoRegisterTagAlias )( alias, spec, CATCH_INTERNAL_LINEINFO ); }
+#define CATCH_REGISTER_TAG_ALIAS(alias, spec) namespace{ Catch::RegistrarForTagAliases INTERNAL_CATCH_UNIQUE_NAME(AutoRegisterTagAlias)(alias, spec, CATCH_INTERNAL_LINEINFO); }
   // #included from: catch_option.hpp
 #define TWOBLUECUBES_CATCH_OPTION_HPP_INCLUDED
 
@@ -3223,9 +2929,9 @@ public:
 	{
 		id obj = [[m_cls alloc] init];
 
-		performOptionalSelector(obj, @selector(setUp)  );
+		performOptionalSelector(obj, @selector(setUp) );
 		performOptionalSelector(obj, m_sel);
-		performOptionalSelector(obj, @selector(tearDown)  );
+		performOptionalSelector(obj, @selector(tearDown) );
 
 		arcSafeRelease(obj);
 	}
@@ -3393,16 +3099,16 @@ using namespace Matchers;
 } // namespace Catch
 
   ///////////////////////////////////////////////////////////////////////////////
-#define OC_TEST_CASE( name, desc )\
-+(NSString*) INTERNAL_CATCH_UNIQUE_NAME( Catch_Name_test ) \
+#define OC_TEST_CASE(name, desc)\
++(NSString*) INTERNAL_CATCH_UNIQUE_NAME(Catch_Name_test) \
 {\
 return @ name; \
 }\
-+(NSString*) INTERNAL_CATCH_UNIQUE_NAME( Catch_Description_test ) \
++(NSString*) INTERNAL_CATCH_UNIQUE_NAME(Catch_Description_test) \
 { \
 return @ desc; \
 } \
--(void) INTERNAL_CATCH_UNIQUE_NAME( Catch_TestCase_test )
+-(void) INTERNAL_CATCH_UNIQUE_NAME(Catch_TestCase_test)
 
 #endif
 
@@ -4273,7 +3979,7 @@ private:
 #define CLARA_INTERNAL_CONFIG_CPP11_UNIQUE_PTR
 #endif
 
-#if (_MSC_VER >= 1900 ) // (VC++ 13 (VS2015))
+#if (_MSC_VER >= 1900) // (VC++ 13 (VS2015))
 #define CLARA_INTERNAL_CONFIG_CPP11_NOEXCEPT
 #define CLARA_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
 #endif
@@ -4351,9 +4057,9 @@ private:
 
   // unique_ptr support
 #ifdef CLARA_CONFIG_CPP11_UNIQUE_PTR
-#   define CLARA_AUTO_PTR( T ) std::unique_ptr<T>
+#   define CLARA_AUTO_PTR(T) std::unique_ptr<T>
 #else
-#   define CLARA_AUTO_PTR( T ) std::auto_ptr<T>
+#   define CLARA_AUTO_PTR(T) std::auto_ptr<T>
 #endif
 
 #endif // TWOBLUECUBES_CLARA_COMPILERS_H_INCLUDED
@@ -5301,7 +5007,7 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser()
 		.bind(&ConfigData::outputFilename, "filename");
 
 	cli["-r"]["--reporter"]
-		//            .placeholder( "name[:filename]" )
+		//            .placeholder("name[:filename]")
 		.describe("reporter to use (defaults to console)")
 		.bind(&addReporterName, "name");
 
@@ -5322,11 +5028,11 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser()
 		.bind(&addWarning, "warning name");
 
 	// - needs updating if reinstated
-	//        cli.into( &setVerbosity )
-	//            .describe( "level of verbosity (0=no output)" )
-	//            .shortOpt( "v")
-	//            .longOpt( "verbosity" )
-	//            .placeholder( "level" );
+	//        cli.into(&setVerbosity)
+	//            .describe("level of verbosity (0=no output)")
+	//            .shortOpt("v")
+	//            .longOpt("verbosity")
+	//            .placeholder("level");
 
 	cli[_]
 		.describe("which test or tests to use")
@@ -6466,7 +6172,7 @@ inline void fatal(std::string const& message, int exitCode)
 
 } // namespace Catch
 
-#if defined ( CATCH_PLATFORM_WINDOWS ) /////////////////////////////////////////
+#if defined (CATCH_PLATFORM_WINDOWS) /////////////////////////////////////////
 
 namespace Catch
 {
@@ -7229,7 +6935,7 @@ void enforceNoDuplicateTestCases(std::vector<TestCase> const& functions)
 			std::ostringstream ss;
 
 			ss << Colour(Colour::Red)
-				<< "error: TEST_CASE( \"" << it->name << "\" ) already defined.\n"
+				<< "error: TEST_CASE(\"" << it->name << "\") already defined.\n"
 				<< "\tFirst seen at " << prev.first->getTestCaseInfo().lineInfo << "\n"
 				<< "\tRedefined at " << it->getTestCaseInfo().lineInfo << std::endl;
 
@@ -7852,7 +7558,7 @@ struct NoColourImpl : IColourImpl
 } // anon namespace
 } // namespace Catch
 
-#if !defined( CATCH_CONFIG_COLOUR_NONE ) && !defined( CATCH_CONFIG_COLOUR_WINDOWS ) && !defined( CATCH_CONFIG_COLOUR_ANSI )
+#if !defined(CATCH_CONFIG_COLOUR_NONE) && !defined(CATCH_CONFIG_COLOUR_WINDOWS) && !defined(CATCH_CONFIG_COLOUR_ANSI)
 #   ifdef CATCH_PLATFORM_WINDOWS
 #       define CATCH_CONFIG_COLOUR_WINDOWS
 #   else
@@ -7860,7 +7566,7 @@ struct NoColourImpl : IColourImpl
 #   endif
 #endif
 
-#if defined ( CATCH_CONFIG_COLOUR_WINDOWS ) /////////////////////////////////////////
+#if defined (CATCH_CONFIG_COLOUR_WINDOWS) /////////////////////////////////////////
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -7940,7 +7646,7 @@ IColourImpl* platformColourInstance()
 } // end anon namespace
 } // end namespace Catch
 
-#elif defined( CATCH_CONFIG_COLOUR_ANSI ) //////////////////////////////////////
+#elif defined(CATCH_CONFIG_COLOUR_ANSI) //////////////////////////////////////
 
 #include <unistd.h>
 
@@ -8186,7 +7892,7 @@ std::string AssertionResult::getExpressionInMacro() const
 	if (m_info.macroName.empty())
 		return m_info.capturedExpression;
 	else
-		return m_info.macroName + "( " + m_info.capturedExpression + " )";
+		return m_info.macroName + "(" + m_info.capturedExpression + ")";
 }
 
 bool AssertionResult::hasExpandedExpression() const
@@ -9271,8 +8977,7 @@ void ResultBuilder::captureExpectedException(std::string const& expectedMessage)
 
 void ResultBuilder::captureExpectedException(Matchers::Impl::Matcher<std::string> const& matcher)
 {
-
-	assert(m_exprComponents.testFalse == false);
+	assert(!m_exprComponents.testFalse);
 	AssertionResultData data = m_data;
 	data.resultType = ResultWas::Ok;
 	data.reconstructedExpression = m_assertionInfo.capturedExpression;
@@ -9355,7 +9060,7 @@ std::string ResultBuilder::reconstructExpression() const
 			return m_exprComponents.lhs + "\n" + m_exprComponents.op + "\n" + m_exprComponents.rhs;
 	}
 	else
-		return "{can't expand - use " + m_assertionInfo.macroName + "_FALSE( " + m_assertionInfo.capturedExpression.substr(1) + " ) instead of " + m_assertionInfo.macroName + "( " + m_assertionInfo.capturedExpression + " ) for better diagnostics}";
+		return "{can't expand - use " + m_assertionInfo.macroName + "_FALSE(" + m_assertionInfo.capturedExpression.substr(1) + ") instead of " + m_assertionInfo.macroName + "(" + m_assertionInfo.capturedExpression + ") for better diagnostics}";
 }
 
 } // end namespace Catch
@@ -9988,13 +9693,13 @@ public:
 };
 }
 
-#define INTERNAL_CATCH_REGISTER_LEGACY_REPORTER( name, reporterType ) \
-    namespace{ Catch::LegacyReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType( name ); }
+#define INTERNAL_CATCH_REGISTER_LEGACY_REPORTER(name, reporterType) \
+    namespace{ Catch::LegacyReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType(name); }
 
-#define INTERNAL_CATCH_REGISTER_REPORTER( name, reporterType ) \
-    namespace{ Catch::ReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType( name ); }
+#define INTERNAL_CATCH_REGISTER_REPORTER(name, reporterType) \
+    namespace{ Catch::ReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType(name); }
 
-#define INTERNAL_CATCH_REGISTER_LISTENER( listenerType ) \
+#define INTERNAL_CATCH_REGISTER_LISTENER(listenerType) \
     namespace{ Catch::ListenerRegistrar<listenerType> catch_internal_RegistrarFor##listenerType; }
 
 // #included from: ../internal/catch_xmlwriter.hpp
@@ -10828,7 +10533,7 @@ private:
 			case ResultWas::Ok:
 				colour = Colour::Success;
 				passOrFail = "PASSED";
-				//if( result.hasMessage() )
+				//if(result.hasMessage())
 				if (_stats.infoMessages.size() == 1)
 					messageLabel = "with message";
 				if (_stats.infoMessages.size() > 1)
@@ -11438,7 +11143,7 @@ private:
 				stream << " with " << pluralise(N, "message") << ":";
 			}
 
-			for (; itMessage != itEnd; )
+			for (; itMessage != itEnd;)
 			{
 				// If this assertion is a warning ignore any INFO messages
 				if (printInfoMessages || itMessage->type != ResultWas::Info)
@@ -11636,144 +11341,144 @@ int main(int argc, char * const argv[])
 // If this config identifier is defined then all CATCH macros are prefixed with CATCH_
 #ifdef CATCH_CONFIG_PREFIX_ALL
 
-#define CATCH_REQUIRE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE" )
-#define CATCH_REQUIRE_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal | Catch::ResultDisposition::FalseTest, "CATCH_REQUIRE_FALSE" )
+#define CATCH_REQUIRE(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE")
+#define CATCH_REQUIRE_FALSE(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::Normal | Catch::ResultDisposition::FalseTest, "CATCH_REQUIRE_FALSE")
 
-#define CATCH_REQUIRE_THROWS( expr ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, "", "CATCH_REQUIRE_THROWS" )
-#define CATCH_REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_THROWS_AS" )
-#define CATCH_REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, matcher, "CATCH_REQUIRE_THROWS_WITH" )
-#define CATCH_REQUIRE_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_NOTHROW" )
+#define CATCH_REQUIRE_THROWS(expr) INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::Normal, "", "CATCH_REQUIRE_THROWS")
+#define CATCH_REQUIRE_THROWS_AS(expr, exceptionType) INTERNAL_CATCH_THROWS_AS(expr, exceptionType, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_THROWS_AS")
+#define CATCH_REQUIRE_THROWS_WITH(expr, matcher) INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::Normal, matcher, "CATCH_REQUIRE_THROWS_WITH")
+#define CATCH_REQUIRE_NOTHROW(expr) INTERNAL_CATCH_NO_THROW(expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_NOTHROW")
 
-#define CATCH_CHECK( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK" )
-#define CATCH_CHECK_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::FalseTest, "CATCH_CHECK_FALSE" )
-#define CATCH_CHECKED_IF( expr ) INTERNAL_CATCH_IF( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECKED_IF" )
-#define CATCH_CHECKED_ELSE( expr ) INTERNAL_CATCH_ELSE( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECKED_ELSE" )
-#define CATCH_CHECK_NOFAIL( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::SuppressFail, "CATCH_CHECK_NOFAIL" )
+#define CATCH_CHECK(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK")
+#define CATCH_CHECK_FALSE(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::FalseTest, "CATCH_CHECK_FALSE")
+#define CATCH_CHECKED_IF(expr) INTERNAL_CATCH_IF(expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECKED_IF")
+#define CATCH_CHECKED_ELSE(expr) INTERNAL_CATCH_ELSE(expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECKED_ELSE")
+#define CATCH_CHECK_NOFAIL(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::SuppressFail, "CATCH_CHECK_NOFAIL")
 
-#define CATCH_CHECK_THROWS( expr )  INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THROWS" )
-#define CATCH_CHECK_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THROWS_AS" )
-#define CATCH_CHECK_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, matcher, "CATCH_CHECK_THROWS_WITH" )
-#define CATCH_CHECK_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_NOTHROW" )
+#define CATCH_CHECK_THROWS(expr)  INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THROWS")
+#define CATCH_CHECK_THROWS_AS(expr, exceptionType) INTERNAL_CATCH_THROWS_AS(expr, exceptionType, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THROWS_AS")
+#define CATCH_CHECK_THROWS_WITH(expr, matcher) INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::ContinueOnFailure, matcher, "CATCH_CHECK_THROWS_WITH")
+#define CATCH_CHECK_NOTHROW(expr) INTERNAL_CATCH_NO_THROW(expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_NOTHROW")
 
-#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THAT" )
-#define CATCH_REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_THAT" )
+#define CHECK_THAT(arg, matcher) INTERNAL_CHECK_THAT(arg, matcher, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THAT")
+#define CATCH_REQUIRE_THAT(arg, matcher) INTERNAL_CHECK_THAT(arg, matcher, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_THAT")
 
-#define CATCH_INFO( msg ) INTERNAL_CATCH_INFO( msg, "CATCH_INFO" )
-#define CATCH_WARN( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Warning, Catch::ResultDisposition::ContinueOnFailure, "CATCH_WARN", msg )
-#define CATCH_SCOPED_INFO( msg ) INTERNAL_CATCH_INFO( msg, "CATCH_INFO" )
-#define CATCH_CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CATCH_CAPTURE" )
-#define CATCH_SCOPED_CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CATCH_CAPTURE" )
+#define CATCH_INFO(msg) INTERNAL_CATCH_INFO(msg, "CATCH_INFO")
+#define CATCH_WARN(msg) INTERNAL_CATCH_MSG(Catch::ResultWas::Warning, Catch::ResultDisposition::ContinueOnFailure, "CATCH_WARN", msg)
+#define CATCH_SCOPED_INFO(msg) INTERNAL_CATCH_INFO(msg, "CATCH_INFO")
+#define CATCH_CAPTURE(msg) INTERNAL_CATCH_INFO(#msg " := " << msg, "CATCH_CAPTURE")
+#define CATCH_SCOPED_CAPTURE(msg) INTERNAL_CATCH_INFO(#msg " := " << msg, "CATCH_CAPTURE")
 
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define CATCH_TEST_CASE( ... ) INTERNAL_CATCH_TESTCASE( __VA_ARGS__ )
-#define CATCH_TEST_CASE_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, __VA_ARGS__ )
-#define CATCH_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-#define CATCH_REGISTER_TEST_CASE( Function, ... ) INTERNAL_CATCH_REGISTER_TESTCASE( Function, __VA_ARGS__ )
-#define CATCH_SECTION( ... ) INTERNAL_CATCH_SECTION( __VA_ARGS__ )
-#define CATCH_FAIL( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "CATCH_FAIL", __VA_ARGS__ )
-#define CATCH_SUCCEED( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "CATCH_SUCCEED", __VA_ARGS__ )
+#define CATCH_TEST_CASE(...) INTERNAL_CATCH_TESTCASE(__VA_ARGS__)
+#define CATCH_TEST_CASE_METHOD(className, ...) INTERNAL_CATCH_TEST_CASE_METHOD(className, __VA_ARGS__)
+#define CATCH_METHOD_AS_TEST_CASE(method, ...) INTERNAL_CATCH_METHOD_AS_TEST_CASE(method, __VA_ARGS__)
+#define CATCH_REGISTER_TEST_CASE(Function, ...) INTERNAL_CATCH_REGISTER_TESTCASE(Function, __VA_ARGS__)
+#define CATCH_SECTION(...) INTERNAL_CATCH_SECTION(__VA_ARGS__)
+#define CATCH_FAIL(...) INTERNAL_CATCH_MSG(Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "CATCH_FAIL", __VA_ARGS__)
+#define CATCH_SUCCEED(...) INTERNAL_CATCH_MSG(Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "CATCH_SUCCEED", __VA_ARGS__)
 #else
-#define CATCH_TEST_CASE( name, description ) INTERNAL_CATCH_TESTCASE( name, description )
-#define CATCH_TEST_CASE_METHOD( className, name, description ) INTERNAL_CATCH_TEST_CASE_METHOD( className, name, description )
-#define CATCH_METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, name, description )
-#define CATCH_REGISTER_TEST_CASE( function, name, description ) INTERNAL_CATCH_REGISTER_TESTCASE( function, name, description )
-#define CATCH_SECTION( name, description ) INTERNAL_CATCH_SECTION( name, description )
-#define CATCH_FAIL( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "CATCH_FAIL", msg )
-#define CATCH_SUCCEED( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "CATCH_SUCCEED", msg )
+#define CATCH_TEST_CASE(name, description) INTERNAL_CATCH_TESTCASE(name, description)
+#define CATCH_TEST_CASE_METHOD(className, name, description) INTERNAL_CATCH_TEST_CASE_METHOD(className, name, description)
+#define CATCH_METHOD_AS_TEST_CASE(method, name, description) INTERNAL_CATCH_METHOD_AS_TEST_CASE(method, name, description)
+#define CATCH_REGISTER_TEST_CASE(function, name, description) INTERNAL_CATCH_REGISTER_TESTCASE(function, name, description)
+#define CATCH_SECTION(name, description) INTERNAL_CATCH_SECTION(name, description)
+#define CATCH_FAIL(msg) INTERNAL_CATCH_MSG(Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "CATCH_FAIL", msg)
+#define CATCH_SUCCEED(msg) INTERNAL_CATCH_MSG(Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "CATCH_SUCCEED", msg)
 #endif
-#define CATCH_ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE( "", "" )
+#define CATCH_ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE("", "")
 
-#define CATCH_REGISTER_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_REPORTER( name, reporterType )
-#define CATCH_REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_LEGACY_REPORTER( name, reporterType )
+#define CATCH_REGISTER_REPORTER(name, reporterType) INTERNAL_CATCH_REGISTER_REPORTER(name, reporterType)
+#define CATCH_REGISTER_LEGACY_REPORTER(name, reporterType) INTERNAL_CATCH_REGISTER_LEGACY_REPORTER(name, reporterType)
 
-#define CATCH_GENERATE( expr) INTERNAL_CATCH_GENERATE( expr )
+#define CATCH_GENERATE(expr) INTERNAL_CATCH_GENERATE(expr)
 
 // "BDD-style" convenience wrappers
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define CATCH_SCENARIO( ... ) CATCH_TEST_CASE( "Scenario: " __VA_ARGS__ )
-#define CATCH_SCENARIO_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " __VA_ARGS__ )
+#define CATCH_SCENARIO(...) CATCH_TEST_CASE("Scenario: " __VA_ARGS__)
+#define CATCH_SCENARIO_METHOD(className, ...) INTERNAL_CATCH_TEST_CASE_METHOD(className, "Scenario: " __VA_ARGS__)
 #else
-#define CATCH_SCENARIO( name, tags ) CATCH_TEST_CASE( "Scenario: " name, tags )
-#define CATCH_SCENARIO_METHOD( className, name, tags ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " name, tags )
+#define CATCH_SCENARIO(name, tags) CATCH_TEST_CASE("Scenario: " name, tags)
+#define CATCH_SCENARIO_METHOD(className, name, tags) INTERNAL_CATCH_TEST_CASE_METHOD(className, "Scenario: " name, tags)
 #endif
-#define CATCH_GIVEN( desc )    CATCH_SECTION( std::string( "Given: ") + desc, "" )
-#define CATCH_WHEN( desc )     CATCH_SECTION( std::string( " When: ") + desc, "" )
-#define CATCH_AND_WHEN( desc ) CATCH_SECTION( std::string( "  And: ") + desc, "" )
-#define CATCH_THEN( desc )     CATCH_SECTION( std::string( " Then: ") + desc, "" )
-#define CATCH_AND_THEN( desc ) CATCH_SECTION( std::string( "  And: ") + desc, "" )
+#define CATCH_GIVEN(desc)    CATCH_SECTION(std::string("Given: ") + desc, "")
+#define CATCH_WHEN(desc)     CATCH_SECTION(std::string(" When: ") + desc, "")
+#define CATCH_AND_WHEN(desc) CATCH_SECTION(std::string("  And: ") + desc, "")
+#define CATCH_THEN(desc)     CATCH_SECTION(std::string(" Then: ") + desc, "")
+#define CATCH_AND_THEN(desc) CATCH_SECTION(std::string("  And: ") + desc, "")
 
 // If CATCH_CONFIG_PREFIX_ALL is not defined then the CATCH_ prefix is not required
 #else
 
-#define REQUIRE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal, "REQUIRE" )
-#define REQUIRE_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal | Catch::ResultDisposition::FalseTest, "REQUIRE_FALSE" )
+#define REQUIRE(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::Normal, "REQUIRE")
+#define REQUIRE_FALSE(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::Normal | Catch::ResultDisposition::FalseTest, "REQUIRE_FALSE")
 
-#define REQUIRE_THROWS( expr ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, "", "REQUIRE_THROWS" )
-#define REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::Normal, "REQUIRE_THROWS_AS" )
-#define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
-#define REQUIRE_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
+#define REQUIRE_THROWS(expr) INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::Normal, "", "REQUIRE_THROWS")
+#define REQUIRE_THROWS_AS(expr, exceptionType) INTERNAL_CATCH_THROWS_AS(expr, exceptionType, Catch::ResultDisposition::Normal, "REQUIRE_THROWS_AS")
+#define REQUIRE_THROWS_WITH(expr, matcher) INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH")
+#define REQUIRE_NOTHROW(expr) INTERNAL_CATCH_NO_THROW(expr, Catch::ResultDisposition::Normal, "REQUIRE_NOTHROW")
 
-#define CHECK( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECK" )
-#define CHECK_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::FalseTest, "CHECK_FALSE" )
-#define CHECKED_IF( expr ) INTERNAL_CATCH_IF( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECKED_IF" )
-#define CHECKED_ELSE( expr ) INTERNAL_CATCH_ELSE( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECKED_ELSE" )
-#define CHECK_NOFAIL( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::SuppressFail, "CHECK_NOFAIL" )
+#define CHECK(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::ContinueOnFailure, "CHECK")
+#define CHECK_FALSE(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::FalseTest, "CHECK_FALSE")
+#define CHECKED_IF(expr) INTERNAL_CATCH_IF(expr, Catch::ResultDisposition::ContinueOnFailure, "CHECKED_IF")
+#define CHECKED_ELSE(expr) INTERNAL_CATCH_ELSE(expr, Catch::ResultDisposition::ContinueOnFailure, "CHECKED_ELSE")
+#define CHECK_NOFAIL(expr) INTERNAL_CATCH_TEST(expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::SuppressFail, "CHECK_NOFAIL")
 
-#define CHECK_THROWS( expr )  INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, "", "CHECK_THROWS" )
-#define CHECK_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::ContinueOnFailure, "CHECK_THROWS_AS" )
-#define CHECK_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, matcher, "CHECK_THROWS_WITH" )
-#define CHECK_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECK_NOTHROW" )
+#define CHECK_THROWS(expr)  INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::ContinueOnFailure, "", "CHECK_THROWS")
+#define CHECK_THROWS_AS(expr, exceptionType) INTERNAL_CATCH_THROWS_AS(expr, exceptionType, Catch::ResultDisposition::ContinueOnFailure, "CHECK_THROWS_AS")
+#define CHECK_THROWS_WITH(expr, matcher) INTERNAL_CATCH_THROWS(expr, Catch::ResultDisposition::ContinueOnFailure, matcher, "CHECK_THROWS_WITH")
+#define CHECK_NOTHROW(expr) INTERNAL_CATCH_NO_THROW(expr, Catch::ResultDisposition::ContinueOnFailure, "CHECK_NOTHROW")
 
-#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::ContinueOnFailure, "CHECK_THAT" )
-#define REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::Normal, "REQUIRE_THAT" )
+#define CHECK_THAT(arg, matcher) INTERNAL_CHECK_THAT(arg, matcher, Catch::ResultDisposition::ContinueOnFailure, "CHECK_THAT")
+#define REQUIRE_THAT(arg, matcher) INTERNAL_CHECK_THAT(arg, matcher, Catch::ResultDisposition::Normal, "REQUIRE_THAT")
 
-#define INFO( msg ) INTERNAL_CATCH_INFO( msg, "INFO" )
-#define WARN( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Warning, Catch::ResultDisposition::ContinueOnFailure, "WARN", msg )
-#define SCOPED_INFO( msg ) INTERNAL_CATCH_INFO( msg, "INFO" )
-#define CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CAPTURE" )
-#define SCOPED_CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CAPTURE" )
+#define INFO(msg) INTERNAL_CATCH_INFO(msg, "INFO")
+#define WARN(msg) INTERNAL_CATCH_MSG(Catch::ResultWas::Warning, Catch::ResultDisposition::ContinueOnFailure, "WARN", msg)
+#define SCOPED_INFO(msg) INTERNAL_CATCH_INFO(msg, "INFO")
+#define CAPTURE(msg) INTERNAL_CATCH_INFO(#msg " := " << msg, "CAPTURE")
+#define SCOPED_CAPTURE(msg) INTERNAL_CATCH_INFO(#msg " := " << msg, "CAPTURE")
 
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define TEST_CASE( ... ) INTERNAL_CATCH_TESTCASE( __VA_ARGS__ )
-#define TEST_CASE_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, __VA_ARGS__ )
-#define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-#define REGISTER_TEST_CASE( Function, ... ) INTERNAL_CATCH_REGISTER_TESTCASE( Function, __VA_ARGS__ )
-#define SECTION( ... ) INTERNAL_CATCH_SECTION( __VA_ARGS__ )
-#define FAIL( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
-#define SUCCEED( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
+#define TEST_CASE(...) INTERNAL_CATCH_TESTCASE(__VA_ARGS__)
+#define TEST_CASE_METHOD(className, ...) INTERNAL_CATCH_TEST_CASE_METHOD(className, __VA_ARGS__)
+#define METHOD_AS_TEST_CASE(method, ...) INTERNAL_CATCH_METHOD_AS_TEST_CASE(method, __VA_ARGS__)
+#define REGISTER_TEST_CASE(Function, ...) INTERNAL_CATCH_REGISTER_TESTCASE(Function, __VA_ARGS__)
+#define SECTION(...) INTERNAL_CATCH_SECTION(__VA_ARGS__)
+#define FAIL(...) INTERNAL_CATCH_MSG(Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "FAIL", __VA_ARGS__)
+#define SUCCEED(...) INTERNAL_CATCH_MSG(Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__)
 #else
-#define TEST_CASE( name, description ) INTERNAL_CATCH_TESTCASE( name, description )
-#define TEST_CASE_METHOD( className, name, description ) INTERNAL_CATCH_TEST_CASE_METHOD( className, name, description )
-#define METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, name, description )
-#define REGISTER_TEST_CASE( method, name, description ) INTERNAL_CATCH_REGISTER_TESTCASE( method, name, description )
-#define SECTION( name, description ) INTERNAL_CATCH_SECTION( name, description )
-#define FAIL( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "FAIL", msg )
-#define SUCCEED( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "SUCCEED", msg )
+#define TEST_CASE(name, description) INTERNAL_CATCH_TESTCASE(name, description)
+#define TEST_CASE_METHOD(className, name, description) INTERNAL_CATCH_TEST_CASE_METHOD(className, name, description)
+#define METHOD_AS_TEST_CASE(method, name, description) INTERNAL_CATCH_METHOD_AS_TEST_CASE(method, name, description)
+#define REGISTER_TEST_CASE(method, name, description) INTERNAL_CATCH_REGISTER_TESTCASE(method, name, description)
+#define SECTION(name, description) INTERNAL_CATCH_SECTION(name, description)
+#define FAIL(msg) INTERNAL_CATCH_MSG(Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "FAIL", msg)
+#define SUCCEED(msg) INTERNAL_CATCH_MSG(Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "SUCCEED", msg)
 #endif
-#define ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE( "", "" )
+#define ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE("", "")
 
-#define REGISTER_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_REPORTER( name, reporterType )
-#define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_LEGACY_REPORTER( name, reporterType )
+#define REGISTER_REPORTER(name, reporterType) INTERNAL_CATCH_REGISTER_REPORTER(name, reporterType)
+#define REGISTER_LEGACY_REPORTER(name, reporterType) INTERNAL_CATCH_REGISTER_LEGACY_REPORTER(name, reporterType)
 
-#define GENERATE( expr) INTERNAL_CATCH_GENERATE( expr )
+#define GENERATE(expr) INTERNAL_CATCH_GENERATE(expr)
 
 #endif
 
-#define CATCH_TRANSLATE_EXCEPTION( signature ) INTERNAL_CATCH_TRANSLATE_EXCEPTION( signature )
+#define CATCH_TRANSLATE_EXCEPTION(signature) INTERNAL_CATCH_TRANSLATE_EXCEPTION(signature)
 
 // "BDD-style" convenience wrappers
 #ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define SCENARIO( ... ) TEST_CASE( "Scenario: " __VA_ARGS__ )
-#define SCENARIO_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " __VA_ARGS__ )
+#define SCENARIO(...) TEST_CASE("Scenario: " __VA_ARGS__)
+#define SCENARIO_METHOD(className, ...) INTERNAL_CATCH_TEST_CASE_METHOD(className, "Scenario: " __VA_ARGS__)
 #else
-#define SCENARIO( name, tags ) TEST_CASE( "Scenario: " name, tags )
-#define SCENARIO_METHOD( className, name, tags ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " name, tags )
+#define SCENARIO(name, tags) TEST_CASE("Scenario: " name, tags)
+#define SCENARIO_METHOD(className, name, tags) INTERNAL_CATCH_TEST_CASE_METHOD(className, "Scenario: " name, tags)
 #endif
-#define GIVEN( desc )    SECTION( std::string("   Given: ") + desc, "" )
-#define WHEN( desc )     SECTION( std::string("    When: ") + desc, "" )
-#define AND_WHEN( desc ) SECTION( std::string("And when: ") + desc, "" )
-#define THEN( desc )     SECTION( std::string("    Then: ") + desc, "" )
-#define AND_THEN( desc ) SECTION( std::string("     And: ") + desc, "" )
+#define GIVEN(desc)    SECTION(std::string("   Given: ") + desc, "")
+#define WHEN(desc)     SECTION(std::string("    When: ") + desc, "")
+#define AND_WHEN(desc) SECTION(std::string("And when: ") + desc, "")
+#define THEN(desc)     SECTION(std::string("    Then: ") + desc, "")
+#define AND_THEN(desc) SECTION(std::string("     And: ") + desc, "")
 
 using Catch::Detail::Approx;
 

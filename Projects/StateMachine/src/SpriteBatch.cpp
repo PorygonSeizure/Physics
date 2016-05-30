@@ -182,7 +182,7 @@ void SpriteBatch::Begin()
 
 void SpriteBatch::End()
 {
-	if (m_renderBegun == false)
+	if (!m_renderBegun)
 		return;
 
 	FlushBatch();
@@ -617,7 +617,7 @@ void SpriteBatch::DrawSpriteBatchText(Font* font, const char* text, float xPos, 
 void SpriteBatch::FlushBatch()
 {
 	//dont render anything
-	if (m_currentVertex == 0 || m_currentIndex == 0 || m_renderBegun == false)
+	if (m_currentVertex == 0 || m_currentIndex == 0 || !m_renderBegun)
 		return;
 	char buf[32];
 
