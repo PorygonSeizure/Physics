@@ -151,13 +151,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Collision.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Ragdoll.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PhysXApp.cpp" />
+    <ClCompile Include="src\tinyOBJLoader.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Collision.h" />
+    <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Ragdoll.h" />
     <ClInclude Include="src\PhysXApp.h" />
+    <ClInclude Include="src\tinyOBJLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

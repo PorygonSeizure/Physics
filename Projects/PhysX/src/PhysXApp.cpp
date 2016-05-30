@@ -8,6 +8,9 @@
 #include "Camera.h"
 #include "Gizmos.h"
 #include "Ragdoll.h"
+#include "Collision.h"
+#include "Mesh.h"
+#include <Shader.h>
 
 using glm::vec3;
 using glm::vec4;
@@ -43,6 +46,11 @@ bool PhysXApp::Startup()
 	m_wasLeftMousePressed = false;
 	m_pickPosition = vec3(0);
 
+	//m_shaders = new Shader();
+	//CreateShader();
+	//m_mesh = new Mesh();
+	//m_mesh->LoadObj("./res/Soulspear/soulspear.obj");
+	
 	SetupScene();
 
 	return true;
@@ -52,6 +60,8 @@ void PhysXApp::Shutdown()
 {
 	m_scene->release();
 	m_dispatcher->release();
+	//delete m_mesh;
+	//delete m_shaders;
 	PxProfileZoneManager* profileZoneManager = m_physics->getProfileZoneManager();
 	if (m_connection != NULL)
 		m_connection->release();
@@ -67,6 +77,57 @@ void PhysXApp::Shutdown()
 	DestroyGLFWWindow();
 }
 
+PxFilterFlags FilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags,
+							const void* constantBlock, PxU32 constantBlockSize)
+{
+	//let triggers through
+	if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+	{
+		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+		return PxFilterFlag::eDEFAULT;
+	}
+	//generate contacts for all that were not filtered above
+	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+	//trigger the contact callback for pairs (A,B) where
+	//the filtermask of A contains the ID of B and vice versa.
+	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;
+	return PxFilterFlag::eDEFAULT;
+}
+
+void SetupFiltering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
+{
+	PxFilterData filterData;
+	filterData.word0 = filterGroup;	//word0 = own ID
+	filterData.word1 = filterMask;	//word1 = ID mask to filter pairs that trigger a contact callback
+	const PxU32 numberShapes = actor->getNbShapes();
+	PxShape** shapes = (PxShape**)_aligned_malloc(sizeof(PxShape*)*numberShapes, 16);
+	actor->getShapes(shapes, numberShapes);
+	for (PxU32 i = 0; i < numberShapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filterData);
+	}
+	_aligned_free(shapes);
+}
+
+void SetShapeAsTrigger(PxRigidActor* actorIn)
+{
+	PxRigidStatic* staticActor = actorIn->is<PxRigidStatic>();
+	//assert(staticActor);
+	if (staticActor != nullptr)
+	{
+		const PxU32 numberShapes = staticActor->getNbShapes();
+		PxShape** shapes = (PxShape**)_aligned_malloc(sizeof(PxShape*)*numberShapes, 16);
+		staticActor->getShapes(shapes, numberShapes);
+		for (PxU32 i = 0; i < numberShapes; i++)
+		{
+			shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+			shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+		}
+	}
+}
+
 void PhysXApp::SetupScene()
 {
 	PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
@@ -75,13 +136,19 @@ void PhysXApp::SetupScene()
 	sceneDesc.cpuDispatcher = m_dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	m_scene = m_physics->createScene(sceneDesc);
+	PxSimulationEventCallback* collisionEventCallback = new Collision();
+	m_scene->setSimulationEventCallback(collisionEventCallback);
+	sceneDesc.filterShader = FilterShader;
 
 	m_material = m_physics->createMaterial(0.5f, 0.5f, 0.6f);
 
 	PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane(0, 1, 0, 0), *m_material);
-	//PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane(0, (1.f / sqrtf(2.f)), (1.f / sqrtf(2.f)), 0), *m_material);
+	//PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane((1.f / sqrtf(2.f)), (1.f / sqrtf(2.f)), 0, 0), *m_material);
 	m_physXActors.push_back(groundPlane);
 	m_scene->addActor(*groundPlane);
+	groundPlane->setName("ground");
+	SetupFiltering(groundPlane, FilterGroup::eGROUND, FilterGroup::ePLAYER);
+	//SetShapeAsTrigger(groundPlane);
 
 	//PxShape* shape = m_physics->createShape(PxSphereGeometry(0.25f), *m_material);
 	//PxRigidDynamic* sphereActor = m_physics->createRigidDynamic(PxTransform(-5.f, 0.25f, -5.f));
@@ -153,10 +220,16 @@ void PhysXApp::SetupScene()
 	
 	for (int i = 0; i < 55; i++)
 	{
+		char buffer[32];
+		sprintf(buffer, "box%i", i);
+
 		shapes[i] = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
 		boxes[i]->attachShape(*shapes[i]);
 		m_physXActors.push_back(boxes[i]);
 		m_scene->addActor(*boxes[i]);
+		boxes[i]->setName(buffer);
+		SetupFiltering(boxes[i], FilterGroup::ePLAYER, FilterGroup::eGROUND);
+		SetupFiltering(boxes[i], FilterGroup::ePLAYER, FilterGroup::eGROUND | FilterGroup::ePLATFORM);
 	}
 
 	//create some constants for axis of rotation to make definition of quaternions a bit neater
@@ -201,8 +274,6 @@ bool PhysXApp::Update(float deltaTime)
 
 	bool leftMousePressed = (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS);
 
-	m_scene->simulate(deltaTime);
-	m_scene->fetchResults(true);
 	//PxTransform transform = boxActor->getGlobalPose();
 
 	//printf("%0.2f\t%0.2f\t%0.2f\n", transform.p.x, transform.p.y, transform.p.z);
@@ -225,6 +296,9 @@ bool PhysXApp::Update(float deltaTime)
 	else if (!leftMousePressed && m_wasLeftMousePressed)
 		m_wasLeftMousePressed = false;
 
+	m_scene->simulate(deltaTime);
+	m_scene->fetchResults(true);
+
 	//return true, else the application closes
 	return true;
 }
@@ -233,8 +307,6 @@ void PhysXApp::Draw()
 {
 	//clear the gizmos out for this frame
 	Gizmos::Clear();
-
-	//DrawGizmosGrid();
 
 	for (auto actor : m_physXActors)
 	{
@@ -268,6 +340,18 @@ void PhysXApp::Draw()
 
 	//clear the screen for this frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//m_shaders->Bind();
+	//
+	//int loc = m_shaders->GetUniform("projectionView");
+	//glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m_camera->GetProjectionView()));
+	//
+	//loc = m_shaders->GetUniform("cameraPosition");
+	//glUniform3fv(loc, 1, value_ptr(vec3(m_camera->GetTransform()[0].x, m_camera->GetTransform()[1].y, m_camera->GetTransform()[2].z)));
+	//loc = m_shaders->GetUniform("lightPosition");
+	//glUniform3fv(loc, 1, value_ptr(vec3(1, 1, 1)));
+	//
+	//m_mesh->Draw(GL_TRIANGLES);
 	
 	//display the 3D gizmos
 	Gizmos::Draw(m_camera->GetProjectionView());
@@ -279,30 +363,6 @@ void PhysXApp::Draw()
 	mat4 guiMatrix = glm::ortho<float>(0, (float)width, 0, (float)height);
 
 	Gizmos::Draw2D(guiMatrix);
-}
-
-void PhysXApp::DrawGizmosGrid()
-{
-	//an example of mouse picking
-	if (glfwGetMouseButton(m_window, 0) == GLFW_PRESS)
-	{
-		double x = 0;
-		double y = 0;
-		glfwGetCursorPos(m_window, &x, &y);
-
-		//plane represents the ground, with a normal of (0,1,0) and a distance of 0 from (0,0,0)
-		vec4 plane(0, 1, 0, 0);
-		m_pickPosition = m_camera->PickAgainstPlane((float)x, (float)y, plane);
-	}
-	Gizmos::AddTransform(glm::translate(m_pickPosition));
-
-	//...for now let's add a grid to the gizmos
-	for (int i = 0; i < 21; ++i)
-	{
-		Gizmos::AddLine(vec3(-10 + i, 0, 10), vec3(-10 + i, 0, -10), i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
-
-		Gizmos::AddLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i), i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
-	}
 }
 
 void PhysXApp::AddWidget(PxShape* shape, PxRigidActor* actor)
@@ -382,26 +442,41 @@ void DrawPlane(vec3 position, vec3 normal, vec4 colour)
 	Gizmos::AddLine(three, four, colour);
 	Gizmos::AddLine(four, one, colour);
 
-	vec3 dif = glm::abs(four - one);
+	//vec3 min = glm::min(three, one);
+	//vec3 dif = glm::abs(three - one);
+	//int lineVar = 1;
+	//glm::ivec3 num = dif / lineVar;
+	//for (int i = 0; i < num.x; i++)
+	//	Gizmos::AddLine(vec3(min.x + (i * lineVar), min.y, min.z), vec3(min.x + (i * lineVar), -min.y, -min.z), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
+	//for (int i = 0; i < num.y; i++)
+	//	Gizmos::AddLine(vec3(min.x, min.y + (i * lineVar), min.z), vec3(-min.x, min.y + (i * lineVar), -min.z), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
+	//for (int i = 0; i < num.z; i++)
+	//	Gizmos::AddLine(vec3(min.x, min.y, min.z + (i * lineVar)), vec3(-min.x, -min.y, min.z + (i * lineVar)), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
+
+	vec3 dif = four - one;
 	int lineVar = 1;
-	glm::ivec3 num = dif / lineVar;
-
-	for (glm::ivec3 i(0); glm::length(vec3(i)) < glm::length(vec3(num)); i++)
+	vec3 num = dif / lineVar;
+	float max = glm::max(num.x, num.y, num.z);
+	vec3 step = num / max;
+	
+	for (float i = 0.f, j = 0.f, k = 0.f; max == num.x ? i < num.x : max == num.y ? j < num.y : k < num.z; i += step.x, j += step.y, k += step.z)
 	{
-		vec3 p1(one.x + (i.x * lineVar), one.y + (i.y * lineVar), one.z + (i.z * lineVar));
-		vec3 p2(two.x + (i.x * lineVar), two.y + (i.y * lineVar), two.z + (i.z * lineVar));
-
+		vec3 p1(one.x + (i * lineVar), one.y + (j * lineVar), one.z + (k * lineVar));
+		vec3 p2(two.x + (i * lineVar), two.y + (j * lineVar), two.z + (k * lineVar));
+	
 		Gizmos::AddLine(p1, p2, vec4(0, 0, 0, 1));
 	}
 		
-	dif = glm::abs(two - one);
+	dif = two - one;
 	num = dif / lineVar;
+	max = glm::max(num.x, num.y, num.z);
+	step = num / max;
 
-	for (glm::ivec3 i(0); glm::length(vec3(i)) < glm::length(vec3(num)); i++)
+	for (float i = 0.f, j = 0.f, k = 0.f; max == num.x ? i < num.x : max == num.y ? j < num.y : k < num.z; i += step.x, j += step.y, k += step.z)
 	{
-		vec3 p1(one.x + (i.x * lineVar), one.y + (i.y * lineVar), one.z + (i.z * lineVar));
-		vec3 p2(four.x + (i.x * lineVar), four.y + (i.y * lineVar), four.z + (i.z * lineVar));
-
+		vec3 p1(one.x + (i * lineVar), one.y + (j * lineVar), one.z + (k * lineVar));
+		vec3 p2(four.x + (i * lineVar), four.y + (j * lineVar), four.z + (k * lineVar));
+	
 		Gizmos::AddLine(p1, p2, vec4(0, 0, 0, 1));
 	}
 }
@@ -434,7 +509,6 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 		colour = vec4(0, 1, 0, 1);
 
 	DrawPlane(position, normal, colour);
-	//Gizmos::AddAABB(position, vec3(100.f * m[0].x, 100.f * m[1].y, 100.f * m[2].z), colour, &m);
 }
 
 void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
@@ -455,10 +529,6 @@ void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
 		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
 		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
 		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
-	//mat4 m(pxm.column0.x, pxm.column1.x, pxm.column2.x, pxm.column3.x,
-	//	pxm.column0.y, pxm.column1.y, pxm.column2.y, pxm.column3.y,
-	//	pxm.column0.z, pxm.column1.z, pxm.column2.z, pxm.column3.z,
-	//	pxm.column0.w, pxm.column1.w, pxm.column2.w, pxm.column3.w);
 	vec3 position;
 
 	position.x = pxm.getPosition().x;
@@ -474,9 +544,9 @@ void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
 void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
 {
 	PxBoxGeometry geometry;
-	float width = 1;
-	float height = 1;
-	float length = 1;
+	float width = 1.f;
+	float height = 1.f;
+	float length = 1.f;
 	bool status = shape->getBoxGeometry(geometry);
 	if (status)
 	{
@@ -501,4 +571,11 @@ void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
 		colour = vec4(0, 1, 0, 1);
 
 	Gizmos::AddAABBFilled(position, extents, colour, &m);
+}
+
+void PhysXApp::CreateShader()
+{
+	m_shaders->LoadShader(GL_VERTEX_SHADER, "./res/OBJVertex.vs");
+	m_shaders->LoadShader(GL_FRAGMENT_SHADER, "./res/OBJFragment.fs");
+	m_shaders->Link();
 }

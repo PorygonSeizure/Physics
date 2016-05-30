@@ -15,21 +15,11 @@ using glm::vec2;
 
 Gizmos* Gizmos::sm_singleton = nullptr;
 
-Gizmos::Gizmos(unsigned int maxLines, unsigned int maxTris, unsigned int max2DLines, unsigned int max2DTris) : 
-	m_maxLines(maxLines),
-	m_lineCount(0),
-	m_lines(new GizmoLine[maxLines]),
-	m_maxTris(maxTris),
-	m_triCount(0),
-	m_tris(new GizmoTri[maxTris]),
-	m_transparentTriCount(0),
-	m_transparentTris(new GizmoTri[maxTris]),
-	m_max2DLines(max2DLines),
-	m_2DlineCount(0),
-	m_2Dlines(new GizmoLine[max2DLines]),
-	m_max2DTris(max2DTris),
-	m_2DtriCount(0),
-	m_2Dtris(new GizmoTri[max2DTris])
+Gizmos::Gizmos(unsigned int maxLines, unsigned int maxTris, unsigned int max2DLines, unsigned int max2DTris) : m_maxLines(maxLines), m_lineCount(0), m_lines(new GizmoLine[maxLines]), 
+																												m_maxTris(maxTris), m_triCount(0), m_tris(new GizmoTri[maxTris]), 
+																												m_transparentTriCount(0), m_transparentTris(new GizmoTri[maxTris]), 
+																												m_max2DLines(max2DLines), m_2DlineCount(0), m_2Dlines(new GizmoLine[max2DLines]), 
+																												m_max2DTris(max2DTris), m_2DtriCount(0), m_2Dtris(new GizmoTri[max2DTris])
 {
 	//create shaders
 	m_shader = new Shader();
@@ -129,7 +119,7 @@ Gizmos::~Gizmos()
 	delete m_shader;
 }
 
-void Gizmos::Create(unsigned int maxLines /* = 0xffff */, unsigned int maxTris /* = 0xffff */, unsigned int max2DLines /* = 0xff */, unsigned int max2DTris /* = 0xff */)
+void Gizmos::Create(unsigned int maxLines /*= 0xffff*/, unsigned int maxTris /*= 0xffff*/, unsigned int max2DLines /*= 0xff*/, unsigned int max2DTris /*= 0xff*/)
 {
 	if (sm_singleton == nullptr)
 		sm_singleton = new Gizmos(maxLines, maxTris, max2DLines, max2DTris);
@@ -151,7 +141,7 @@ void Gizmos::Clear()
 }
 
 //Adds 3 unit-length lines (red,green,blue) representing the 3 axis of a transform, at the transform's translation. Optional scale available.
-void Gizmos::AddTransform(const mat4& transform, float scale /* = 1.f */)
+void Gizmos::AddTransform(const mat4& transform, float scale /*= 1.f*/)
 {
 	vec4 xAxis = transform[3] + transform[0] * scale;
 	vec4 yAxis = transform[3] + transform[1] * scale;
@@ -166,7 +156,7 @@ void Gizmos::AddTransform(const mat4& transform, float scale /* = 1.f */)
 	AddLine(transform[3].xyz(), zAxis.xyz(), blue, blue);
 }
 
-void Gizmos::AddAABB(const vec3& center, const vec3& rvExtents, const vec4& colour, const mat4* transform /* = nullptr */)
+void Gizmos::AddAABB(const vec3& center, const vec3& rvExtents, const vec4& colour, const mat4* transform /*= nullptr*/)
 {
 	vec3 verts[8];
 	vec3 xVert(rvExtents.x, 0, 0);
@@ -208,7 +198,7 @@ void Gizmos::AddAABB(const vec3& center, const vec3& rvExtents, const vec4& colo
 	AddLine(verts[3], verts[7], colour, colour);
 }
 
-void Gizmos::AddAABBFilled(const vec3& center, const vec3& rvExtents, const vec4& fillColour, const mat4* transform /* = nullptr */)
+void Gizmos::AddAABBFilled(const vec3& center, const vec3& rvExtents, const vec4& fillColour, const mat4* transform /*= nullptr*/)
 {
 	vec3 verts[8];
 	vec3 xVert(rvExtents.x, 0, 0);
@@ -276,7 +266,7 @@ void Gizmos::AddAABBFilled(const vec3& center, const vec3& rvExtents, const vec4
 	AddTri(verts[6], verts[2], verts[7], fillColour);
 }
 
-void Gizmos::AddCylinderFilledX(const vec3& center, float radius, float halfHeight, unsigned int segments, const vec4& fillColour, const mat4* transform /* = nullptr */)
+void Gizmos::AddCylinderFilledX(const vec3& center, float radius, float halfHeight, unsigned int segments, const vec4& fillColour, const mat4* transform /*= nullptr*/)
 {
 	vec4 white(1, 1, 1, 1);
 
@@ -314,7 +304,7 @@ void Gizmos::AddCylinderFilledX(const vec3& center, float radius, float halfHeig
 	}
 }
 
-void Gizmos::AddCylinderFilledY(const vec3& center, float radius, float halfLength, unsigned int segments, const vec4& fillColour, const mat4* transform /* = nullptr */)
+void Gizmos::AddCylinderFilledY(const vec3& center, float radius, float halfLength, unsigned int segments, const vec4& fillColour, const mat4* transform /*= nullptr*/)
 {
 	vec4 white(1, 1, 1, 1);
 
@@ -352,11 +342,7 @@ void Gizmos::AddCylinderFilledY(const vec3& center, float radius, float halfLeng
 	}
 }
 
-void Gizmos::AddRing(const vec3& center, 
-						float innerRadius, float outerRadius, 
-						unsigned int segments, 
-						const vec4& fillColour, 
-						const mat4* transform /* = nullptr */)
+void Gizmos::AddRing(const vec3& center, float innerRadius, float outerRadius, unsigned int segments, const vec4& fillColour, const mat4* transform /*= nullptr*/)
 {
 	vec4 solid = fillColour;
 	solid.w = 1.f;
@@ -395,10 +381,7 @@ void Gizmos::AddRing(const vec3& center,
 	}
 }
 
-void Gizmos::AddDisk(const vec3& center, float radius, 
-						unsigned int segments, 
-						const vec4& fillColour, 
-						const mat4* transform /* = nullptr */)
+void Gizmos::AddDisk(const vec3& center, float radius, unsigned int segments, const vec4& fillColour, const mat4* transform /*= nullptr*/)
 {
 	vec4 solid = fillColour;
 	solid.w = 1;
@@ -426,13 +409,7 @@ void Gizmos::AddDisk(const vec3& center, float radius,
 	}
 }
 
-void Gizmos::AddArc(const vec3& center, 
-					float rotation, 
-					float radius, 
-					float arcHalfAngle,
-					unsigned int segments, 
-					const vec4& fillColour, 
-					const mat4* transform /* = nullptr */)
+void Gizmos::AddArc(const vec3& center, float rotation, float radius, float arcHalfAngle, unsigned int segments, const vec4& fillColour, const mat4* transform /*= nullptr*/)
 {
 	vec4 solid = fillColour;
 	solid.w = 1.f;
@@ -476,13 +453,8 @@ void Gizmos::AddArc(const vec3& center,
 	}
 }
 
-void Gizmos::AddArcRing(const vec3& center, 
-						float rotation, 
-						float innerRadius, float outerRadius, 
-						float arcHalfAngle,
-						unsigned int segments, 
-						const vec4& fillColour, 
-						const mat4* transform /* = nullptr */)
+void Gizmos::AddArcRing(const vec3& center, float rotation, float innerRadius, float outerRadius, float arcHalfAngle, unsigned int segments, const vec4& fillColour, 
+						const mat4* transform /*= nullptr*/)
 {
 	vec4 solid = fillColour;
 	solid.w = 1.f;
@@ -541,11 +513,7 @@ void Gizmos::AddArcRing(const vec3& center,
 	}
 }
 
-void Gizmos::AddSphere(const vec3& center, float radius, 
-						int rows, int columns, 
-						const vec4& fillColour, 
-						const mat4* transform /*= nullptr*/, 
-						float longMin /*= 0.f*/, float longMax /*= 360.f*/, 
+void Gizmos::AddSphere(const vec3& center, float radius, int rows, int columns, const vec4& fillColour, const mat4* transform /*= nullptr*/, float longMin /*= 0.f*/, float longMax /*= 360.f*/, 
 						float latMin /*= -90.f*/, float latMax /*= 90.f*/)
 {
 	float inverseRadius = 1.f / radius;
@@ -609,7 +577,6 @@ void Gizmos::AddSphere(const vec3& center, float radius,
 
 void Gizmos::AddCapsule(const vec3 center, float radius, float halfHeight, unsigned int rows, unsigned int cols, const vec4 fillColour, const mat4* transform /*= 0*/)
 {
-	//float halfSphereCenter = halfHeight + radius;
 	vec4 right = vec4(halfHeight, 0, 0, 0);
 	vec4 left = vec4(-halfHeight, 0, 0, 0);
 
@@ -622,17 +589,12 @@ void Gizmos::AddCapsule(const vec3 center, float radius, float halfHeight, unsig
 	vec3 rightCenter = center + right.xyz();
 	vec3 leftCenter = center + left.xyz();
 
-	//rightCenter.x -= radius;
-	//leftCenter.x += radius;
-
-	//AddSphere(rightCenter, radius, rows, cols, fillColour);
 	AddSphere(rightCenter, radius, rows, cols, fillColour, transform/*, 180.f, 360.f*/);
-	//AddSphere(leftCenter, radius, rows, cols, fillColour);
 	AddSphere(leftCenter, radius, rows, cols, fillColour, transform/*, 0.f, 180.f*/);
 
 	AddCylinderFilledX(center, radius, halfHeight, cols, fillColour, transform);
 
-	for (int i = 0; i < cols; ++i)
+	for (unsigned int i = 0; i < cols; ++i)
 	{
 		float x = (float)i / (float)cols;
 		x *= 2.f * pi<float>();
@@ -646,10 +608,7 @@ void Gizmos::AddCapsule(const vec3 center, float radius, float halfHeight, unsig
 	}
 }
 
-void Gizmos::AddHermiteSpline(const vec3& start, const vec3& end,
-								const vec3& tangentStart, const vec3& tangentEnd, 
-								unsigned int segments, 
-								const vec4& colour)
+void Gizmos::AddHermiteSpline(const vec3& start, const vec3& end, const vec3& tangentStart, const vec3& tangentEnd, unsigned int segments, const vec4& colour)
 {
 	segments = segments > 1 ? segments : 1;
 

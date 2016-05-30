@@ -57,11 +57,10 @@ void BaseApp::Run()
 	while (true)
 	{
 		currTime = glfwGetTime();
-		float deltaTime = 60.f * (float)(currTime - prevTime);
+		float deltaTime = (float)(currTime - prevTime);
 		prevTime = currTime;
 
-		//if the program has been stoped for logner than 12 FPS
-		//cap dt to 12 FPS
+		//if the program has been stoped for longer than 12 FPS cap dt to 12 FPS
 		if (deltaTime > 1.f / 12.f)
 			deltaTime = 1.f / 12.f;
 		if (deltaTime <= 1.f / 360.f)

@@ -7,16 +7,29 @@
 #include <glm/vec3.hpp>
 #include <PxPhysicsAPI.h>
 #include <vector>
+#include "tinyOBJLoader.h"
 
 class FlyCamera;
+class Mesh;
+class Shader;
 
-namespace Physics
+struct FilterGroup
 {
-//class PhysicsObject;
-//class RigidBody;
-//class PhysicsScene;
-//class PhysicsRenderer;
-}
+	enum Enum
+	{
+		ePLAYER = (1 << 0),
+		ePLATFORM = (1 << 1),
+		eGROUND = (1 << 2)
+	};
+};
+
+struct OpenGLInfo
+{
+	unsigned int m_VAO;
+	unsigned int m_VBO;
+	unsigned int m_IBO;
+	unsigned int m_indexCount;
+};
 
 class PhysXApp : public BaseApp
 {
@@ -25,18 +38,18 @@ public:
 	virtual ~PhysXApp() {};
 
 	virtual bool Startup();
+	virtual bool Update(float deltaTime);
+
+	virtual void Draw();
 	virtual void Shutdown();
 
-	virtual bool Update(float deltaTime);
-	virtual void Draw();
-
 	void SetupScene();
-	void DrawGizmosGrid();
 	void AddWidget(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddSphere(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddPlane(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddCapsule(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddBox(physx::PxShape* shape, physx::PxRigidActor* actor);
+	void CreateShader();
 
 protected:
 	FlyCamera* m_camera;
@@ -44,8 +57,6 @@ protected:
 	//this is an example position for camera picking
 	glm::vec3 m_pickPosition;
 
-	//Physics::PhysicsRenderer* m_physicsRenderer;
-	//Physics::PhysicsScene* m_physicsScene;
 	bool m_wasLeftMousePressed;
 
 	physx::PxDefaultAllocator m_allocator;
@@ -61,6 +72,9 @@ protected:
 
 	std::vector<physx::PxRigidActor*> m_physXActors;
 	std::vector<physx::PxArticulation*> m_ragdolls;
+
+	Mesh* m_mesh;
+	Shader* m_shaders;
 };
 
 #endif
