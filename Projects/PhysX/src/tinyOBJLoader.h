@@ -1106,7 +1106,7 @@ bool LoadObj(std::vector<ShapeT>& shapes /*[output]*/, std::vector<MaterialT>& m
 
 			continue;
 		}
-
+		
 		//use mtl
 		if ((0 == strncmp(token, "usemtl", 6)) && IS_SPACE((token[6])))
 		{

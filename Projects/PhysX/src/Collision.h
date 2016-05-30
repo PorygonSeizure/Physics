@@ -8,7 +8,7 @@ class Collision : public physx::PxSimulationEventCallback
 public:
 	Collision() {}
 	virtual ~Collision() {}
-
+	
 	virtual void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 numberPairs);
 	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 numberPairs);
 	virtual void onConstraintBreak(physx::PxConstraintInfo*, physx::PxU32) {}

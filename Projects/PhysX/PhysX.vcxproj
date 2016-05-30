@@ -165,6 +165,10 @@
     <ClInclude Include="src\PhysXApp.h" />
     <ClInclude Include="src\tinyOBJLoader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\OBJFragment.fs" />
+    <None Include="res\OBJVertex.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

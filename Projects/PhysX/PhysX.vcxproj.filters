@@ -51,4 +51,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\OBJFragment.fs" />
+    <None Include="res\OBJVertex.vs" />
+  </ItemGroup>
 </Project>
