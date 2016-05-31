@@ -2,6 +2,7 @@
 #define _RAGDOLL_H_
 
 #include <PxPhysicsAPI.h>
+#include <vector>
 
 //Parts which make up our ragdoll
 enum RagdollParts
@@ -56,7 +57,7 @@ struct RagdollNode
 	}
 };
 
-physx::PxArticulation* MakeRagdoll(physx::PxPhysics*, RagdollNode**, physx::PxTransform, float, physx::PxMaterial*);
+physx::PxArticulation* MakeRagdoll(physx::PxPhysics*, std::vector<RagdollNode*>, physx::PxTransform, float, physx::PxMaterial*);
 
 class Ragdoll
 {

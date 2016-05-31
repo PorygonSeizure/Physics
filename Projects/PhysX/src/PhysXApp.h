@@ -12,16 +12,8 @@
 class FlyCamera;
 class Mesh;
 class Shader;
-
-struct FilterGroup
-{
-	enum Enum
-	{
-		ePLAYER = (1 << 0),
-		ePLATFORM = (1 << 1),
-		eGROUND = (1 << 2)
-	};
-};
+class ParticleEmitter;
+class ParticleFluidEmitter;
 
 struct OpenGLInfo
 {
@@ -68,6 +60,7 @@ protected:
 	physx::PxScene* m_scene = NULL;
 	physx::PxMaterial* m_material = NULL;
 	physx::PxVisualDebuggerConnection* m_connection = NULL;
+	physx::PxSimulationEventCallback* m_collisionEventCallback = NULL;
 	//physx::PxRigidDynamic* m_actor = NULL;
 
 	std::vector<physx::PxRigidActor*> m_physXActors;
@@ -75,6 +68,8 @@ protected:
 
 	Mesh* m_mesh;
 	Shader* m_shaders;
+	//ParticleEmitter* m_particleEmitter;
+	ParticleFluidEmitter* m_particleFluidEmitter;
 };
 
 #endif

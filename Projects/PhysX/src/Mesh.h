@@ -13,9 +13,9 @@ struct Vertex
 	glm::vec4 position;	//added to attrib location 0
 	glm::vec4 colour;	//added to attrib location 1
 	glm::vec4 normal;	//added to attrib location 2
-	glm::vec4 tangent;	//added to attrib location 4
+	glm::vec4 tangent;	//added to attrib location 3
 
-	glm::vec2 texcoord;	//added to attrib location 3
+	glm::vec2 texcoord;	//added to attrib location 4
 
 	//animation data
 	float boneWeights[4];	//added to attrib location 5
@@ -55,13 +55,13 @@ public:
 	float m_specularPower;
 	float m_opacity;
 
-	Texture m_diffuseTexture;			// bound slot 0
-	Texture m_alphaTexture;				// bound slot 1
-	Texture m_ambientTexture;			// bound slot 2
-	Texture m_specularTexture;			// bound slot 3
+	Texture m_diffuseTexture;	// bound slot 0
+	Texture m_alphaTexture;	// bound slot 1
+	Texture m_ambientTexture;	// bound slot 2
+	Texture m_specularTexture;	// bound slot 3
 	Texture m_specularHighlightTexture;	// bound slot 4
-	Texture m_normalTexture;				// bound slot 5
-	Texture m_displacementTexture;		// bound slot 6
+	Texture m_normalTexture;	// bound slot 5
+	Texture m_displacementTexture;	// bound slot 6
 };
 
 //a simple mesh wrapper

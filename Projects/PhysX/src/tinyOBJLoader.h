@@ -44,7 +44,7 @@
 namespace tinyobj
 {
 
-typedef struct MaterialT
+typedef struct
 {
 	std::string name;
 
@@ -69,18 +69,18 @@ typedef struct MaterialT
 	std::string displacementTexname;	//disp
 	std::string alphaTexname;	//map_d
 	std::map<std::string, std::string> unknownParameter;
-};
+} MaterialT;
 
-typedef struct TagT
+typedef struct
 {
 	std::string name;
 
 	std::vector<int> intValues;
 	std::vector<float> floatValues;
 	std::vector<std::string> stringValues;
-};
+} TagT;
 
-typedef struct MeshT
+typedef struct
 {
 	std::vector<float> positions;
 	std::vector<float> normals;
@@ -89,20 +89,20 @@ typedef struct MeshT
 	std::vector<unsigned char> numVertices;	//The number of vertices per face. Up to 255.
 	std::vector<int> materialIDs;	//per-face material ID
 	std::vector<TagT> tags;	 //SubD tag
-};
+} MeshT;
 
-typedef struct ShapeT
+typedef struct
 {
 	std::string name;
 	MeshT mesh;
-};
+} ShapeT;
 
-typedef enum LoadFlagsT
+typedef enum
 {
 	triangulation = 1,	//used whether triangulate polygon face in .obj
 	calculateNormals = 2,	//used whether calculate the normals if the .obj normals are empty
 	//Some nice stuff here
-};
+} LoadFlagsT;
 
 class Float3
 {
@@ -294,7 +294,7 @@ static inline int FixIndex(int idx, int n)
 {
 	if (idx > 0)
 		return idx - 1;
-	if (idx == 0)
+	if (!idx)
 		return 0;
 	return n + idx;	//negative value = relative
 }
@@ -390,7 +390,7 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 	}
 
 	//We must make sure we actually got something.
-	if (read == 0)
+	if (!read)
 		goto fail;
 	//We allow numbers of form "#", "###" etc.
 	if (!endNotReached)
@@ -437,7 +437,7 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 			read++;
 		}
 		exponent *= (expSign == '+' ? 1 : -1);
-		if (read == 0)
+		if (!read)
 			goto fail;
 	}
 
@@ -648,7 +648,7 @@ static bool ExportFaceGroupToShape(ShapeT& shape, std::map<VertexIndex, unsigned
 	if (normalsCalculation && shape.mesh.normals.empty())
 	{
 		const size_t nIndexs = shape.mesh.indices.size();
-		if (nIndexs % 3 == 0)
+		if (!(nIndexs % 3))
 		{
 			shape.mesh.normals.resize(shape.mesh.positions.size());
 			for (register size_t iIndices = 0; iIndices < nIndexs; iIndices += 3)

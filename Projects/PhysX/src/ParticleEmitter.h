@@ -4,29 +4,34 @@
 #include <PxPhysicsAPI.h>
 
 //simple struct for our particles
+
 struct Particle
 {
 	bool active;
+
 	float maxTime;
 };
 
-//simple class for particle emitter.  For a real system we would make this a base class and derive different emitters from it by making functions virtual and overloading them.
+
+//simple class for particle emitter. For a real system we would make this a base class and derive different emitters from it by making functions virtual and overloading them.
 class ParticleEmitter
 {
 public:
 	ParticleEmitter(int maxParticles, physx::PxVec3 position, physx::PxParticleSystem* ps, float releaseDelay);
-	~ParticleEmitter();
-
-	void SetStartVelocityRange(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
-	void Update(float delta);
-	void ReleaseParticle(int);
-	void RenderParticles();
+	ParticleEmitter() {}
+	virtual ~ParticleEmitter();
+	
+	virtual void SetStartVelocityRange(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
+	virtual void Update(float delta);
+	virtual void ReleaseParticle(int);
+	virtual void RenderParticles();
 
 	bool TooOld(int);
 
-private:
-	int GetNextFreeParticle();
-	bool AddPhysXParticle(int particleIndex);
+protected:
+	virtual int GetNextFreeParticle();
+
+	virtual bool AddPhysXParticle(int particleIndex);
 
 	int m_maxParticles;
 	int m_numberActiveParticles;
@@ -41,7 +46,7 @@ private:
 	physx::PxVec3 m_position;
 	physx::PxVec3 m_minVelocity;
 	physx::PxVec3 m_maxVelocity;
-
+	
 	physx::PxParticleSystem* m_ps;
 };
 

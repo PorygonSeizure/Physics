@@ -153,6 +153,8 @@
   <ItemGroup>
     <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\ParticleEmitter.cpp" />
+    <ClCompile Include="src\ParticleFluidEmitter.cpp" />
     <ClCompile Include="src\Ragdoll.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PhysXApp.cpp" />
@@ -161,6 +163,8 @@
   <ItemGroup>
     <ClInclude Include="src\Collision.h" />
     <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\ParticleEmitter.h" />
+    <ClInclude Include="src\ParticleFluidEmitter.h" />
     <ClInclude Include="src\Ragdoll.h" />
     <ClInclude Include="src\PhysXApp.h" />
     <ClInclude Include="src\tinyOBJLoader.h" />

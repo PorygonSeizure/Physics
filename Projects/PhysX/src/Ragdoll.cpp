@@ -1,4 +1,5 @@
 #include "Ragdoll.h"
+#include "Collision.h"
 
 using namespace physx;
 
@@ -11,17 +12,17 @@ Ragdoll::~Ragdoll()
 {
 }
 
-PxArticulation* MakeRagdoll(PxPhysics* physics, RagdollNode** nodeArray, PxTransform worldPos, float scaleFactor, PxMaterial* ragdollMaterial)
+PxArticulation* MakeRagdoll(PxPhysics* physics, std::vector<RagdollNode*> nodeVector, PxTransform worldPos, float scaleFactor, PxMaterial* ragdollMaterial)
 {
 	//create the articulation for our ragdoll
 	PxArticulation* articulation = physics->createArticulation();
-	RagdollNode** currentNode = nodeArray;
+	std::vector<RagdollNode*> copyVector = nodeVector;
 
 	//while there are more nodes to process...
-	while (*currentNode != NULL)
+	for (int i = 0; i < copyVector.size(); i++)
 	{
 		//get a pointer to the current node
-		RagdollNode* currentNodePtr = *currentNode;
+		RagdollNode* currentNodePtr = copyVector[i];
 
 		//create a pointer ready to hold the parent node pointer if there is one
 		RagdollNode* parentNode = nullptr;
@@ -40,7 +41,7 @@ PxArticulation* MakeRagdoll(PxPhysics* physics, RagdollNode** nodeArray, PxTrans
 		{
 			//if there is a parent then we need to work out our local position for the link
 			//get a pointer to the parent node
-			parentNode = *(nodeArray + currentNodePtr->parentNodeIDX);
+			parentNode = nodeVector[currentNodePtr->parentNodeIDX];
 
 			//get a pointer to the link for the parent
 			parentLinkPtr = parentNode->linkPtr;
@@ -64,6 +65,9 @@ PxArticulation* MakeRagdoll(PxPhysics* physics, RagdollNode** nodeArray, PxTrans
 		float capsuleHalfLength = (halfLength > jointSpace ? halfLength - jointSpace : 0) + 0.01f;
 		PxCapsuleGeometry capsule(radius, capsuleHalfLength);
 		link->createShape(capsule, *ragdollMaterial);	//adds a capsule collider to the link
+		link->setName(currentNodePtr->name);
+		SetupFiltering(link, FilterGroup::ePLAYER, FilterGroup::eGROUND);
+		SetupFiltering(link, FilterGroup::ePLAYER, FilterGroup::eGROUND | FilterGroup::ePLATFORM);
 		PxRigidBodyExt::updateMassAndInertia(*link, 50.f);	//adds some mass, mass should really be part of the data!
 
 		if (currentNodePtr->parentNodeIDX != -1)
@@ -75,10 +79,10 @@ PxArticulation* MakeRagdoll(PxPhysics* physics, RagdollNode** nodeArray, PxTrans
 			PxQuat frameRotation = parentNode->globalRotation.getConjugate() * currentNodePtr->globalRotation;
 
 			//set the parent contraint frame
-			PxTransform parentConstraintFrame = PxTransform(PxVec3(currentNodePtr ->parentLinkPos * parentHalfLength, 0, 0), frameRotation);
+			PxTransform parentConstraintFrame = PxTransform(PxVec3(currentNodePtr->parentLinkPos * parentHalfLength, 0, 0), frameRotation);
 
 			//set the child constraint frame (this the constraint frame of the newly added link)
-			PxTransform thisConstraintFrame = PxTransform(PxVec3(currentNodePtr ->childLinkPos * childHalfLength, 0, 0));
+			PxTransform thisConstraintFrame = PxTransform(PxVec3(currentNodePtr->childLinkPos * childHalfLength, 0, 0));
 
 			//set up the poses for the joint so it is in the correct place
 			joint->setParentPose(parentConstraintFrame);
@@ -92,8 +96,6 @@ PxArticulation* MakeRagdoll(PxPhysics* physics, RagdollNode** nodeArray, PxTrans
 			joint->setTwistLimit(-0.1f, 0.1f);
 			joint->setTwistLimitEnabled(true);
 		}
-
-		currentNode++;
 	}
 	return articulation;
 }

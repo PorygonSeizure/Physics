@@ -136,13 +136,13 @@ bool Mesh::LoadObj(const char* filename, bool loadTextures /*= true*/, bool flip
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(vec4) * 2));
 
-		//enable texture coords
+		//enable tangent
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4) * 3));
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4) * 3));
 
 		//enable tex coords
 		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(vec4) * 4));
+		glVertexAttribPointer(4, 2, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(vec4) * 4));
 
 		//bind 0 for safety
 		glBindVertexArray(0);
@@ -171,10 +171,10 @@ void Mesh::Draw(unsigned int primitiveType)
 	}
 
 	//pull uniforms from the shader
-	int kaUniform = glGetUniformLocation(program, "Ka");
-	int kdUniform = glGetUniformLocation(program, "Kd");
-	int ksUniform = glGetUniformLocation(program, "Ks");
-	int keUniform = glGetUniformLocation(program, "Ke");
+	int kaUniform = glGetUniformLocation(program, "lightAmbient");
+	int kdUniform = glGetUniformLocation(program, "lightDiffuse");
+	int ksUniform = glGetUniformLocation(program, "lightSpecular");
+	int keUniform = glGetUniformLocation(program, "lightEmissive");
 	int opacityUniform = glGetUniformLocation(program, "opacity");
 	int specPowUniform = glGetUniformLocation(program, "specularPower");
 
@@ -280,7 +280,7 @@ bool Texture::LoadTexture(const char* path)
 	int comp = 0;
 	unsigned char* data = stbi_load(path, &x, &y, &comp, STBI_default);
 
-	if (data != nullptr)
+	if (data)
 	{
 		glGenTextures(1, &m_handle);
 		glBindTexture(GL_TEXTURE_2D, m_handle);

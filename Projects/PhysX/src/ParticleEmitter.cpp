@@ -1,19 +1,15 @@
 #include "ParticleEmitter.h"
 #include <iostream>
-#include <vector>
-
+#include<vector>
 #define GLM_SWIZZLE
-#include "glm/glm.hpp"
-#include "glm/ext.hpp"
-#include "Gizmos.h"
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+#include <Gizmos.h>
 
-using physx::PxVec3;
-using physx::PxU32;
-using physx::PxStrideIterator;
-using physx::PxParticleFlag;
+using namespace physx;
 
 //constructor
-ParticleEmitter::ParticleEmitter(int maxParticles, PxVec3 position, physx::PxParticleSystem* ps, float releaseDelay)
+ParticleEmitter::ParticleEmitter(int maxParticles, PxVec3 position, PxParticleSystem* ps, float releaseDelay)
 {
 	m_releaseDelay = releaseDelay;
 	//maximum number of particles our emitter can handle
@@ -40,11 +36,7 @@ ParticleEmitter::ParticleEmitter(int maxParticles, PxVec3 position, physx::PxPar
 }
 
 //destructure
-ParticleEmitter::~ParticleEmitter()
-{
-	//remove all the active particles
-	delete m_activeParticles;
-}
+ParticleEmitter::~ParticleEmitter() { delete m_activeParticles; }	//remove all the active particles
 
 void ParticleEmitter::SetStartVelocityRange(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
 {
@@ -70,9 +62,8 @@ int ParticleEmitter::GetNextFreeParticle()
 			return index;
 		}
 	}
-	return -1; //returns minus if a particle was not allocated
+	return -1;	//returns minus if a particle was not allocated
 }
-
 
 //releast a particle from the system using it's index to ID it
 void ParticleEmitter::ReleaseParticle(int index)
@@ -110,12 +101,12 @@ bool ParticleEmitter::AddPhysXParticle(int particleIndex)
 	PxVec3 myVelocityBuffer[] = { startVel };
 
 	//reserve space for data
-	physx::PxParticleCreationData particleCreationData;
-	particleCreationData.numParticles = 1;  //spawn one particle at a time,  this is inefficient and we could improve this by passing in the list of particles.
+	PxParticleCreationData particleCreationData;
+	particleCreationData.numParticles = 1;	//spawn one particle at a time,  this is inefficient and we could improve this by passing in the list of particles.
 	particleCreationData.indexBuffer = PxStrideIterator<const PxU32>(myIndexBuffer);
 	particleCreationData.positionBuffer = PxStrideIterator<const PxVec3>(myPositionBuffer);
 	particleCreationData.velocityBuffer = PxStrideIterator<const PxVec3>(myVelocityBuffer);
-	//create particles in *PxParticleSystem* ps
+	// create particles in *PxParticleSystem* ps
 	return m_ps->createParticles(particleCreationData);
 }
 
@@ -132,7 +123,7 @@ void ParticleEmitter::Update(float delta)
 		numberSpawn = (int)(m_respawnTime / m_releaseDelay);
 		m_respawnTime -= (numberSpawn * m_releaseDelay);
 	}
-	//spawn the required number of particles 
+	// spawn the required number of particles 
 	for (int count = 0; count < numberSpawn; count++)
 	{
 		//get the next free particle
@@ -142,19 +133,19 @@ void ParticleEmitter::Update(float delta)
 	}
 	//check to see if we need to release particles because they are either too old or have hit the particle sink
 	//lock the particle buffer so we can work on it and get a pointer to read data
-	physx::PxParticleReadData* rd = m_ps->lockParticleReadData();
-	//access particle data from PxParticleReadData was OK
+	PxParticleReadData* rd = m_ps->lockParticleReadData();
+	// access particle data from PxParticleReadData was OK
 	if (rd)
 	{
 		std::vector<PxU32> particlesToRemove; //we need to build a list of particles to remove so we can do it all in one go
-		PxStrideIterator<const physx::PxParticleFlags> flagsIt(rd->flagsBuffer);
+		PxStrideIterator<const PxParticleFlags> flagsIt(rd->flagsBuffer);
 
 		for (unsigned i = 0; i < rd->validParticleRange; ++i, ++flagsIt)
 		{
-			if (*flagsIt& PxParticleFlag::eVALID)
+			if (*flagsIt & PxParticleFlag::eVALID)
 			{
 				//if particle is either too old or has hit the sink then mark it for removal.  We can't remove it here because we buffer is locked
-				if (*flagsIt& PxParticleFlag::eCOLLISION_WITH_DRAIN || TooOld(i))
+				if (*flagsIt & PxParticleFlag::eCOLLISION_WITH_DRAIN || TooOld(i))
 				{
 					//mark our local copy of the particle free
 					ReleaseParticle(i);
@@ -163,7 +154,7 @@ void ParticleEmitter::Update(float delta)
 				}
 			}
 		}
-		//return ownership of the buffers back to the SDK
+		// return ownership of the buffers back to the SDK
 		rd->unlock();
 		//if we have particles to release then pass the particles to remove to PhysX so it can release them
 		if (particlesToRemove.size() > 0)
@@ -179,17 +170,17 @@ void ParticleEmitter::Update(float delta)
 //simple routine to render our particles
 void ParticleEmitter::RenderParticles()
 {
-	//lock SDK buffers of *PxParticleSystem* ps for reading
-	physx::PxParticleReadData* rd = m_ps->lockParticleReadData();
-	//access particle data from PxParticleReadData
+	// lock SDK buffers of *PxParticleSystem* ps for reading
+	PxParticleReadData* rd = m_ps->lockParticleReadData();
+	// access particle data from PxParticleReadData
 	if (rd)
 	{
-		PxStrideIterator<const physx::PxParticleFlags> flagsIt(rd->flagsBuffer);
+		PxStrideIterator<const PxParticleFlags> flagsIt(rd->flagsBuffer);
 		PxStrideIterator<const PxVec3> positionIt(rd->positionBuffer);
 
 		for (unsigned i = 0; i < rd->validParticleRange; ++i, ++flagsIt, ++positionIt)
 		{
-			if (*flagsIt& PxParticleFlag::eVALID)
+			if (*flagsIt & PxParticleFlag::eVALID)
 			{
 				//convert physx vector to a glm vec3
 				glm::vec3 pos(positionIt->x, positionIt->y, positionIt->z);
@@ -197,7 +188,7 @@ void ParticleEmitter::RenderParticles()
 				Gizmos::AddAABBFilled(pos, glm::vec3(0.1, 0.1, 0.1), glm::vec4(1, 0, 1, 1));
 			}
 		}
-		//return ownership of the buffers back to the SDK
+		// return ownership of the buffers back to the SDK
 		rd->unlock();
 	}
 }

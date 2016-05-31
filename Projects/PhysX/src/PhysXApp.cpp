@@ -11,10 +11,13 @@
 #include "Collision.h"
 #include "Mesh.h"
 #include <Shader.h>
+#include "ParticleEmitter.h"
+#include "ParticleFluidEmitter.h"
 
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
+using std::vector;
 using namespace physx;
 
 bool PhysXApp::Startup()
@@ -46,10 +49,10 @@ bool PhysXApp::Startup()
 	m_wasLeftMousePressed = false;
 	m_pickPosition = vec3(0);
 
-	//m_shaders = new Shader();
-	//CreateShader();
-	//m_mesh = new Mesh();
-	//m_mesh->LoadObj("./res/Soulspear/soulspear.obj");
+	m_shaders = new Shader();
+	CreateShader();
+	m_mesh = new Mesh();
+	m_mesh->LoadObj("./res/Soulspear/soulspear.obj");
 	
 	SetupScene();
 
@@ -58,12 +61,14 @@ bool PhysXApp::Startup()
 
 void PhysXApp::Shutdown()
 {
+	delete m_particleFluidEmitter;
+	delete m_collisionEventCallback;
 	m_scene->release();
 	m_dispatcher->release();
-	//delete m_mesh;
-	//delete m_shaders;
+	delete m_mesh;
+	delete m_shaders;
 	PxProfileZoneManager* profileZoneManager = m_physics->getProfileZoneManager();
-	if (m_connection != NULL)
+	if (m_connection)
 		m_connection->release();
 	m_physics->release();
 	profileZoneManager->release();
@@ -77,68 +82,16 @@ void PhysXApp::Shutdown()
 	DestroyGLFWWindow();
 }
 
-PxFilterFlags FilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags,
-							const void* constantBlock, PxU32 constantBlockSize)
-{
-	//let triggers through
-	if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
-	{
-		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-		return PxFilterFlag::eDEFAULT;
-	}
-	//generate contacts for all that were not filtered above
-	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-	//trigger the contact callback for pairs (A,B) where
-	//the filtermask of A contains the ID of B and vice versa.
-	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
-		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;
-	return PxFilterFlag::eDEFAULT;
-}
-
-void SetupFiltering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
-{
-	PxFilterData filterData;
-	filterData.word0 = filterGroup;	//word0 = own ID
-	filterData.word1 = filterMask;	//word1 = ID mask to filter pairs that trigger a contact callback
-	const PxU32 numberShapes = actor->getNbShapes();
-	PxShape** shapes = (PxShape**)_aligned_malloc(sizeof(PxShape*)*numberShapes, 16);
-	actor->getShapes(shapes, numberShapes);
-	for (PxU32 i = 0; i < numberShapes; i++)
-	{
-		PxShape* shape = shapes[i];
-		shape->setSimulationFilterData(filterData);
-	}
-	_aligned_free(shapes);
-}
-
-void SetShapeAsTrigger(PxRigidActor* actorIn)
-{
-	PxRigidStatic* staticActor = actorIn->is<PxRigidStatic>();
-	//assert(staticActor);
-	if (staticActor != nullptr)
-	{
-		const PxU32 numberShapes = staticActor->getNbShapes();
-		PxShape** shapes = (PxShape**)_aligned_malloc(sizeof(PxShape*)*numberShapes, 16);
-		staticActor->getShapes(shapes, numberShapes);
-		for (PxU32 i = 0; i < numberShapes; i++)
-		{
-			shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-			shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
-		}
-	}
-}
-
 void PhysXApp::SetupScene()
 {
 	PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.f, -9.81f, 0.f);
 	m_dispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = m_dispatcher;
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	m_scene = m_physics->createScene(sceneDesc);
-	PxSimulationEventCallback* collisionEventCallback = new Collision();
-	m_scene->setSimulationEventCallback(collisionEventCallback);
 	sceneDesc.filterShader = FilterShader;
+	m_scene = m_physics->createScene(sceneDesc);
+	m_collisionEventCallback = new Collision();
+	m_scene->setSimulationEventCallback(m_collisionEventCallback);
 
 	m_material = m_physics->createMaterial(0.5f, 0.5f, 0.6f);
 
@@ -148,7 +101,7 @@ void PhysXApp::SetupScene()
 	m_scene->addActor(*groundPlane);
 	groundPlane->setName("ground");
 	SetupFiltering(groundPlane, FilterGroup::eGROUND, FilterGroup::ePLAYER);
-	//SetShapeAsTrigger(groundPlane);
+	SetShapeAsTrigger(groundPlane);
 
 	//PxShape* shape = m_physics->createShape(PxSphereGeometry(0.25f), *m_material);
 	//PxRigidDynamic* sphereActor = m_physics->createRigidDynamic(PxTransform(-5.f, 0.25f, -5.f));
@@ -156,80 +109,147 @@ void PhysXApp::SetupScene()
 	//m_physXActors.push_back(sphereActor);
 	//m_scene->addActor(*sphereActor);
 
-	PxShape* shapes[55];
-	PxRigidDynamic* boxes[55];
-	boxes[0] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, -1.f));
-	boxes[1] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, -1.f));
-	boxes[2] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, -1.f));
-	boxes[3] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, -1.f));
-	boxes[4] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, -1.f));
-	boxes[5] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, -0.5f));
-	boxes[6] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, -0.5f));
-	boxes[7] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, -0.5f));
-	boxes[8] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, -0.5f));
-	boxes[9] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, -0.5f));
-	boxes[10] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, 0.f));
-	boxes[11] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, 0.f));
-	boxes[12] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 0.f));
-	boxes[13] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 0.f));
-	boxes[14] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 0.f));
-	boxes[15] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, 0.5f));
-	boxes[16] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, 0.5f));
-	boxes[17] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 0.5f));
-	boxes[18] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 0.5f));
-	boxes[19] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 0.5f));
-	boxes[20] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, 1.f));
-	boxes[21] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, 1.f));
-	boxes[22] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 1.f));
-	boxes[23] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 1.f));
-	boxes[24] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 1.f));
-	
-	boxes[25] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, -0.75f));
-	boxes[26] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, -0.75f));
-	boxes[27] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, -0.75f));
-	boxes[28] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, -0.75f));
-	boxes[29] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, -0.25f));
-	boxes[30] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, -0.25f));
-	boxes[31] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, -0.25f));
-	boxes[32] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, -0.25f));
-	boxes[33] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, 0.25f));
-	boxes[34] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, 0.25f));
-	boxes[35] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, 0.25f));
-	boxes[36] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, 0.25f));
-	boxes[37] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, 0.75f));
-	boxes[38] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, 0.75f));
-	boxes[39] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, 0.75f));
-	boxes[40] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, 0.75f));
-	
-	boxes[41] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, -0.5f));
-	boxes[42] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, -0.5f));
-	boxes[43] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, -0.5f));
-	boxes[44] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, 0.f));
-	boxes[45] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, 0.f));
-	boxes[46] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, 0.f));
-	boxes[47] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, 0.5f));
-	boxes[48] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, 0.5f));
-	boxes[49] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, 0.5f));
-	
-	boxes[50] = m_physics->createRigidDynamic(PxTransform(-0.25f, 1.75f, -0.25f));
-	boxes[51] = m_physics->createRigidDynamic(PxTransform(0.25f, 1.75f, -0.25f));
-	boxes[52] = m_physics->createRigidDynamic(PxTransform(-0.25f, 1.75f, 0.25f));
-	boxes[53] = m_physics->createRigidDynamic(PxTransform(0.25f, 1.75f, 0.25f));
-	
-	boxes[54] = m_physics->createRigidDynamic(PxTransform(0.f, 2.25f, 0.f));
-	
-	for (int i = 0; i < 55; i++)
-	{
-		char buffer[32];
-		sprintf(buffer, "box%i", i);
+	//PxShape* shapes[55];
+	//PxRigidDynamic* boxes[55];
+	//boxes[0] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, -1.f));
+	//boxes[1] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, -1.f));
+	//boxes[2] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, -1.f));
+	//boxes[3] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, -1.f));
+	//boxes[4] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, -1.f));
+	//boxes[5] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, -0.5f));
+	//boxes[6] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, -0.5f));
+	//boxes[7] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, -0.5f));
+	//boxes[8] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, -0.5f));
+	//boxes[9] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, -0.5f));
+	//boxes[10] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, 0.f));
+	//boxes[11] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, 0.f));
+	//boxes[12] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 0.f));
+	//boxes[13] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 0.f));
+	//boxes[14] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 0.f));
+	//boxes[15] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, 0.5f));
+	//boxes[16] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, 0.5f));
+	//boxes[17] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 0.5f));
+	//boxes[18] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 0.5f));
+	//boxes[19] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 0.5f));
+	//boxes[20] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, 1.f));
+	//boxes[21] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, 1.f));
+	//boxes[22] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, 1.f));
+	//boxes[23] = m_physics->createRigidDynamic(PxTransform(0.5f, 0.25f, 1.f));
+	//boxes[24] = m_physics->createRigidDynamic(PxTransform(1.f, 0.25f, 1.f));
+	//
+	//boxes[25] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, -0.75f));
+	//boxes[26] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, -0.75f));
+	//boxes[27] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, -0.75f));
+	//boxes[28] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, -0.75f));
+	//boxes[29] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, -0.25f));
+	//boxes[30] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, -0.25f));
+	//boxes[31] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, -0.25f));
+	//boxes[32] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, -0.25f));
+	//boxes[33] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, 0.25f));
+	//boxes[34] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, 0.25f));
+	//boxes[35] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, 0.25f));
+	//boxes[36] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, 0.25f));
+	//boxes[37] = m_physics->createRigidDynamic(PxTransform(-0.75f, 0.75f, 0.75f));
+	//boxes[38] = m_physics->createRigidDynamic(PxTransform(-0.25f, 0.75f, 0.75f));
+	//boxes[39] = m_physics->createRigidDynamic(PxTransform(0.25f, 0.75f, 0.75f));
+	//boxes[40] = m_physics->createRigidDynamic(PxTransform(0.75f, 0.75f, 0.75f));
+	//
+	//boxes[41] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, -0.5f));
+	//boxes[42] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, -0.5f));
+	//boxes[43] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, -0.5f));
+	//boxes[44] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, 0.f));
+	//boxes[45] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, 0.f));
+	//boxes[46] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, 0.f));
+	//boxes[47] = m_physics->createRigidDynamic(PxTransform(-0.5f, 1.25f, 0.5f));
+	//boxes[48] = m_physics->createRigidDynamic(PxTransform(0.f, 1.25f, 0.5f));
+	//boxes[49] = m_physics->createRigidDynamic(PxTransform(0.5f, 1.25f, 0.5f));
+	//
+	//boxes[50] = m_physics->createRigidDynamic(PxTransform(-0.25f, 1.75f, -0.25f));
+	//boxes[51] = m_physics->createRigidDynamic(PxTransform(0.25f, 1.75f, -0.25f));
+	//boxes[52] = m_physics->createRigidDynamic(PxTransform(-0.25f, 1.75f, 0.25f));
+	//boxes[53] = m_physics->createRigidDynamic(PxTransform(0.25f, 1.75f, 0.25f));
+	//
+	//boxes[54] = m_physics->createRigidDynamic(PxTransform(0.f, 2.25f, 0.f));
+	//
+	//for (int i = 0; i < 55; i++)
+	//{
+	//	char buffer[32];
+	//	sprintf(buffer, "box%i", i);
+	//
+	//	shapes[i] = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
+	//	boxes[i]->attachShape(*shapes[i]);
+	//	m_physXActors.push_back(boxes[i]);
+	//	m_scene->addActor(*boxes[i]);
+	//	//boxes[i]->setName(buffer);
+	//}
 
-		shapes[i] = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
-		boxes[i]->attachShape(*shapes[i]);
-		m_physXActors.push_back(boxes[i]);
-		m_scene->addActor(*boxes[i]);
-		boxes[i]->setName(buffer);
-		SetupFiltering(boxes[i], FilterGroup::ePLAYER, FilterGroup::eGROUND);
-		SetupFiltering(boxes[i], FilterGroup::ePLAYER, FilterGroup::eGROUND | FilterGroup::ePLATFORM);
+	PxTransform pose = PxTransform(PxVec3(0.f, 0, 0.f), PxQuat(PxHalfPi, PxVec3(0.f, 0.f, 1.f)));
+
+	PxRigidStatic* plane = PxCreateStatic(*m_physics, pose, PxPlaneGeometry(), *m_material);
+
+	const PxU32 numShapes = plane->getNbShapes();
+	m_scene->addActor(*plane);
+
+	PxBoxGeometry side1(4.5, 1, .5);
+	PxBoxGeometry side2(.5, 1, 4.5);
+	pose = PxTransform(PxVec3(0.f, 0.5, 4.f));
+	PxRigidStatic* box = PxCreateStatic(*m_physics, pose, side1, *m_material);
+
+	m_scene->addActor(*box);
+	m_physXActors.push_back(box);
+
+	pose = PxTransform(PxVec3(0.f, 0.5, -4.f));
+	box = PxCreateStatic(*m_physics, pose, side1, *m_material);
+	m_scene->addActor(*box);
+	m_physXActors.push_back(box);
+
+	pose = PxTransform(PxVec3(4.f, 0.5, 0));
+	box = PxCreateStatic(*m_physics, pose, side2, *m_material);
+	m_scene->addActor(*box);
+	m_physXActors.push_back(box);
+
+	pose = PxTransform(PxVec3(-4.f, 0.5, 0));
+	box = PxCreateStatic(*m_physics, pose, side2, *m_material);
+	m_scene->addActor(*box);
+	m_physXActors.push_back(box);
+
+	//PxParticleSystem* ps;
+	////create particle system in PhysX SDK
+	////set immutable properties.
+	//PxU32 maxParticles = 4000;
+	//bool perParticleRestOffset = false;
+	//ps = m_physics->createParticleSystem(maxParticles, perParticleRestOffset);
+	//ps->setDamping(0.1f);
+	//ps->setParticleMass(0.1f);
+	//ps->setRestitution(0);
+	//ps->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+	//if (ps)
+	//{
+	//	m_scene->addActor(*ps);
+	//	m_particleEmitter = new ParticleEmitter(maxParticles, PxVec3(0, 10, 0), ps, 0.01f);
+	//	m_particleEmitter->SetStartVelocityRange(-2.f, 0, -2.f, 2.f, 0.f, 2.f);
+	//}
+
+	PxParticleFluid* pf;
+	//create particle system in PhysX SDK
+	//set immutable properties.
+	PxU32 maxParticles = 4000;
+	bool perParticleRestOffset = false;
+	pf = m_physics->createParticleFluid(maxParticles, perParticleRestOffset);
+	pf->setRestParticleDistance(0.5f);
+	pf->setDynamicFriction(0.1f);
+	pf->setStaticFriction(0.1f);
+	pf->setDamping(0.5f);
+	pf->setParticleMass(0.1f);
+	pf->setRestitution(0);
+	//pf->setParticleReadDataFlag(PxParticleReadDataFlag::eDENSITY_BUFFER, true);
+	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+	pf->setStiffness(1);
+	if (pf)
+	{
+		m_scene->addActor(*pf);
+		m_particleFluidEmitter = new ParticleFluidEmitter(maxParticles, PxVec3(0, 10, 0), pf, 0.01f);
+		m_particleFluidEmitter->SetStartVelocityRange(-0.001f, -250.f, -0.001f, 0.001f, -250.f, 0.001f);
 	}
 
 	//create some constants for axis of rotation to make definition of quaternions a bit neater
@@ -237,30 +257,30 @@ void PhysXApp::SetupScene()
 	const physx::PxVec3 Y_AXIS = physx::PxVec3(0, 1, 0);
 	const physx::PxVec3 Z_AXIS = physx::PxVec3(0, 0, 1);
 
-	RagdollNode* ragdollData[] =
-	{
-		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), NO_PARENT, 1, 3, 1, 1, "lower spine"),
-		new RagdollNode(PxQuat(PxPi, Z_AXIS), LOWER_SPINE, 1, 1, -1, 1, "left pelvis"),
-		new RagdollNode(PxQuat(0, Z_AXIS), LOWER_SPINE, 1, 1, -1, 1, "right pelvis"),
-		new RagdollNode(PxQuat(PxPi / 2.f + 0.2f, Z_AXIS), LEFT_PELVIS, 5, 2, -1, 1, "L upper leg"),
-		new RagdollNode(PxQuat(PxPi / 2.f - 0.2f, Z_AXIS), RIGHT_PELVIS, 5, 2, -1, 1, "R upper leg"),
-		new RagdollNode(PxQuat(PxPi / 2.f + 0.2f, Z_AXIS), LEFT_UPPER_LEG, 5, 1.75, -1, 1, "L lower leg"),
-		new RagdollNode(PxQuat(PxPi / 2.f - 0.2f, Z_AXIS), RIGHT_UPPER_LEG, 5, 1.75, -1, 1, "R lowerleg"),
-		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), LOWER_SPINE, 1, 3, 1, -1, "upper spine"),
-		new RagdollNode(PxQuat(PxPi, Z_AXIS), UPPER_SPINE, 1, 1.5, 1, 1, "left clavicle"),
-		new RagdollNode(PxQuat(0, Z_AXIS), UPPER_SPINE, 1, 1.5, 1, 1, "right clavicle"),
-		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), UPPER_SPINE, 1, 1, 1, -1, "neck"),
-		new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), NECK, 1, 3, 1, -1, "HEAD"),
-		new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_CLAVICLE, 3, 1.5, -1, 1, "left upper arm"),
-		new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_CLAVICLE, 3, 1.5, -1, 1, "right upper arm"),
-		new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_UPPER_ARM, 3, 1, -1, 1, "left lower arm"),
-		new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_UPPER_ARM, 3, 1, -1, 1, "right lower arm"),
-		NULL
-	};
+	vector<RagdollNode*> ragdollData(16);
+	ragdollData[0] = new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), NO_PARENT, 1, 3, 1, 1, "lower spine");
+	ragdollData[1] = new RagdollNode(PxQuat(PxPi, Z_AXIS), LOWER_SPINE, 1, 1, -1, 1, "left pelvis");
+	ragdollData[2] = new RagdollNode(PxQuat(0, Z_AXIS), LOWER_SPINE, 1, 1, -1, 1, "right pelvis");
+	ragdollData[3] = new RagdollNode(PxQuat(PxPi / 2.f + 0.2f, Z_AXIS), LEFT_PELVIS, 5, 2, -1, 1, "L upper leg");
+	ragdollData[4] = new RagdollNode(PxQuat(PxPi / 2.f - 0.2f, Z_AXIS), RIGHT_PELVIS, 5, 2, -1, 1, "R upper leg");
+	ragdollData[5] = new RagdollNode(PxQuat(PxPi / 2.f + 0.2f, Z_AXIS), LEFT_UPPER_LEG, 5, 1.75, -1, 1, "L lower leg");
+	ragdollData[6] = new RagdollNode(PxQuat(PxPi / 2.f - 0.2f, Z_AXIS), RIGHT_UPPER_LEG, 5, 1.75, -1, 1, "R lowerleg");
+	ragdollData[7] = new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), LOWER_SPINE, 1, 3, 1, -1, "upper spine");
+	ragdollData[8] = new RagdollNode(PxQuat(PxPi, Z_AXIS), UPPER_SPINE, 1, 1.5, 1, 1, "left clavicle");
+	ragdollData[9] = new RagdollNode(PxQuat(0, Z_AXIS), UPPER_SPINE, 1, 1.5, 1, 1, "right clavicle");
+	ragdollData[10] = new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), UPPER_SPINE, 1, 1, 1, -1, "neck");
+	ragdollData[11] = new RagdollNode(PxQuat(PxPi / 2.f, Z_AXIS), NECK, 1, 3, 1, -1, "HEAD");
+	ragdollData[12] = new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_CLAVICLE, 3, 1.5, -1, 1, "left upper arm");
+	ragdollData[13] = new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_CLAVICLE, 3, 1.5, -1, 1, "right upper arm");
+	ragdollData[14] = new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_UPPER_ARM, 3, 1, -1, 1, "left lower arm");
+	ragdollData[15] = new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_UPPER_ARM, 3, 1, -1, 1, "right lower arm");
 
 	PxArticulation* ragdollArticulation = MakeRagdoll(m_physics, ragdollData, PxTransform(PxVec3(5, 5, 5)), 0.1f, m_material);
 	m_ragdolls.push_back(ragdollArticulation);
 	m_scene->addArticulation(*ragdollArticulation);
+
+	for (unsigned int i = 0; i < ragdollData.size(); i++)
+		delete ragdollData[i];
 }
 
 bool PhysXApp::Update(float deltaTime)
@@ -272,6 +292,11 @@ bool PhysXApp::Update(float deltaTime)
 	//update the camera's movement
 	m_camera->Update(deltaTime);
 
+	PxVec3 rightVec(m_camera->GetTransform()[0].x, m_camera->GetTransform()[0].y, m_camera->GetTransform()[0].z);
+	PxVec3 upVec(m_camera->GetTransform()[1].x, m_camera->GetTransform()[1].y, m_camera->GetTransform()[1].z);
+	PxVec3 forwardVec(m_camera->GetTransform()[2].x, m_camera->GetTransform()[2].y, m_camera->GetTransform()[2].z);
+	PxVec3 cameraPos(m_camera->GetTransform()[3].x, m_camera->GetTransform()[3].y, m_camera->GetTransform()[3].z);
+
 	bool leftMousePressed = (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS);
 
 	//PxTransform transform = boxActor->getGlobalPose();
@@ -280,24 +305,50 @@ bool PhysXApp::Update(float deltaTime)
 
 	if (leftMousePressed && !m_wasLeftMousePressed)
 	{
-		vec3 startPos(m_camera->GetTransform()[3]);
-		vec3 direction(m_camera->GetTransform()[2]);
-		PxVec3 velocity = PxVec3(direction.x, direction.y, direction.z) * -25.f;
+		PxVec3 velocity = forwardVec * -25.f;
 
 		PxShape* shape = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
-		PxRigidDynamic* boxActor = m_physics->createRigidDynamic(PxTransform(startPos.x, startPos.y, startPos.z));
+		PxRigidDynamic* boxActor = m_physics->createRigidDynamic(PxTransform(cameraPos));
 		boxActor->setLinearVelocity(velocity);
 		boxActor->attachShape(*shape);
 		m_physXActors.push_back(boxActor);
 		m_scene->addActor(*boxActor);
+		//boxActor->setName("shot box");
 
 		m_wasLeftMousePressed = true;
 	}
 	else if (!leftMousePressed && m_wasLeftMousePressed)
 		m_wasLeftMousePressed = false;
 
+	for (auto artiulcation : m_ragdolls)
+	{
+		PxU32 numberLinks = artiulcation->getNbLinks();
+		vector<PxArticulationLink*> links(numberLinks);
+		artiulcation->getLinks(&links[0], numberLinks);
+
+		while (numberLinks--)
+		{
+			PxArticulationLink* link = links[numberLinks];
+			if (!strcmp(link->getName(), "HEAD"))
+			{
+				if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+					link->addForce(forwardVec * 1000.f);
+				if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+					link->addForce(-forwardVec * 1000.f);
+				if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+					link->addForce(-rightVec * 1000.f);
+				if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+					link->addForce(rightVec * 1000.f);
+				break;
+			}
+		}
+	}
+
 	m_scene->simulate(deltaTime);
 	m_scene->fetchResults(true);
+
+	if (m_particleFluidEmitter && glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS)
+		m_particleFluidEmitter->Update(deltaTime);
 
 	//return true, else the application closes
 	return true;
@@ -311,47 +362,46 @@ void PhysXApp::Draw()
 	for (auto actor : m_physXActors)
 	{
 		PxU32 numberShapes = actor->getNbShapes();
-		PxShape** shapes = new PxShape*[numberShapes];
-		actor->getShapes(shapes, numberShapes);
-
+		vector<PxShape*> shapes(numberShapes);
+		actor->getShapes(&shapes[0], numberShapes);
 		while (numberShapes--)
 			AddWidget(shapes[numberShapes], actor);
-		delete[] shapes;
 	}
 
 	for (auto artiulcation : m_ragdolls)
 	{
 		PxU32 numberLinks = artiulcation->getNbLinks();
-		PxArticulationLink** links = new PxArticulationLink*[numberLinks];
-		artiulcation->getLinks(links, numberLinks);
+		vector<PxArticulationLink*> links(numberLinks);
+		artiulcation->getLinks(&links[0], numberLinks);
 
 		while (numberLinks--)
 		{
 			PxArticulationLink* link = links[numberLinks];
 			PxU32 numberShapes = link->getNbShapes();
-			PxShape** shapes = new PxShape*[numberShapes];
-			link->getShapes(shapes, numberShapes);
+			vector<PxShape*> shapes(numberShapes);
+			link->getShapes(&shapes[0], numberShapes);
 			while (numberShapes--)
 				AddWidget(shapes[numberShapes], link);
 		}
-
-		delete[] links;
 	}
+
+	if (m_particleFluidEmitter)
+		m_particleFluidEmitter->RenderParticles();	//render all our particles
 
 	//clear the screen for this frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//m_shaders->Bind();
-	//
-	//int loc = m_shaders->GetUniform("projectionView");
-	//glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m_camera->GetProjectionView()));
-	//
-	//loc = m_shaders->GetUniform("cameraPosition");
-	//glUniform3fv(loc, 1, value_ptr(vec3(m_camera->GetTransform()[0].x, m_camera->GetTransform()[1].y, m_camera->GetTransform()[2].z)));
-	//loc = m_shaders->GetUniform("lightPosition");
-	//glUniform3fv(loc, 1, value_ptr(vec3(1, 1, 1)));
-	//
-	//m_mesh->Draw(GL_TRIANGLES);
+	m_shaders->Bind();
+	
+	int loc = m_shaders->GetUniform("projectionView");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m_camera->GetProjectionView()));
+	
+	loc = m_shaders->GetUniform("cameraPosition");
+	glUniform3fv(loc, 1, value_ptr(vec3(m_camera->GetTransform()[0].x, m_camera->GetTransform()[1].y, m_camera->GetTransform()[2].z)));
+	loc = m_shaders->GetUniform("lightPosition");
+	glUniform3fv(loc, 1, value_ptr(vec3(1, 1, 1)));
+	
+	m_mesh->Draw(GL_TRIANGLES);
 	
 	//display the 3D gizmos
 	Gizmos::Draw(m_camera->GetProjectionView());
@@ -406,7 +456,7 @@ void PhysXApp::AddSphere(PxShape* shape, PxRigidActor* actor)
 	position.y = pxm.getPosition().y;
 	position.z = pxm.getPosition().z;
 	vec4 colour = vec4(1, 0, 0, 1);
-	if (actor->getName() != NULL && strcmp(actor->getName(), "Pickup1"))
+	if (actor->getName() && strcmp(actor->getName(), "Pickup1"))
 		colour = vec4(0, 1, 0, 1);
 
 	Gizmos::AddSphere(position, radius, 8, 8, colour, nullptr, 0.f, 360.f, -90.f, 90.f);
@@ -441,17 +491,6 @@ void DrawPlane(vec3 position, vec3 normal, vec4 colour)
 	Gizmos::AddLine(two, three, colour);
 	Gizmos::AddLine(three, four, colour);
 	Gizmos::AddLine(four, one, colour);
-
-	//vec3 min = glm::min(three, one);
-	//vec3 dif = glm::abs(three - one);
-	//int lineVar = 1;
-	//glm::ivec3 num = dif / lineVar;
-	//for (int i = 0; i < num.x; i++)
-	//	Gizmos::AddLine(vec3(min.x + (i * lineVar), min.y, min.z), vec3(min.x + (i * lineVar), -min.y, -min.z), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
-	//for (int i = 0; i < num.y; i++)
-	//	Gizmos::AddLine(vec3(min.x, min.y + (i * lineVar), min.z), vec3(-min.x, min.y + (i * lineVar), -min.z), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
-	//for (int i = 0; i < num.z; i++)
-	//	Gizmos::AddLine(vec3(min.x, min.y, min.z + (i * lineVar)), vec3(-min.x, -min.y, min.z + (i * lineVar)), i % 10 == 0 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 
 	vec3 dif = four - one;
 	int lineVar = 1;
@@ -505,7 +544,7 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 	}
 
 	vec4 colour = vec4(1, 0, 0, 1);
-	if (actor->getName() != NULL && strcmp(actor->getName(), "Pickup1"))
+	if (actor->getName() && strcmp(actor->getName(), "Pickup1"))
 		colour = vec4(0, 1, 0, 1);
 
 	DrawPlane(position, normal, colour);
@@ -535,7 +574,7 @@ void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
 	position.y = pxm.getPosition().y;
 	position.z = pxm.getPosition().z;
 	vec4 colour = vec4(1, 0, 0, 1);
-	if (actor->getName() != NULL && strcmp(actor->getName(), "Pickup1"))
+	if (actor->getName() && strcmp(actor->getName(), "Pickup1"))
 		colour = vec4(0, 1, 0, 1);
 
 	Gizmos::AddCapsule(position, radius, halfHeight, 8, 8, colour, &m);
@@ -567,7 +606,7 @@ void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
 	position.z = pxm.getPosition().z;
 	vec3 extents = vec3(width, height, length);
 	vec4 colour = vec4(1, 0, 0, 1);
-	if (actor->getName() != NULL && strcmp(actor->getName(), "Pickup1"))
+	if (actor->getName() && strcmp(actor->getName(), "Pickup1"))
 		colour = vec4(0, 1, 0, 1);
 
 	Gizmos::AddAABBFilled(position, extents, colour, &m);
