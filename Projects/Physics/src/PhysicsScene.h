@@ -26,7 +26,7 @@ class PhysicsScene
 {
 public:
 	PhysicsScene() {}
-	virtual ~PhysicsScene() {}
+	virtual ~PhysicsScene();
 
 	void Simulate(glm::vec3 gravity, float deltaTime);
 

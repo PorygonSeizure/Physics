@@ -42,8 +42,8 @@ bool PhysicsApp::Startup()
 void PhysicsApp::Shutdown()
 {
 	//m_physicsScene->DestroyPhysicsObject(m_objects);
-	delete m_physicsRenderer;
 	delete m_physicsScene;
+	delete m_physicsRenderer;
 
 	//delete our camera and cleanup gizmos
 	delete m_camera;

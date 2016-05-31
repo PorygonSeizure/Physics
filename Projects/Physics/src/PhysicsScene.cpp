@@ -11,6 +11,12 @@ using glm::dot;
 using glm::normalize;
 using glm::min;
 
+PhysicsScene::~PhysicsScene()
+{
+	for (int i = 0; i < m_physicsObjects.size(); i++)
+		delete m_physicsObjects[i];
+}
+
 void PhysicsScene::Simulate(vec3 gravity, float deltaTime)
 {
 	for (auto iter = m_physicsObjects.begin(); iter != m_physicsObjects.end(); iter++)
