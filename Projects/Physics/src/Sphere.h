@@ -11,12 +11,11 @@ public:
 	Sphere() : RigidBody(ShapeType::SPHERE), m_radius(1.f) {}
 	Sphere(float radius) : RigidBody(ShapeType::SPHERE), m_radius(radius) {}
 	Sphere(glm::vec3 position, float radius) : RigidBody(ShapeType::SPHERE), m_radius(radius) { m_position = position; }
-	virtual ~Sphere();
+	virtual ~Sphere() {}
 
-	virtual void Update(glm::vec3 gravity, float deltaTime);
-	virtual void Debug();
+	virtual void Update(glm::vec3 gravity, float deltaTime) { RigidBody::Update(gravity, deltaTime); }
 	virtual void MakeGizmo(glm::vec4 color);
-	virtual void ApplyForce(glm::vec3 force);
+	virtual void ApplyForce(glm::vec3 force) { RigidBody::ApplyForce(force); }
 
 	virtual inline void SetRadius(float radius) { m_radius = radius; }
 

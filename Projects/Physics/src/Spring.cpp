@@ -32,12 +32,4 @@ void Spring::Update(glm::vec3 gravity, float deltaTime)
 	}
 }
 
-void Spring::Debug()
-{
-
-}
-
-void Spring::MakeGizmo(glm::vec4 color)
-{
-	Gizmos::AddLine(m_rigidbodys[0]->GetPosition(), m_rigidbodys[1]->GetPosition(), color);
-}
+void Spring::MakeGizmo(glm::vec4 color) { Gizmos::AddLine(m_rigidbodys[0]->GetPosition(), m_rigidbodys[1]->GetPosition(), color); }

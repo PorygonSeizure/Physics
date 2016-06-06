@@ -13,9 +13,8 @@ public:
 	Spring(RigidBody* body1, RigidBody* body2, float stiffness, float damping);
 	virtual ~Spring() {}
 
-	void virtual Update(glm::vec3 gravity, float deltaTime);
-	void virtual Debug();
-	void virtual MakeGizmo(glm::vec4 color);
+	virtual void Update(glm::vec3 gravity, float deltaTime);
+	virtual void MakeGizmo(glm::vec4 color);
 
 protected:
 	RigidBody* m_rigidbodys[2];

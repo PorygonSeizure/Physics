@@ -5,11 +5,6 @@
 using namespace Physics;
 using glm::vec3;
 
-Plane::~Plane()
-{
-
-}
-
 void Plane::MakeGizmo(glm::vec4 color)
 {
 	float lineSegmentLength = 300;

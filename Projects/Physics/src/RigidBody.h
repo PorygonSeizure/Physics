@@ -9,13 +9,12 @@ namespace Physics
 class RigidBody : public PhysicsObject
 {
 public:
-	RigidBody(ShapeType shapeID);
+	RigidBody(ShapeType shapeID) : PhysicsObject(shapeID), m_dampening(1.f), m_bouciness(1.f) { SetMass(1.f); }
 	virtual ~RigidBody() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime);
-	virtual void Debug() = 0;
 	virtual void MakeGizmo(glm::vec4 color) = 0;
-	void ApplyForce(glm::vec3 force);
+	inline void ApplyForce(glm::vec3 force) { m_acceleration += force / m_mass; }
 	void ApplyForceToActor(RigidBody* otherBody, glm::vec3 force);
 
 	virtual inline void SetPosition(glm::vec3 position) { m_position = position; }

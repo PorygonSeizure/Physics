@@ -20,7 +20,6 @@ public:
 	virtual ~PhysicsObject() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime) = 0;
-	virtual void Debug() = 0;
 	virtual void MakeGizmo(glm::vec4 color) = 0;
 	virtual void ResetPosition() {}
 	//virtual void SetPosition(glm::vec3 position) = 0;

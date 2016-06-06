@@ -10,10 +10,9 @@ class Plane : public PhysicsObject
 {
 public:
 	Plane(float distance, glm::vec3 normal) : PhysicsObject(ShapeType::PLANE), m_distanceToOrigin(distance), m_normal(normal) {}
-	virtual ~Plane();
+	virtual ~Plane() {}
 
 	virtual void Update(glm::vec3 gravity, float deltaTime) {}
-	virtual void Debug() {}
 	virtual void MakeGizmo(glm::vec4 color);
 	//virtual void SetPosition(glm::vec3 position);
 

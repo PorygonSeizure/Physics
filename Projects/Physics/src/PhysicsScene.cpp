@@ -13,7 +13,7 @@ using glm::min;
 
 PhysicsScene::~PhysicsScene()
 {
-	for (int i = 0; i < m_physicsObjects.size(); i++)
+	for (unsigned int i = 0; i < m_physicsObjects.size(); i++)
 		delete m_physicsObjects[i];
 }
 
@@ -79,7 +79,7 @@ void PhysicsScene::CheckForCollision()
 	//
 	//		int functionIndex = (object1->GetShapeID() * 3) + object2->GetShapeID();
 	//		fn collisionFunctionPtr = collisionFunctionArray[functionIndex];
-	//		if (collisionFunctionPtr != NULL)
+	//		if (collisionFunctionPtr)
 	//			collisionFunctionPtr(object1, object2);
 	//	}
 	//}
@@ -206,7 +206,7 @@ void PhysicsScene::ResolveCollisions()
 //{
 //	Plane* plane1 = dynamic_cast<Plane*>(object1);
 //	Plane* plane2 = dynamic_cast<Plane*>(object2);
-//	if (plane1 != NULL && plane2 != NULL)
+//	if (plane1 && plane2)
 //	{
 //		return (plane1->m_normal != plane2->m_normal || plane1->m_normal != -plane2->m_normal);
 //	}
@@ -217,7 +217,7 @@ void PhysicsScene::ResolveCollisions()
 //{
 //	Plane* plane = dynamic_cast<Plane*>(object1);
 //	Sphere* sphere = dynamic_cast<Sphere*>(object2);
-//	if (plane != NULL && sphere != NULL)
+//	if (plane && sphere)
 //	{
 //		vec3 temp(sphere->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f));
 //		return (dot(plane->m_normal, temp) < sphere->GetRadius());
@@ -229,7 +229,7 @@ void PhysicsScene::ResolveCollisions()
 //{
 //	Plane* plane = dynamic_cast<Plane*>(object1);
 //	Box* box = dynamic_cast<Box*>(object2);
-//	if (plane != NULL && box != NULL)
+//	if (plane && box)
 //	{
 //		float temp1 = dot(plane->m_normal, (box->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f)));
 //		float temp2 = ((box->m_length/ 2.f) * glm::abs(dot(plane->m_normal, vec3(1.f, 0.f, 0.f))));
@@ -244,7 +244,7 @@ void PhysicsScene::ResolveCollisions()
 //{
 //	Sphere* sphere = dynamic_cast<Sphere*>(object1);
 //	Plane* plane = dynamic_cast<Plane*>(object2);
-//	if (sphere != NULL && plane != NULL)
+//	if (sphere && plane)
 //	{
 //		vec3 tempVec = plane->m_normal;
 //		float temp = dot(sphere->GetPosition(), plane->m_normal) - plane->m_distanceToOrigin;
@@ -255,7 +255,7 @@ void PhysicsScene::ResolveCollisions()
 //		}
 //		if (sphere->GetRadius() > temp)
 //		{
-//			if (data != nullptr)
+//			if (data)
 //			{
 //				data->collisionNorm = tempVec;
 //				vec3 tempVec2 = plane->m_normal;
@@ -275,13 +275,13 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2,
 {
 	Sphere* sphere1 = dynamic_cast<Sphere*>(object1);
 	Sphere* sphere2 = dynamic_cast<Sphere*>(object2);
-	if (sphere1 != NULL && sphere2 != NULL)
+	if (sphere1 && sphere2)
 	{
 		float temp1 = glm::distance(sphere1->GetPosition(), sphere2->GetPosition());
 		float temp2 = (sphere1->GetRadius() + sphere2->GetRadius());
 		if (temp1 <= temp2)
 		{
-			if (data != nullptr)
+			if (data)
 			{
 				data->intersection = temp2 - temp1;
 				data->bounciness = min(sphere1->GetBouciness(), sphere2->GetBouciness());
@@ -301,7 +301,7 @@ bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, In
 {
 	Sphere* sphere = dynamic_cast<Sphere*>(object1);
 	Box* box = dynamic_cast<Box*>(object2);
-	if (sphere != NULL && box != NULL)
+	if (sphere && box)
 	{
 		vec3 pc = glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert());
 		//vec3 pc = box->ClosestPoint(sphere->GetPosition());
@@ -309,7 +309,7 @@ bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, In
 		float temp2 = sphere->GetRadius();
 		if (temp1 <= temp2)
 		{
-			if (data != nullptr)
+			if (data)
 			{
 				data->intersection = temp2 - temp1;
 				data->bounciness = min(sphere->GetBouciness(), box->GetBouciness());
@@ -329,7 +329,7 @@ bool PhysicsScene::Sphere2Box(PhysicsObject* object1, PhysicsObject* object2, In
 //{
 //	Box* box = dynamic_cast<Box*>(object1);
 //	Plane* plane = dynamic_cast<Plane*>(object2);
-//	if (box != NULL && plane != NULL)
+//	if (box && plane)
 //	{
 //		float temp1 = dot(plane->m_normal, (box->GetPosition() - vec3(0.f, plane->m_distanceToOrigin, 0.f)));
 //		float temp2 = ((box->m_length / 2.f) * glm::abs(dot(plane->m_normal, vec3(1.f, 0.f, 0.f))));
@@ -344,7 +344,7 @@ bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, In
 {
 	Box* box = dynamic_cast<Box*>(object1);
 	Sphere* sphere = dynamic_cast<Sphere*>(object2);
-	if (box != NULL && sphere != NULL)
+	if (box && sphere)
 	{
 		vec3 pc = glm::clamp(sphere->GetPosition(), box->GetMinVert(), box->GetMaxVert());
 		//vec3 pc = box->ClosestPoint(sphere->GetPosition());
@@ -352,7 +352,7 @@ bool PhysicsScene::Box2Sphere(PhysicsObject* object1, PhysicsObject* object2, In
 		float temp2 = sphere->GetRadius();
 		if (temp1 <= temp2)
 		{
-			if (data != nullptr)
+			if (data)
 			{
 				data->intersection = temp2 - temp1;
 				data->bounciness = min(box->GetBouciness(), sphere->GetBouciness());
@@ -372,7 +372,7 @@ bool PhysicsScene::Box2Box(PhysicsObject* object1, PhysicsObject* object2, Inter
 {
 	Box* box1 = dynamic_cast<Box*>(object1);
 	Box* box2 = dynamic_cast<Box*>(object2);
-	if (box1 != NULL && box2 != NULL)
+	if (box1 && box2)
 	{
 		bool temp1 = (box1->GetMaxVert().x >= box2->GetMinVert().x && box2->GetMaxVert().x >= box1->GetMinVert().x);
 		bool temp2 = (box1->GetMaxVert().y >= box2->GetMinVert().y && box2->GetMaxVert().y >= box1->GetMinVert().y);
