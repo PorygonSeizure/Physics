@@ -1,3 +1,4 @@
+// shadertype=glsl
 #version 410
 
 uniform vec3 lightColour = vec3(1, 1, 1);

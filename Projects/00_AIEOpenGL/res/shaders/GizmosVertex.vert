@@ -1,3 +1,4 @@
+// shadertype=glsl
 #version 150
 
 in vec4 position;
