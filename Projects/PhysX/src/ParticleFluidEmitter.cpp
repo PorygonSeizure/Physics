@@ -3,10 +3,12 @@
 #include <vector>
 #include <Gizmos.h>
 
-using namespace physx;
+using physx::PxVec3;
+using physx::PxU32;
+using physx::PxStrideIterator;
 
 //constructor
-ParticleFluidEmitter::ParticleFluidEmitter(int maxParticles, PxVec3 position, PxParticleFluid* pf, float releaseDelay)
+ParticleFluidEmitter::ParticleFluidEmitter(int maxParticles, PxVec3 position, physx::PxParticleFluid* pf, float releaseDelay)
 {
 	m_releaseDelay = releaseDelay;
 	m_maxParticles = maxParticles;		//maximum number of particles our emitter can handle
@@ -26,7 +28,7 @@ ParticleFluidEmitter::ParticleFluidEmitter(int maxParticles, PxVec3 position, Px
 bool ParticleFluidEmitter::AddPhysXParticle(int particleIndex)
 {
 	//reserve space for data
-	PxParticleCreationData particleCreationData;
+	physx::PxParticleCreationData particleCreationData;
 	//set up the data
 	particleCreationData.numParticles = 1;	//spawn one particle at a time,  this is inefficient and we could improve this by passing in the list of particles.
 	//set up the buffers
@@ -74,20 +76,20 @@ void ParticleFluidEmitter::Update(float delta)
 	}
 	//check to see if we need to release particles because they are either too old or have hit the particle sink
 	//lock the particle buffer so we can work on it and get a pointer to read data
-	PxParticleReadData* rd = m_pf->lockParticleReadData();
+	physx::PxParticleReadData* rd = m_pf->lockParticleReadData();
 	// access particle data from PxParticleReadData was OK
 	if (rd)
 	{
 		std::vector<PxU32> particlesToRemove;	//we need to build a list of particles to remove so we can do it all in one go
-		PxStrideIterator<const PxParticleFlags> flagsIt(rd->flagsBuffer);
+		PxStrideIterator<const physx::PxParticleFlags> flagsIt(rd->flagsBuffer);
 		PxStrideIterator<const PxVec3> positionIt(rd->positionBuffer);
 
 		for (unsigned i = 0; i < rd->validParticleRange; ++i, ++flagsIt, ++positionIt)
 		{
-			if (*flagsIt & PxParticleFlag::eVALID)
+			if (*flagsIt & physx::PxParticleFlag::eVALID)
 			{
 				//if particle is either too old or has hit the sink then mark it for removal.  We can't remove it here because we buffer is locked
-				if (*flagsIt & PxParticleFlag::eCOLLISION_WITH_DRAIN)
+				if (*flagsIt & physx::PxParticleFlag::eCOLLISION_WITH_DRAIN)
 				{
 					//mark our local copy of the particle free
 					ReleaseParticle(i);
@@ -113,7 +115,7 @@ void ParticleFluidEmitter::Update(float delta)
 void ParticleFluidEmitter::RenderParticles()
 {
 	//lock SDK buffers of *PxParticleSystem* ps for reading
-	PxParticleFluidReadData* fd = m_pf->lockParticleFluidReadData();
+	physx::PxParticleFluidReadData* fd = m_pf->lockParticleFluidReadData();
 	//access particle data from PxParticleReadData
 	float minX = 1000;
 	float maxX = -1000;
@@ -123,12 +125,12 @@ void ParticleFluidEmitter::RenderParticles()
 	float maxY = -1000;
 	if (fd)
 	{
-		PxStrideIterator<const PxParticleFlags> flagsIt(fd->flagsBuffer);
+		PxStrideIterator<const physx::PxParticleFlags> flagsIt(fd->flagsBuffer);
 		PxStrideIterator<const PxVec3> positionIt(fd->positionBuffer);
-		PxStrideIterator<const PxF32> densityIt(fd->densityBuffer);
+		PxStrideIterator<const physx::PxF32> densityIt(fd->densityBuffer);
 		for (unsigned i = 0; i < fd->validParticleRange; ++i, ++flagsIt, ++positionIt, ++densityIt)
 		{
-			if (*flagsIt & PxParticleFlag::eVALID)
+			if (*flagsIt & physx::PxParticleFlag::eVALID)
 			{
 				//density tells us how many neighbours a particle has.  
 				//If it has a density of 0 it has no neighbours, 1 is maximum neighbouts

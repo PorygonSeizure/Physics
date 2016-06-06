@@ -15,10 +15,23 @@
 #include "ParticleFluidEmitter.h"
 
 using glm::vec3;
-using glm::vec4;
-using glm::mat4;
+using physx::PxProfileZoneManager;
+using physx::PxVec3;
+using physx::PxRigidStatic;
+using physx::PxTransform;
+using physx::PxQuat;
+using physx::PxU32;
+using physx::PxBoxGeometry;
 using std::vector;
-using namespace physx;
+using physx::PxPi;
+using physx::PxShape;
+using physx::PxArticulationLink;
+using glm::mat4;
+using physx::PxRigidActor;
+using physx::PxGeometryType;
+using physx::PxMat44;
+using physx::PxShapeExt;
+using glm::vec4;
 
 bool PhysXApp::Startup()
 {
@@ -34,15 +47,15 @@ bool PhysXApp::Startup()
 
 	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_allocator, m_errorCallback);
 	PxProfileZoneManager* profileZoneManager = &PxProfileZoneManager::createProfileZoneManager(m_foundation);
-	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, PxTolerancesScale(), true, profileZoneManager);
+	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale(), true, profileZoneManager);
 
 #ifdef _DEBUG
 	if (m_physics->getPvdConnectionManager())
 	{
 		m_physics->getVisualDebugger()->setVisualizeConstraints(true);
-		m_physics->getVisualDebugger()->setVisualDebuggerFlag(PxVisualDebuggerFlag::eTRANSMIT_CONTACTS, true);
-		m_physics->getVisualDebugger()->setVisualDebuggerFlag(PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES, true);
-		m_connection = PxVisualDebuggerExt::createConnection(m_physics->getPvdConnectionManager(), "127.0.0.1", 5425, 10);
+		m_physics->getVisualDebugger()->setVisualDebuggerFlag(physx::PxVisualDebuggerFlag::eTRANSMIT_CONTACTS, true);
+		m_physics->getVisualDebugger()->setVisualDebuggerFlag(physx::PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES, true);
+		m_connection = physx::PxVisualDebuggerExt::createConnection(m_physics->getPvdConnectionManager(), "127.0.0.1", 5425, 10);
 	}
 #endif
 
@@ -84,9 +97,9 @@ void PhysXApp::Shutdown()
 
 void PhysXApp::SetupScene()
 {
-	PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
+	physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.f, -9.81f, 0.f);
-	m_dispatcher = PxDefaultCpuDispatcherCreate(2);
+	m_dispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = m_dispatcher;
 	sceneDesc.filterShader = FilterShader;
 	m_scene = m_physics->createScene(sceneDesc);
@@ -95,22 +108,16 @@ void PhysXApp::SetupScene()
 
 	m_material = m_physics->createMaterial(0.5f, 0.5f, 0.6f);
 
-	PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane(0, 1, 0, 0), *m_material);
-	//PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, PxPlane((1.f / sqrtf(2.f)), (1.f / sqrtf(2.f)), 0, 0), *m_material);
+	PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, physx::PxPlane(0, 1, 0, 0), *m_material);
+	//PxRigidStatic* groundPlane = PxCreatePlane(*m_physics, physx::PxPlane((1.f / sqrtf(2.f)), (1.f / sqrtf(2.f)), 0, 0), *m_material);
 	m_physXActors.push_back(groundPlane);
 	m_scene->addActor(*groundPlane);
 	groundPlane->setName("ground");
 	SetupFiltering(groundPlane, FilterGroup::eGROUND, FilterGroup::ePLAYER);
 	SetShapeAsTrigger(groundPlane);
 
-	//PxShape* shape = m_physics->createShape(PxSphereGeometry(0.25f), *m_material);
-	//PxRigidDynamic* sphereActor = m_physics->createRigidDynamic(PxTransform(-5.f, 0.25f, -5.f));
-	//sphereActor->attachShape(*shape);
-	//m_physXActors.push_back(sphereActor);
-	//m_scene->addActor(*sphereActor);
-
 	//PxShape* shapes[55];
-	//PxRigidDynamic* boxes[55];
+	//physx::PxRigidDynamic* boxes[55];
 	//boxes[0] = m_physics->createRigidDynamic(PxTransform(-1.f, 0.25f, -1.f));
 	//boxes[1] = m_physics->createRigidDynamic(PxTransform(-0.5f, 0.25f, -1.f));
 	//boxes[2] = m_physics->createRigidDynamic(PxTransform(0.f, 0.25f, -1.f));
@@ -183,9 +190,9 @@ void PhysXApp::SetupScene()
 	//	//boxes[i]->setName(buffer);
 	//}
 
-	PxTransform pose = PxTransform(PxVec3(0.f, 0, 0.f), PxQuat(PxHalfPi, PxVec3(0.f, 0.f, 1.f)));
+	PxTransform pose = PxTransform(PxVec3(0.f, 0, 0.f), PxQuat(physx::PxHalfPi, PxVec3(0.f, 0.f, 1.f)));
 
-	PxRigidStatic* plane = PxCreateStatic(*m_physics, pose, PxPlaneGeometry(), *m_material);
+	PxRigidStatic* plane = PxCreateStatic(*m_physics, pose, physx::PxPlaneGeometry(), *m_material);
 
 	const PxU32 numShapes = plane->getNbShapes();
 	m_scene->addActor(*plane);
@@ -222,7 +229,7 @@ void PhysXApp::SetupScene()
 	//ps->setDamping(0.1f);
 	//ps->setParticleMass(0.1f);
 	//ps->setRestitution(0);
-	//ps->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+	//ps->setParticleBaseFlag(physx::PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
 	//if (ps)
 	//{
 	//	m_scene->addActor(*ps);
@@ -230,7 +237,7 @@ void PhysXApp::SetupScene()
 	//	m_particleEmitter->SetStartVelocityRange(-2.f, 0, -2.f, 2.f, 0.f, 2.f);
 	//}
 
-	PxParticleFluid* pf;
+	physx::PxParticleFluid* pf;
 	//create particle system in PhysX SDK
 	//set immutable properties.
 	PxU32 maxParticles = 4000;
@@ -243,7 +250,7 @@ void PhysXApp::SetupScene()
 	pf->setParticleMass(0.1f);
 	pf->setRestitution(0);
 	//pf->setParticleReadDataFlag(PxParticleReadDataFlag::eDENSITY_BUFFER, true);
-	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+	pf->setParticleBaseFlag(physx::PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
 	pf->setStiffness(1);
 	if (pf)
 	{
@@ -275,7 +282,7 @@ void PhysXApp::SetupScene()
 	ragdollData[14] = new RagdollNode(PxQuat(PxPi - 0.3f, Z_AXIS), LEFT_UPPER_ARM, 3, 1, -1, 1, "left lower arm");
 	ragdollData[15] = new RagdollNode(PxQuat(0.3f, Z_AXIS), RIGHT_UPPER_ARM, 3, 1, -1, 1, "right lower arm");
 
-	PxArticulation* ragdollArticulation = MakeRagdoll(m_physics, ragdollData, PxTransform(PxVec3(5, 5, 5)), 0.1f, m_material);
+	physx::PxArticulation* ragdollArticulation = MakeRagdoll(m_physics, ragdollData, PxTransform(PxVec3(5, 5, 5)), 0.1f, m_material);
 	m_ragdolls.push_back(ragdollArticulation);
 	m_scene->addArticulation(*ragdollArticulation);
 
@@ -308,7 +315,7 @@ bool PhysXApp::Update(float deltaTime)
 		PxVec3 velocity = forwardVec * -25.f;
 
 		PxShape* shape = m_physics->createShape(PxBoxGeometry(0.25f, 0.25f, 0.25f), *m_material);
-		PxRigidDynamic* boxActor = m_physics->createRigidDynamic(PxTransform(cameraPos));
+		physx::PxRigidDynamic* boxActor = m_physics->createRigidDynamic(PxTransform(cameraPos));
 		boxActor->setLinearVelocity(velocity);
 		boxActor->attachShape(*shape);
 		m_physXActors.push_back(boxActor);
@@ -395,11 +402,13 @@ void PhysXApp::Draw()
 	
 	int loc = m_shaders->GetUniform("projectionView");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m_camera->GetProjectionView()));
+	loc = m_shaders->GetUniform("offset");
+	glUniform3fv(loc, 1, value_ptr(vec3(10, 0, 10)));
 	
 	loc = m_shaders->GetUniform("cameraPosition");
 	glUniform3fv(loc, 1, value_ptr(vec3(m_camera->GetTransform()[0].x, m_camera->GetTransform()[1].y, m_camera->GetTransform()[2].z)));
 	loc = m_shaders->GetUniform("lightPosition");
-	glUniform3fv(loc, 1, value_ptr(vec3(1, 1, 1)));
+	glUniform3fv(loc, 1, value_ptr(vec3(9, 9, 9)));
 	
 	m_mesh->Draw(GL_TRIANGLES);
 	
@@ -432,13 +441,14 @@ void PhysXApp::AddWidget(PxShape* shape, PxRigidActor* actor)
 		case PxGeometryType::eBOX:
 			AddBox(shape, actor);
 			break;
-		default:	break;
+		default:
+			break;
 	}
 }
 
 void PhysXApp::AddSphere(PxShape* shape, PxRigidActor* actor)
 {
-	PxSphereGeometry geometry;
+	physx::PxSphereGeometry geometry;
 	float radius = 1;
 
 	bool status = shape->getSphereGeometry(geometry);
@@ -446,10 +456,8 @@ void PhysXApp::AddSphere(PxShape* shape, PxRigidActor* actor)
 		radius = geometry.radius;
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
-		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
-		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
-		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w, pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w, pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w, 
+			pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
 	vec3 position;
 
 	position.x = pxm.getPosition().x;
@@ -472,13 +480,13 @@ void DrawPlane(vec3 position, vec3 normal, vec4 colour)
 		normal.z = 0.f;
 	vec3 vert(0, 0, 1);
 
-	if (glm::length(glm::cross(vert, normal)) < (1.f / 360.f))
+	if (glm::length(cross(vert, normal)) < (1.f / 360.f))
 		vert = vec3(0, 1, 0);
-	if (glm::length(glm::cross(vert, normal)) < (1.f / 360.f))
+	if (glm::length(cross(vert, normal)) < (1.f / 360.f))
 		vert = vec3(1, 0, 0);
 	
-	vec3 vector1 = glm::normalize(glm::cross(normal, vert));
-	vec3 vector2 = glm::cross(vector1, normal);
+	vec3 vector1 = glm::normalize(cross(normal, vert));
+	vec3 vector2 = cross(vector1, normal);
 
 	vector1 *= 100.f;
 	vector2 *= 100.f;
@@ -522,13 +530,11 @@ void DrawPlane(vec3 position, vec3 normal, vec4 colour)
 
 void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 {
-	PxPlaneGeometry geometry;
+	physx::PxPlaneGeometry geometry;
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
-				pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
-				pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
-				pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w, pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w, pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w, 
+			pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
 	vec3 position;
 	position.x = pxm.getPosition().x;
 	position.y = pxm.getPosition().y;
@@ -539,7 +545,7 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 	bool status = shape->getPlaneGeometry(geometry);
 	if (status)
 	{
-		PxPlane plane = PxPlaneEquationFromTransform(PxTransform(pxm));
+		physx::PxPlane plane = PxPlaneEquationFromTransform(PxTransform(pxm));
 		normal = vec3(plane.n.x, plane.n.y, plane.n.z);
 	}
 
@@ -552,7 +558,7 @@ void PhysXApp::AddPlane(PxShape* shape, PxRigidActor* actor)
 
 void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
 {
-	PxCapsuleGeometry geometry;
+	physx::PxCapsuleGeometry geometry;
 	float radius = 1.f;
 	float halfHeight = 2.f;
 
@@ -564,10 +570,8 @@ void PhysXApp::AddCapsule(PxShape* shape, PxRigidActor* actor)
 	}
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
-		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
-		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
-		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w, pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w, pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w, 
+			pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
 	vec3 position;
 
 	position.x = pxm.getPosition().x;
@@ -595,10 +599,8 @@ void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
 	}
 
 	PxMat44 pxm(PxShapeExt::getGlobalPose(*shape, *actor));
-	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w,
-		pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w,
-		pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w,
-		pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
+	mat4 m(pxm.column0.x, pxm.column0.y, pxm.column0.z, pxm.column0.w, pxm.column1.x, pxm.column1.y, pxm.column1.z, pxm.column1.w, pxm.column2.x, pxm.column2.y, pxm.column2.z, pxm.column2.w, 
+			pxm.column3.x, pxm.column3.y, pxm.column3.z, pxm.column3.w);
 	vec3 position;
 
 	position.x = pxm.getPosition().x;

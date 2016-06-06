@@ -19,7 +19,7 @@ class ParticleEmitter
 public:
 	ParticleEmitter(int maxParticles, physx::PxVec3 position, physx::PxParticleSystem* ps, float releaseDelay);
 	ParticleEmitter() {}
-	virtual ~ParticleEmitter();
+	virtual ~ParticleEmitter() { delete m_activeParticles; }	//remove all the active particles
 	
 	virtual void SetStartVelocityRange(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
 	virtual void Update(float delta);

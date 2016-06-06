@@ -43,7 +43,6 @@
 
 namespace tinyobj
 {
-
 typedef struct
 {
 	std::string name;
@@ -206,7 +205,6 @@ void LoadMtl(std::map<std::string, int>& materialMap /*[output]*/, std::vector<M
 
 namespace tinyobj
 {
-
 MaterialReader::~MaterialReader() {}
 
 #define TINYOBJ_SSCANF_BUFFER_SIZE (4096)
@@ -426,7 +424,8 @@ static bool TryParseDouble(const char* s, const char* sEnd, double* result)
 			curr++;
 		}
 		else if (IS_DIGIT(*curr)) { /*Pass through.*/ }
-		else { goto fail; }	//Empty E is not allowed.
+		else
+			goto fail;	//Empty E is not allowed.
 
 		read = 0;
 		while ((endNotReached = (curr != sEnd)) && IS_DIGIT(*curr))
@@ -926,14 +925,14 @@ void LoadMtl(std::map<std::string, int>& materialMap, std::vector<MaterialT>& ma
 		}
 
 		//unknown parameter
-		const char* _space = strchr(token, ' ');
-		if (!_space)
-			_space = strchr(token, '\t');
-		if (_space)
+		const char* space = strchr(token, ' ');
+		if (!space)
+			space = strchr(token, '\t');
+		if (space)
 		{
-			std::ptrdiff_t len = _space - token;
+			std::ptrdiff_t len = space - token;
 			std::string key(token, static_cast<size_t>(len));
-			std::string value = _space + 1;
+			std::string value = space + 1;
 			material.unknownParameter.insert(std::pair<std::string, std::string>(key, value));
 		}
 	}

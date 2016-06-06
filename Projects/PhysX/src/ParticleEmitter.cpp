@@ -6,10 +6,13 @@
 #include <glm/ext.hpp>
 #include <Gizmos.h>
 
-using namespace physx;
+using physx::PxVec3;
+using physx::PxU32;
+using physx::PxStrideIterator;
+using physx::PxParticleFlag;
 
 //constructor
-ParticleEmitter::ParticleEmitter(int maxParticles, PxVec3 position, PxParticleSystem* ps, float releaseDelay)
+ParticleEmitter::ParticleEmitter(int maxParticles, PxVec3 position, physx::PxParticleSystem* ps, float releaseDelay)
 {
 	m_releaseDelay = releaseDelay;
 	//maximum number of particles our emitter can handle
@@ -34,9 +37,6 @@ ParticleEmitter::ParticleEmitter(int maxParticles, PxVec3 position, PxParticleSy
 	m_minVelocity = PxVec3(-10.f, 0, -10.f);
 	m_maxVelocity = PxVec3(10.f, 0, 10.f);
 }
-
-//destructure
-ParticleEmitter::~ParticleEmitter() { delete m_activeParticles; }	//remove all the active particles
 
 void ParticleEmitter::SetStartVelocityRange(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
 {
@@ -101,7 +101,7 @@ bool ParticleEmitter::AddPhysXParticle(int particleIndex)
 	PxVec3 myVelocityBuffer[] = { startVel };
 
 	//reserve space for data
-	PxParticleCreationData particleCreationData;
+	physx::PxParticleCreationData particleCreationData;
 	particleCreationData.numParticles = 1;	//spawn one particle at a time,  this is inefficient and we could improve this by passing in the list of particles.
 	particleCreationData.indexBuffer = PxStrideIterator<const PxU32>(myIndexBuffer);
 	particleCreationData.positionBuffer = PxStrideIterator<const PxVec3>(myPositionBuffer);
@@ -133,12 +133,12 @@ void ParticleEmitter::Update(float delta)
 	}
 	//check to see if we need to release particles because they are either too old or have hit the particle sink
 	//lock the particle buffer so we can work on it and get a pointer to read data
-	PxParticleReadData* rd = m_ps->lockParticleReadData();
+	physx::PxParticleReadData* rd = m_ps->lockParticleReadData();
 	// access particle data from PxParticleReadData was OK
 	if (rd)
 	{
 		std::vector<PxU32> particlesToRemove; //we need to build a list of particles to remove so we can do it all in one go
-		PxStrideIterator<const PxParticleFlags> flagsIt(rd->flagsBuffer);
+		PxStrideIterator<const physx::PxParticleFlags> flagsIt(rd->flagsBuffer);
 
 		for (unsigned i = 0; i < rd->validParticleRange; ++i, ++flagsIt)
 		{
@@ -171,11 +171,11 @@ void ParticleEmitter::Update(float delta)
 void ParticleEmitter::RenderParticles()
 {
 	// lock SDK buffers of *PxParticleSystem* ps for reading
-	PxParticleReadData* rd = m_ps->lockParticleReadData();
+	physx::PxParticleReadData* rd = m_ps->lockParticleReadData();
 	// access particle data from PxParticleReadData
 	if (rd)
 	{
-		PxStrideIterator<const PxParticleFlags> flagsIt(rd->flagsBuffer);
+		PxStrideIterator<const physx::PxParticleFlags> flagsIt(rd->flagsBuffer);
 		PxStrideIterator<const PxVec3> positionIt(rd->positionBuffer);
 
 		for (unsigned i = 0; i < rd->validParticleRange; ++i, ++flagsIt, ++positionIt)

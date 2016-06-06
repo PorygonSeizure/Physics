@@ -9,4 +9,5 @@ Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
 Ns 20.000000
 map_Kd soulspear_diffuse.tga
-
+map_Ks soulspear_specular.tga
+map_bump soulspear_normal.tga

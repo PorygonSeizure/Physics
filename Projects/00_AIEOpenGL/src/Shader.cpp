@@ -48,6 +48,7 @@ bool Shader::LoadShader(unsigned int type, const char* filename)
 		delete[] m_error;
 		m_error = new char[infoLogLength];
 		glGetShaderInfoLog(shader, infoLogLength, 0, m_error);
+		std::cout << m_error << std::endl;
 		return false;
 	}
 
@@ -90,6 +91,7 @@ bool Shader::CreateShader(unsigned int type, const char* string)
 		delete[] m_error;
 		m_error = new char[infoLogLength];
 		glGetShaderInfoLog(shader, infoLogLength, 0, m_error);
+		std::cout << m_error << std::endl;
 		return false;
 	}
 
@@ -135,6 +137,7 @@ bool Shader::Link()
 		delete[] m_error;
 		m_error = new char[infoLogLength];
 		glGetProgramInfoLog(m_program, infoLogLength, 0, m_error);
+		std::cout << m_error << std::endl;
 		return false;
 	}
 	return true;

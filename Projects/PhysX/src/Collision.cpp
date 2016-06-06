@@ -2,40 +2,43 @@
 #include <iostream>
 #include <vector>
 
-using namespace physx;
+using physx::PxU32;
+using physx::PxPairFlag;
+using physx::PxFilterData;
+using physx::PxShape;
 
-void Collision::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 numberPairs)
+void Collision::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, PxU32 numberPairs)
 {
 	for (PxU32 i = 0; i < numberPairs; i++)
 	{
-		const PxContactPair& cp = pairs[i];
+		const physx::PxContactPair& cp = pairs[i];
 		//only interested in touches found and lost
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 			std::cout << "Collision Detected between: " << pairHeader.actors[0]->getName() << pairHeader.actors[1]->getName() << std::endl;
 	}
 }
 
-void Collision::onTrigger(PxTriggerPair* pairs, PxU32 numberPairs)
+void Collision::onTrigger(physx::PxTriggerPair* pairs, PxU32 numberPairs)
 {
 	for (PxU32 i = 0; i < numberPairs; i++)
 	{
-		PxTriggerPair* pair = &pairs[i];
-		PxActor* triggerActor = pair->triggerActor;
-		PxActor* otherActor = pair->otherActor;
+		physx::PxTriggerPair* pair = &pairs[i];
+		physx::PxActor* triggerActor = pair->triggerActor;
+		physx::PxActor* otherActor = pair->otherActor;
 
 		if (otherActor->getName() && triggerActor->getName())
 			std::cout << otherActor->getName() << " Entered Trigger " << triggerActor->getName() << std::endl;
 	}
 }
 
-PxFilterFlags FilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags,
-	const void* constantBlock, PxU32 constantBlockSize)
+physx::PxFilterFlags FilterShader(physx::PxFilterObjectAttributes attributes0, PxFilterData filterData0, physx::PxFilterObjectAttributes attributes1, PxFilterData filterData1, 
+									physx::PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
 {
 	//let triggers through
-	if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+	if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
 	{
 		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-		return PxFilterFlag::eDEFAULT;
+		return physx::PxFilterFlag::eDEFAULT;
 	}
 	//generate contacts for all that were not filtered above
 	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
@@ -43,10 +46,10 @@ PxFilterFlags FilterShader(PxFilterObjectAttributes attributes0, PxFilterData fi
 	//the filtermask of A contains the ID of B and vice versa.
 	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;
-	return PxFilterFlag::eDEFAULT;
+	return physx::PxFilterFlag::eDEFAULT;
 }
 
-void SetupFiltering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
+void SetupFiltering(physx::PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
 {
 	PxFilterData filterData;
 	filterData.word0 = filterGroup;	//word0 = own ID
@@ -61,9 +64,9 @@ void SetupFiltering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
 	}
 }
 
-void SetShapeAsTrigger(PxRigidActor* actorIn)
+void SetShapeAsTrigger(physx::PxRigidActor* actorIn)
 {
-	PxRigidStatic* staticActor = actorIn->is<PxRigidStatic>();
+	physx::PxRigidStatic* staticActor = actorIn->is<physx::PxRigidStatic>();
 	//assert(staticActor);
 	if (staticActor)
 	{
@@ -72,8 +75,8 @@ void SetShapeAsTrigger(PxRigidActor* actorIn)
 		staticActor->getShapes(&shapes[0], numberShapes);
 		for (PxU32 i = 0; i < numberShapes; i++)
 		{
-			shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-			shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+			shapes[i]->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+			shapes[i]->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, true);
 		}
 	}
 }

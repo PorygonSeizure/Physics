@@ -59,11 +59,4 @@ struct RagdollNode
 
 physx::PxArticulation* MakeRagdoll(physx::PxPhysics*, std::vector<RagdollNode*>, physx::PxTransform, float, physx::PxMaterial*);
 
-class Ragdoll
-{
-public:
-	Ragdoll();
-	~Ragdoll();
-};
-
 #endif
