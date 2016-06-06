@@ -14,7 +14,7 @@ bool BaseApp::CreateGLFWWindow(const char* title, int width, int height)
 #endif
 
 	m_window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-	if (m_window == nullptr)
+	if (!m_window)
 	{
 		glfwTerminate();
 		return false;

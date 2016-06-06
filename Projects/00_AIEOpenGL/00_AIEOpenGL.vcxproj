@@ -37,6 +37,10 @@
     <ClInclude Include="src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\GizmosFragment.frag" />
+    <None Include="res\shaders\GizmosFragment.fs" />
+    <None Include="res\shaders\GizmosVertex.vert" />
+    <None Include="res\shaders\GizmosVertex.vs" />
     <None Include="src\Shaders\GizmosFragment.fs" />
     <None Include="src\Shaders\GizmosVertex.vs" />
   </ItemGroup>
