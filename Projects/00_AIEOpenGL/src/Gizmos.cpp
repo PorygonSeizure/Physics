@@ -23,8 +23,8 @@ Gizmos::Gizmos(unsigned int maxLines, unsigned int maxTris, unsigned int max2DLi
 {
 	//create shaders
 	m_shader = new Shader();
-	m_shader->LoadShader(GL_VERTEX_SHADER, "../00_AIEOpenGL/res/shaders/GizmosVertex.vs");
-	m_shader->LoadShader(GL_FRAGMENT_SHADER, "../00_AIEOpenGL/res/shaders/GizmosFragment.fs");
+	m_shader->LoadShader(GL_VERTEX_SHADER, "../00_AIEOpenGL/res/shaders/GizmosVertex.vert");
+	m_shader->LoadShader(GL_FRAGMENT_SHADER, "../00_AIEOpenGL/res/shaders/GizmosFragment.frag");
 
 	m_shader->Link();
 	m_shader->BindAttrib(0, "position");

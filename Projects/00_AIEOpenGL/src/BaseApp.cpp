@@ -22,7 +22,7 @@ bool BaseApp::CreateGLFWWindow(const char* title, int width, int height)
 
 	glfwMakeContextCurrent(m_window);
 
-	if (OGLLoadFunctions() == ogl_LOAD_FAILED)
+	if (ogl_LoadFunctions() == ogl_LOAD_FAILED)
 	{
 		glfwDestroyWindow(m_window);
 		glfwTerminate();
@@ -31,8 +31,8 @@ bool BaseApp::CreateGLFWWindow(const char* title, int width, int height)
 
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow*, int w, int h){ glViewport(0, 0, w, h); });
 
-	auto major = OGLGetMajorVersion();
-	auto minor = OGLGetMinorVersion();
+	auto major = ogl_GetMajorVersion();
+	auto minor = ogl_GetMinorVersion();
 	std::cout << "GL: " << major << "." << minor << std::endl;
 
 	glClearColor(0.25f, 0.25f, 0.25f, 1.f);

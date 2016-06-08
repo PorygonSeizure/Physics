@@ -7,13 +7,14 @@
 #include <glm/vec3.hpp>
 #include <PxPhysicsAPI.h>
 #include <vector>
-#include "tinyOBJLoader.h"
+//#include "tinyOBJLoader.h"
 
 class FlyCamera;
 class Mesh;
 class Shader;
 class ParticleEmitter;
 class ParticleFluidEmitter;
+//class FBXFile;
 
 struct OpenGLInfo
 {
@@ -42,6 +43,9 @@ public:
 	void AddCapsule(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void AddBox(physx::PxShape* shape, physx::PxRigidActor* actor);
 	void CreateShader();
+	void CreateOpenGLBuffers();
+	void CleanupOpenGLBuffers();
+	void AttachedRigidBodyConvex(float density, physx::PxMaterial* physicsMaterial, physx::PxRigidActor* actor);
 
 protected:
 	FlyCamera* m_camera;
@@ -62,6 +66,7 @@ protected:
 	physx::PxVisualDebuggerConnection* m_connection = NULL;
 	physx::PxSimulationEventCallback* m_collisionEventCallback = NULL;
 	//physx::PxRigidDynamic* m_actor = NULL;
+	physx::PxCooking* m_cooker = NULL;
 
 	std::vector<physx::PxRigidActor*> m_physXActors;
 	std::vector<physx::PxArticulation*> m_ragdolls;
@@ -70,6 +75,7 @@ protected:
 	Shader* m_shaders;
 	//ParticleEmitter* m_particleEmitter;
 	ParticleFluidEmitter* m_particleFluidEmitter;
+	//FBXFile* m_FBX;
 };
 
 #endif

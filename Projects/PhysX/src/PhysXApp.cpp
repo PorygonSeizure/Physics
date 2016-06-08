@@ -1,5 +1,5 @@
 #include "PhysXApp.h"
-#include "gl_core_4_4.h"
+#include <gl_core_4_4.h>
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -11,6 +11,7 @@
 #include "Collision.h"
 #include "Mesh.h"
 #include <Shader.h>
+//#include "FBXFile.h"
 #include "ParticleEmitter.h"
 #include "ParticleFluidEmitter.h"
 
@@ -32,6 +33,7 @@ using physx::PxGeometryType;
 using physx::PxMat44;
 using physx::PxShapeExt;
 using glm::vec4;
+using namespace physx;
 
 bool PhysXApp::Startup()
 {
@@ -65,9 +67,17 @@ bool PhysXApp::Startup()
 	m_shaders = new Shader();
 	CreateShader();
 	m_mesh = new Mesh();
-	m_mesh->LoadObj("./res/Soulspear/soulspear.obj");
+	m_mesh->LoadObj("./res/tank/battle_tank.obj");
+
+	//m_FBX = new FBXFile();
+	//m_FBX->Load("./res/Soulspear/soulspear.fbx");
+	//CreateOpenGLBuffers();
+	m_cooker = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, PxCookingParams(PxTolerancesScale()));
 	
 	SetupScene();
+
+	PxRigidDynamic* tank = nullptr;
+	//AttachedRigidBodyConvex(10.f, m_material, tank);
 
 	return true;
 }
@@ -78,6 +88,9 @@ void PhysXApp::Shutdown()
 	delete m_collisionEventCallback;
 	m_scene->release();
 	m_dispatcher->release();
+	m_cooker->release();
+	//CleanupOpenGLBuffers();
+	//delete m_FBX;
 	delete m_mesh;
 	delete m_shaders;
 	PxProfileZoneManager* profileZoneManager = m_physics->getProfileZoneManager();
@@ -411,6 +424,16 @@ void PhysXApp::Draw()
 	glUniform3fv(loc, 1, value_ptr(vec3(9, 9, 9)));
 	
 	m_mesh->Draw(GL_TRIANGLES);
+
+	//for (unsigned int i = 0; i < m_FBX->GetMeshCount(); ++i)
+	//{
+	//	FBXMeshNode* mesh = m_FBX->GetMeshByIndex(i);
+	//
+	//	unsigned int* glData = (unsigned int*)mesh->m_userData;
+	//
+	//	glBindVertexArray(glData[0]);
+	//	glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_meshIndices.size(), GL_UNSIGNED_INT, 0);
+	//}
 	
 	//display the 3D gizmos
 	Gizmos::Draw(m_camera->GetProjectionView());
@@ -614,9 +637,121 @@ void PhysXApp::AddBox(PxShape* shape, PxRigidActor* actor)
 	Gizmos::AddAABBFilled(position, extents, colour, &m);
 }
 
+//void PhysXApp::CreateOpenGLBuffers()
+//{
+//	//create the GL VAO/VBO/IBO data for each mesh
+//	for (unsigned int i = 0; i < m_FBX->GetMeshCount(); ++i)
+//	{
+//		FBXMeshNode* mesh = m_FBX->GetMeshByIndex(i);
+//
+//		//storage for the opengl data in 3 unsigned int
+//		unsigned int* glData = new unsigned int[3];
+//
+//		glGenVertexArrays(1, &glData[0]);
+//		glBindVertexArray(glData[0]);
+//
+//		glGenBuffers(1, &glData[1]);
+//		glGenBuffers(1, &glData[2]);
+//
+//		glBindBuffer(GL_ARRAY_BUFFER, glData[1]);
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glData[2]);
+//
+//		glBufferData(GL_ARRAY_BUFFER, mesh->m_meshVertices.size() * sizeof(FBXVertex), mesh->m_meshVertices.data(), GL_STATIC_DRAW);
+//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->m_meshIndices.size() * sizeof(unsigned int), mesh->m_meshIndices.data(), GL_STATIC_DRAW);
+//
+//		glEnableVertexAttribArray(0); //position
+//		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*)FBXVertex::PositionOffset);
+//		glEnableVertexAttribArray(1); //colour
+//		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*)FBXVertex::ColourOffset);
+//		glEnableVertexAttribArray(2); //normal
+//		glVertexAttribPointer(2, 4, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), (void*)FBXVertex::NormalOffset);
+//		glEnableVertexAttribArray(3); //tangents
+//		glVertexAttribPointer(3, 4, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), (void*)FBXVertex::TangentOffset);
+//		glEnableVertexAttribArray(4); //tex coords
+//		glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*)FBXVertex::TexCoord1Offset);
+//
+//		glBindVertexArray(0);
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//		mesh->m_userData = glData;
+//	}
+//}
+//
+//void PhysXApp::CleanupOpenGLBuffers()
+//{
+//	//clean up the vertex data attached to each mesh
+//	for (unsigned int i = 0; i < m_FBX->GetMeshCount(); ++i)
+//	{
+//		FBXMeshNode* mesh = m_FBX->GetMeshByIndex(i);
+//
+//		unsigned int* glData = (unsigned int*)mesh->m_userData;
+//
+//		glDeleteVertexArrays(1, &glData[0]);
+//		glDeleteBuffers(1, &glData[1]);
+//		glDeleteBuffers(1, &glData[2]);
+//
+//		delete[] mesh->m_userData;
+//	}
+//}
+
 void PhysXApp::CreateShader()
 {
-	m_shaders->LoadShader(GL_VERTEX_SHADER, "./res/OBJVertex.vs");
-	m_shaders->LoadShader(GL_FRAGMENT_SHADER, "./res/OBJFragment.fs");
+	m_shaders->LoadShader(GL_VERTEX_SHADER, "./res/OBJVertex.vert");
+	m_shaders->LoadShader(GL_FRAGMENT_SHADER, "./res/OBJFragment.frag");
 	m_shaders->Link();
 }
+
+//void PhysXApp::AttachedRigidBodyConvex(float density, PxMaterial* physicsMaterial, PxRigidActor* actor)
+//{
+//	//need a placeholder box
+//	PxBoxGeometry box = PxBoxGeometry(0.25f, 0.25f, 0.25f);
+//	PxTransform transform(*(PxMat44*)(&m_camera->GetTransform()[0]));	//PhysX and GLM matricies are the same internally so we simply cast between them
+//	actor = PxCreateDynamic(*m_physics, transform, box, *physicsMaterial, density);
+//	actor->userData = m_FBX;	//link the PhysX actor to our FBX model
+//
+//	int numberVerts = 0;
+//	//find out how many verts there are in total in tank model
+//	for (unsigned int i = 0; i < m_FBX->GetMeshCount(); ++i)
+//	{
+//		FBXMeshNode* mesh = m_FBX->GetMeshByIndex(i);
+//		numberVerts += mesh->m_meshVertices.size();
+//	}
+//	//reserve space for vert buffer
+//	PxVec3* verts = new PxVec3[numberVerts];	//temporary buffer for our verts
+//	int vertIDX = 0;
+//
+//	//copy our verts from all the sub meshes and tranform them into the same space
+//	for (unsigned int i = 0; i < m_FBX->GetMeshCount(); ++i)
+//	{
+//		FBXMeshNode* mesh = m_FBX->GetMeshByIndex(i);
+//		numberVerts = mesh->m_meshVertices.size();
+//		for (int vertCount = 0; vertCount < numberVerts; vertCount++)
+//		{
+//			vec4 temp = mesh->m_globalTransform * mesh->m_meshVertices[vertCount].m_position;
+//			verts[vertIDX++] = PxVec3(temp.x, temp.y, temp.z);
+//		}
+//	}
+//	PxConvexMeshDesc convexDesc;
+//	convexDesc.points.count = numberVerts;
+//	convexDesc.points.stride = sizeof(PxVec3);
+//	convexDesc.points.data = verts;
+//	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+//	convexDesc.vertexLimit = 128;
+//	PxDefaultMemoryOutputStream* buf = new PxDefaultMemoryOutputStream();
+//	assert(m_cooker->cookConvexMesh(convexDesc, *buf));
+//	PxU8* contents = buf->getData();
+//	PxU32 size = buf->getSize();
+//	PxDefaultMemoryInputData input(contents, size);
+//	PxConvexMesh* convexMesh = m_physics->createConvexMesh(input);
+//	PxTransform pose = PxTransform(PxVec3(10.f, 1, 10.f));
+//	PxShape* convexShape = actor->createShape(PxConvexMeshGeometry(convexMesh), *physicsMaterial, pose);
+//	//remove the placeholder box we started with
+//	int numberShapes = actor->getNbShapes();
+//	vector<PxShape*> shapes(numberShapes);
+//	actor->getShapes(&shapes[0], numberShapes);
+//	actor->detachShape(*shapes[0]);
+//	delete(verts);	//delete our temporary vert buffer.
+//	//Add it to the scene
+//	m_scene->addActor(*actor);
+//}

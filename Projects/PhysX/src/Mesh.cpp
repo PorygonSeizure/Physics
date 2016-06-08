@@ -111,7 +111,7 @@ bool Mesh::LoadObj(const char* filename, bool loadTextures /*= true*/, bool flip
 			if (hasTexture)
 				vertices[i].texcoord = vec2(s.mesh.texcoords[i * 2 + 0], flipTextureV ? 1.0f - s.mesh.texcoords[i * 2 + 1] : s.mesh.texcoords[i * 2 + 1]);
 
-			vertices[i].colour = vec4(1, 0, 0, 1);
+			vertices[i].colour = vec4(1, 1, 1, 1);
 		}
 
 		//calculate for normal mapping
